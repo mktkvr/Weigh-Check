@@ -935,6 +935,21 @@ main{padding-top:12px}
 @keyframes micring{0%{transform:scale(.55);opacity:.9}100%{transform:scale(1.35);opacity:0}}
 .card .vmic.on svg{animation:none!important}
 .card .vmic.on::after{content:"";position:absolute;inset:0;top:0;right:0;width:auto;height:auto;border-radius:50%!important;border:2px solid #d92d20;background:transparent;pointer-events:none;animation:micring 1.2s ease-out infinite}
+/* ไมค์: ขนาดเท่ากันทุกปุ่ม ไอคอนเรียบคม วงแหวน 2 ชั้นตอนฟัง */
+.card .vmic,.card .grp .pl4 .vmic,.card .grp .srcf .vmic{width:38px;height:38px;border-radius:50%!important;-webkit-tap-highlight-color:transparent}
+.card .vmic svg{width:21px;height:21px;stroke-width:2.2;transition:transform .15s ease;filter:drop-shadow(0 1px 1px rgba(217,45,32,.25))}
+.card .vmic:active svg{transform:scale(.88)}
+.card .vmic:focus-visible{outline:2px solid #d92d20;outline-offset:-2px}
+@keyframes micring2{0%{transform:scale(.6);opacity:.85}100%{transform:scale(1.4);opacity:0}}
+.card .vmic.on::before,.card .vmic.on::after{content:"";position:absolute;inset:3px;top:3px;right:3px;width:auto;height:auto;border-radius:50%!important;border:1.5px solid #d92d20;background:transparent;pointer-events:none;animation:micring2 1.6s ease-out infinite}
+.card .vmic.on::after{animation-delay:.8s}
+/* ไมค์สไตล์ใหม่: ปกติ=วงกลมเส้นแดง + ไมค์แดง / เปิดอยู่=วงกลมแดงทึบ ไอคอนขาว มีแสงเรืองกระเพื่อม */
+@keyframes micpulse{0%{box-shadow:0 0 0 0 rgba(217,45,32,.55),0 2px 8px rgba(217,45,32,.35)}70%{box-shadow:0 0 0 11px rgba(217,45,32,0),0 2px 8px rgba(217,45,32,.35)}100%{box-shadow:0 0 0 0 rgba(217,45,32,0),0 2px 8px rgba(217,45,32,.35)}}
+@keyframes micbreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.card .vmic,.card .grp .vmic,.card .grp.origin .vmic,.card .grp.dest .vmic,.card .grp.plate .vmic{background:transparent!important;color:#d92d20!important;box-shadow:inset 0 0 0 1.5px rgba(217,45,32,.5)!important;transition:background .2s,color .2s,box-shadow .2s}
+.card .vmic.on,.card .grp .vmic.on,.card .grp.origin .vmic.on,.card .grp.dest .vmic.on,.card .grp.plate .vmic.on{background:#d92d20!important;color:#fff!important;box-shadow:0 2px 8px rgba(217,45,32,.35)!important;animation:micpulse 1.3s ease-out infinite!important}
+.card .vmic.on svg{filter:none;animation:micbreathe 1.3s ease-in-out infinite!important}
+.card .vmic.on::before,.card .vmic.on::after{content:none!important;display:none!important}
 </style>
 </head>
 <body class="oncalc">
@@ -1167,11 +1182,12 @@ function save() {
   toast('บันทึกแล้ว');
 }
 
-function resetForm(keepSource) {
-  ['plate','head','tail','dest'].forEach(i => $(i).value = '');
+function resetForm(keepSource, keepPlate) {
+  // keepPlate: เริ่มใหม่แต่คงทะเบียนรถไว้ ไม่ต้องพิมพ์ใหม่
+  (keepPlate ? ['head','tail','dest'] : ['plate','head','tail','dest']).forEach(i => $(i).value = '');
   if (!keepSource) {} // ท่าข้าวคงไว้ เพราะมักเป็นที่เดียวกันหลายเที่ยว
   calc();
-  $('plate').focus();
+  if (!keepPlate) $('plate').focus();
 }
 
 
@@ -1468,7 +1484,7 @@ $('plate').addEventListener('change', () => {
   if (src && !$('source').value.trim()) $('source').value = src;
 });
 $('save').onclick = save;
-$('reset').onclick = () => { $('source').value = ''; resetForm(true); };
+$('reset').onclick = () => { resetForm(true, true); };
 $('exportBtn').onclick = exportCSV;
 (function () {
   const K = 'check-rice-sum-collapsed', box = $('sum'), hd = $('sumHd');
