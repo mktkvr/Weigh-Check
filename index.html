@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0d7a55">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="เช็กข้าว">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>เช็กน้ำหนักต้นทางปลายทาง</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -571,7 +578,10 @@ body.padopen .top{display:none}
 .stat.x{grid-column:auto}
 .stat.x.ok{--wb:var(--ok-soft);--wi:var(--ok-ink);--ws:var(--ok-ink)}
 .stat.x.bad{--wb:var(--bad-soft);--wi:var(--bad-ink);--ws:var(--bad-ink)}
+.stat.x.warn{--wb:var(--warn-soft);--wi:var(--warn-ink);--ws:var(--warn-ink)}
 .stat.x .xv{display:contents}
+.stat.x .xl{white-space:normal}
+.stat.x .xp{flex:0 0 100%;font-style:normal;font-size:.68rem;font-weight:600;line-height:1.3;color:var(--wi)}
 @media (prefers-color-scheme:dark){
   .stat.o{--wb:#2b2510;--wi:#ffd25c;--ws:#d9b254}
   .stat.d{--wb:#122539;--wi:#8cc9f2;--ws:#6fa8d3}
@@ -687,6 +697,233 @@ main{padding-top:12px}
 .grp .total>span::before{content:"";width:4px;height:1.15em;border-radius:3px;background:var(--g-sub);opacity:.75}
 .grp .total b{font-size:2rem!important;font-weight:800;line-height:1.05;letter-spacing:-.04em;color:var(--g-ink)!important;font-variant-numeric:tabular-nums}
 .grp .total b small{font-size:.9rem;font-weight:700;color:var(--g-sub)!important}
+/* ปลายทาง: ช่องน้ำหนักสุทธิ ทรงเดียวกับแถบรวมต้นทาง */
+.dest .fld{display:flex;align-items:center;gap:8px;background:color-mix(in srgb,var(--surface) 80%,transparent);border:1.5px solid color-mix(in srgb,var(--g-sub) 30%,transparent);border-radius:14px;padding:3px 4px 3px 12px;transition:border-color .15s,box-shadow .15s}
+.dest .fld:focus-within,.dest .fld:has(input.active){border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
+.dest .dl{display:flex;align-items:center;gap:8px;flex:none;font-size:.95rem;font-weight:700;color:var(--g-sub);white-space:nowrap}
+.dest .dl::before{content:"";width:4px;height:1.15em;border-radius:3px;background:var(--g-sub);opacity:.75}
+.dest .fld .nf{flex:1;min-width:0}
+.card .grp.dest .fld input.num{background:transparent!important;border:0!important;box-shadow:none!important;height:52px;min-height:52px;font-size:2rem;font-weight:800;letter-spacing:-.04em;color:var(--g-ink)!important;font-variant-numeric:tabular-nums}
+.dest .nf::after{top:.43rem;bottom:-.43rem;font-size:.95rem;font-weight:700}
+/* ความคมมุมของทุกช่องเท่ากัน */
+:root{--rb:14px}
+.card,.grp,.result,.result .msg,.dd-btn,.dd-list,.btn,.bar .btn,.stat,.item .w,.item .l3,.item .del,.total,.grp .total,.dest .fld,.grp .tolbox,.grp .tolbox input.tolin,.store,.st-ic,.st-btn,.sug,.opt,.link,.mic,.vmic,.padinfo,.key,#pad .key,#pad .key.go,input,.logo,.dlg-box,.grp .gh .ic{border-radius:var(--rb)!important}
+.item,.item.ok,.item.warn,.item.bad{border-radius:var(--rb)!important}
+/* กล่องสรุปทั้ง 3 ช่อง: รูปแบบเดียวกัน (สีคงเดิม) */
+.stats{align-items:stretch}
+.stat,.stat.o,.stat.d,.stat.x{display:flex;flex-direction:row;flex-wrap:wrap;align-content:flex-start;align-items:baseline;column-gap:3px;row-gap:0;padding:8px 10px 9px;text-align:left}
+.stat span,.stat.x .xl{flex:0 0 100%;min-height:2.6em;font-size:.7rem;font-weight:600;line-height:1.3;white-space:normal;color:var(--wi)}
+.stat b{font-size:1.05rem;font-weight:700;line-height:1.25;letter-spacing:-.03em;color:var(--wi)}
+.stat small{font-size:.66rem;font-weight:500;color:var(--ws)}
+.stat.x .xp{flex:0 0 100%;display:flex;align-items:center;gap:1px;font-size:.7rem;font-weight:600;line-height:1.3;font-style:normal;color:var(--wi);white-space:nowrap}
+.stat.x .xp .sg{width:.9em;height:.9em;margin:0 .1em 0 0;vertical-align:0;stroke-width:3}
+/* ตัวกรองประวัติ + สรุปแยกท่าข้าว */
+.fbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.fbar #fq{grid-column:1/-1}
+.fbar input,.fbar select{width:100%;min-width:0;height:44px;min-height:44px;padding:0 12px;font:inherit;font-size:.95rem;font-weight:500;color:var(--ink);background:var(--surface);border:1.5px solid var(--edge)}
+.fbar select{padding-right:6px;text-overflow:ellipsis}
+.bysrc{margin:0 0 10px;border:1.5px solid var(--edge);border-radius:var(--rb);background:var(--surface);overflow:hidden}
+.bysrc summary{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;font-size:.9rem;font-weight:600;cursor:pointer;list-style:none}
+.bysrc summary::-webkit-details-marker{display:none}
+.bysrc summary::after{content:"▾";color:var(--muted);transition:transform .15s}
+.bysrc[open] summary::after{transform:rotate(180deg)}
+.srow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 14px;border-top:1px solid var(--edge)}
+.srow .sn,.srow .sv{display:flex;flex-direction:column;min-width:0}
+.srow .sn b{font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow .sv{flex:none;text-align:right}
+.srow .sv b{font-size:.95rem;white-space:nowrap}
+.srow small{font-size:.72rem;color:var(--muted)}
+.srow.ok .sv b{color:var(--ok-ink)}
+.srow.bad .sv b{color:var(--bad-ink)}
+.srow.warn .sv b{color:var(--warn-ink)}
+/* dropdown กำหนดเอง */
+.dd{position:relative;min-width:0}
+.dd-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;height:44px;padding:0 12px;font:inherit;font-size:.95rem;font-weight:500;text-align:left;color:var(--ink);background:var(--surface);border:1.5px solid var(--edge);cursor:pointer}
+.dd-btn span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dd-btn svg{flex:none;width:16px;height:16px;fill:none;stroke:var(--muted);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+.dd.open .dd-btn,.dd-btn:focus-visible{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
+.dd.open .dd-btn svg{transform:rotate(180deg)}
+.dd-list{position:absolute;z-index:30;top:calc(100% + 6px);left:0;min-width:100%;max-width:78vw;max-height:260px;overflow-y:auto;margin:0;padding:5px;list-style:none;background:var(--surface);border:1.5px solid var(--edge);box-shadow:0 14px 30px -12px rgba(0,0,0,.4);animation:in .12s ease}
+.dd:last-child .dd-list{left:auto;right:0}
+.dd-list li{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:42px;padding:0 12px;font-size:.95rem;font-weight:500;color:var(--ink);cursor:pointer;white-space:nowrap;border-radius:var(--rb)}
+.dd-list li+li{margin-top:2px}
+.dd-list li:hover,.dd-list li:focus{outline:none;background:var(--sunk)}
+.dd-list li[aria-selected="true"]{font-weight:700;color:var(--acc);background:color-mix(in srgb,var(--acc) 12%,transparent)}
+.dd-list li svg{flex:none;width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.dd-list[hidden]{display:none}
+/* กล่องสรุป (ดีไซน์ใหม่): ต้นทาง/ปลายทางคู่กัน ส่วนต่างเต็มแถวเป็นตัวเด่น — สีคงเดิม */
+.stats{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.stats .stat{align-content:center;padding:11px 14px 12px;border:1.5px solid color-mix(in srgb,var(--wi) 18%,transparent);box-shadow:0 6px 14px -12px color-mix(in srgb,var(--wi) 70%,transparent)}
+.stats .stat span{min-height:0;margin-bottom:3px;font-size:.76rem;font-weight:600;letter-spacing:.01em;opacity:.92}
+.stats .stat b{font-size:1.5rem;font-weight:800;letter-spacing:-.035em;line-height:1.15;font-variant-numeric:tabular-nums}
+.stats .stat small{font-size:.78rem;font-weight:600}
+.stats .stat.x{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 12px;padding:13px 16px 14px}
+.stats .stat.x .xl{flex:0 0 100%;margin-bottom:0}
+.stats .stat.x .xv{display:flex;align-items:baseline;gap:5px;flex:0 1 auto;white-space:nowrap}
+.stats .stat.x b{font-size:1.95rem;white-space:nowrap;font-weight:800;letter-spacing:-.04em}
+.stats .stat.x b .sg{width:.5em;height:.5em;margin-right:.1em;vertical-align:.12em;stroke-width:3.4}
+.stats .stat.x small{font-size:.9rem}
+.stats .stat.x .xp{flex:none;display:inline-flex;align-items:center;gap:1px;padding:5px 11px;border-radius:99px;background:color-mix(in srgb,var(--wi) 14%,transparent);font-size:.78rem;font-weight:700;white-space:nowrap}
+.stats .stat.x .xp .sg{width:.85em;height:.85em;margin:0 .08em 0 0}
+/* กล่องสรุป: แบบกระชับ ใช้ความสูงน้อย */
+.stats{gap:6px;margin-bottom:8px}
+.stats .stat{padding:7px 12px 8px;box-shadow:none}
+.stats .stat span{margin-bottom:0;font-size:.7rem;line-height:1.25}
+.stats .stat b{font-size:1.3rem;line-height:1.15}
+.stats .stat small{font-size:.72rem}
+.stats .stat.x{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"l p" "v p";align-items:center;column-gap:10px;row-gap:0;padding:7px 12px 8px}
+.stats .stat.x .xl{grid-area:l;flex:none;min-height:0;white-space:nowrap}
+.stats .stat.x .xv{grid-area:v}
+.stats .stat.x b{font-size:1.6rem;line-height:1.1}
+.stats .stat.x small{font-size:.8rem}
+.stats .stat.x .xp{grid-area:p;padding:4px 10px;font-size:.74rem}
+@media (max-width:350px){
+  .stats .stat.x{grid-template-columns:minmax(0,1fr);grid-template-areas:"l" "v" "p"}
+  .stats .stat.x .xp{justify-self:start;margin-top:4px}
+}
+/* สรุปในประวัติ: ย่อ/ขยายได้ */
+.sum{margin-bottom:8px}
+.sumhd{display:flex;align-items:center;gap:8px;width:100%;height:40px;padding:0 12px;font:inherit;font-size:.9rem;font-weight:700;color:var(--ink);background:var(--surface);border:1.5px solid var(--edge);border-radius:var(--rb);cursor:pointer;margin-bottom:8px}
+.sumhd .sumt{flex:none}
+.sumhd>svg{flex:none;width:16px;height:16px;margin-left:auto;fill:none;stroke:var(--muted);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+.sum.collapsed .sumhd>svg{transform:rotate(-90deg)}
+.sum.collapsed .sumhd{margin-bottom:0}
+.sumhd:focus-visible{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
+.sumMini{display:none;align-items:center;gap:4px;margin-left:auto;padding:3px 10px;border-radius:99px;font-size:.78rem;font-weight:700;white-space:nowrap;background:var(--ok-soft);color:var(--ok-ink)}
+.sumMini .sg{width:.85em;height:.85em;margin:0 .08em 0 0}
+.sum.collapsed .sumMini{display:inline-flex}
+.sum.collapsed .sumhd>svg{margin-left:0}
+.sum[data-st="warn"] .sumMini{background:var(--warn-soft);color:var(--warn-ink)}
+.sum[data-st="bad"] .sumMini{background:var(--bad-soft);color:var(--bad-ink)}
+.sum.collapsed .sumbody{display:none}
+.sumbody .stats{margin-bottom:8px}
+/* กล่องสรุป: 3 ช่องอยู่แถวเดียว */
+.stats{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.3fr);gap:6px;margin-bottom:8px;align-items:stretch}
+.stats .stat,.stats .stat.x{grid-column:auto;display:flex;flex-direction:row;flex-wrap:wrap;align-content:center;align-items:baseline;column-gap:3px;row-gap:1px;padding:7px 9px 8px}
+.stats .stat span,.stats .stat.x .xl{flex:0 0 100%;min-height:0;margin:0;font-size:.66rem;line-height:1.25;white-space:normal}
+.stats .stat b,.stats .stat.x b{font-size:clamp(.95rem,4.6vw,1.2rem);line-height:1.15;white-space:nowrap}
+.stats .stat.x b .sg{width:.45em;height:.45em;vertical-align:.14em}
+.stats .stat small,.stats .stat.x small{font-size:.64rem}
+.stats .stat.x .xv{flex:0 0 100%;display:flex;align-items:baseline;gap:3px;white-space:nowrap}
+.stats .stat.x .xp{flex:0 0 100%;display:flex;align-items:center;margin:0;padding:0;border-radius:0;background:none;font-size:.66rem;font-weight:700;line-height:1.3;justify-self:auto}
+.stats .stat.x .xp .sg{width:.8em;height:.8em}
+@media (max-width:350px){
+  .stats{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.5fr);gap:5px}
+  .stats .stat,.stats .stat.x{padding:6px 7px 7px}
+  .stats .stat span,.stats .stat.x .xl{font-size:.6rem}
+  .stats .stat small,.stats .stat.x small{font-size:.58rem}
+  .stats .stat.x .xp{font-size:.6rem;white-space:normal;align-items:flex-start}
+}
+/* กรอบสรุป: โทนสีเขียวอ่อน แยกจากช่องกรอก/รายการ */
+.sum{padding:6px;margin-bottom:10px;background:color-mix(in srgb,var(--acc) 8%,var(--surface));border:1.5px solid color-mix(in srgb,var(--acc) 38%,var(--surface));border-radius:var(--rb);box-shadow:0 8px 18px -14px color-mix(in srgb,var(--acc) 80%,transparent)}
+.sumhd{height:36px;padding:0 6px;margin-bottom:6px;color:var(--acc);background:transparent;border:0;border-radius:calc(var(--rb) - 4px)}
+.sumhd:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 24%,transparent)}
+.sumhd .sumt{display:inline-flex;align-items:center;gap:7px;font-size:.92rem;font-weight:700;letter-spacing:.01em}
+.sumhd .sumic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.sum.collapsed .sumhd{margin-bottom:0}
+.sum .bysrc{margin-bottom:0;border-color:color-mix(in srgb,var(--acc) 22%,var(--surface))}
+.sum .stats{margin-bottom:6px}
+.sum{padding:5px}
+.sum .stats{gap:5px}
+.sum .stats .stat,.sum .stats .stat.x{padding:7px 8px 8px}
+.sum .stats .stat b,.sum .stats .stat.x b{font-size:clamp(.9rem,4.2vw,1.1rem)}
+.sum .stats .stat small,.sum .stats .stat.x small{font-size:.62rem}
+/* ตัวกรอง: แถวเดียว */
+.fbar{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr);gap:6px;margin-bottom:8px}
+.fbar #fq{grid-column:auto}
+.fbar input,.fbar .dd-btn{height:42px;min-height:42px;padding:0 10px;font-size:.88rem}
+.fbar .dd-btn{gap:4px}
+.fbar .dd-btn svg{width:14px;height:14px}
+.fbar .dd-list li{font-size:.9rem}
+/* โครงหน้าประวัติ */
+.hhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 2px 12px}
+.hhead h2{display:flex;align-items:center;gap:8px;margin:0;font-size:1.25rem;font-weight:700;letter-spacing:-.01em}
+.hhead h2 svg{width:22px;height:22px;fill:none;stroke:var(--acc);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.hhead .hcount{margin:0;padding:4px 12px;border-radius:99px;background:var(--sunk);color:var(--muted);font-size:.82rem;font-weight:600;white-space:nowrap}
+.dgrp{display:flex;align-items:baseline;justify-content:space-between;margin:16px 4px 0;font-size:.84rem;font-weight:700;color:var(--muted)}
+.dgrp:first-child{margin-top:4px}
+.dgrp small{font-size:.74rem;font-weight:500}
+.dgrp+.item{margin-top:6px}
+.manage{margin-top:20px;padding:10px;border-radius:var(--rb);background:var(--sunk);border:1.5px solid var(--edge)}
+.manage .mhd{display:flex;align-items:center;gap:7px;margin:0 2px 8px;font-size:.85rem;font-weight:700;color:var(--muted)}
+.manage .mhd svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.manage .store{margin-bottom:0;background:var(--surface)}
+.manage .btn.export{margin-top:10px}
+.manage .btn.ghost{background:var(--surface)}
+.bysrc summary::after{content:"";width:16px;height:16px;background:var(--muted);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/contain no-repeat}
+/* ทะเบียนรถ: โทนเทาเข้ม พื้นหลังขาว (ทั้งโหมดสว่าง/มืด) */
+.grp.plate{--g-ink:#374151;--g-sub:#4b5563;background:#d1d5db!important;border:1.5px solid #374151!important}
+.grp.plate label{color:#374151!important}
+.grp.plate input,.grp.plate input.pp{background:#fff!important;color:#374151!important;border:1.5px solid #6b7280!important;caret-color:#374151}
+.grp.plate input.pp::placeholder{color:#6b7280!important;opacity:.6}
+.grp.plate input.pp:focus{border-color:#374151!important;box-shadow:0 0 0 4px rgba(55,65,81,.18)!important}
+.grp.plate .pl4 i{color:#374151}
+.grp.plate .vmic{color:#374151}
+.grp.plate .vmic:active{background:#e5e7eb}
+.grp.plate .vmic.on{background:#374151;color:#fff}
+/* กรอบทุกช่องกรอกเหมือนกัน: พื้นขาว ขอบเทา 1.5px มุม 14px สูง 56px ตัวอักษรเทาเข้ม */
+.card .grp input#pl1,.card .grp input#pl2,.card .grp input#pl3,.card .grp input#pl4,
+.card .grp input#source,.card .grp input#head,.card .grp input#tail,.card .grp input#tol,
+.card .grp.dest .fld{background:#fff!important;color:#374151!important;border:1.5px solid #6b7280!important;border-radius:14px!important;height:56px;min-height:56px;box-shadow:none}
+.card .grp input#pl1,.card .grp input#pl2,.card .grp input#pl3,.card .grp input#pl4,
+.card .grp input#source,.card .grp input#head,.card .grp input#tail,.card .grp input#tol{padding-top:0;padding-bottom:0;line-height:1.2}
+.card .grp input#source{font-size:1.1rem;font-weight:600}
+.card .grp input#head:focus,.card .grp input#tail:focus,.card .grp input#head.active,.card .grp input#tail.active,
+.card .grp input#pl1:focus,.card .grp input#pl2:focus,.card .grp input#pl3:focus,.card .grp input#pl4:focus,
+.card .grp input#source:focus,.card .grp input#tol:focus,.card .grp.dest .fld:focus-within,.card .grp.dest .fld:has(input.active){border-color:#374151!important;box-shadow:0 0 0 4px rgba(55,65,81,.18)!important}
+.card .grp.dest .fld{padding:0 4px 0 12px}
+.card .grp.dest .fld input#dest{height:100%;min-height:0;color:#374151!important}
+.card .grp .dest .dl,.card .grp.dest .dl{color:#374151}
+.card .grp.dest .dl::before{background:#374151}
+.card .grp input::placeholder{color:#6b7280!important}
+.card .grp input#tol{height:40px;min-height:40px;font-size:1.05rem;font-weight:700}
+/* ทะเบียนรถ + ท่าข้าว: ลดความสูงให้กะทัดรัด */
+.card .grp input#pl1,.card .grp input#pl2,.card .grp input#pl3,.card .grp input#pl4,.card .grp input#source{height:42px;min-height:42px;font-size:1rem;border-radius:12px!important}
+.card .grp.plate{padding:7px 12px 9px}
+.card .grp.plate label{margin:0 0 4px}
+.card .grp .pl4 .vmic,.card .grp .srcf .vmic{width:34px;height:34px}
+/* ทะเบียนรถ + ท่าข้าว + ขาดได้ไม่เกิน: ไม่มีขอบ เหมือนกัน */
+.card .grp input#pl1,.card .grp input#pl2,.card .grp input#pl3,.card .grp input#pl4,
+.card .grp input#source,.card .grp input#tol{border:0!important;box-shadow:none!important}
+.card .grp input#pl1:focus,.card .grp input#pl2:focus,.card .grp input#pl3:focus,.card .grp input#pl4:focus,
+.card .grp input#source:focus,.card .grp input#tol:focus{border:0!important;box-shadow:0 0 0 3px rgba(55,65,81,.28)!important}
+/* เส้นขอบช่องใบชั่ง/น้ำหนักสุทธิ: ตามสีธีมของกล่อง (ต้นทาง=เหลืองอำพัน, ปลายทาง=ฟ้า) */
+.card .grp.origin input#head,.card .grp.origin input#tail,.card .grp.dest .fld{border-color:var(--fc)!important}
+.card .grp.origin input#head:focus,.card .grp.origin input#tail:focus,.card .grp.origin input#head.active,.card .grp.origin input#tail.active,
+.card .grp.dest .fld:focus-within,.card .grp.dest .fld:has(input.active){border-color:var(--fc)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--fc) 28%,transparent)!important}
+.card .grp.origin input#head,.card .grp.origin input#tail,.card .grp.dest .fld{border-width:3px!important}
+/* ไมค์ทุกปุ่ม: สีเดียวกัน (เทาเข้ม) */
+.card .vmic{color:#374151!important}
+.card .vmic:active{background:#e5e7eb!important}
+.card .vmic.on{background:#374151!important;color:#fff!important}
+/* ไมค์: สีตามกล่อง (ทะเบียน=เทาเข้ม, ต้นทาง=เหลืองอำพัน, ปลายทาง=ฟ้า) */
+.card .grp.origin .vmic{color:var(--fc)!important}
+.card .grp.dest .vmic{color:var(--fc)!important}
+.card .grp.origin .vmic:active,.card .grp.dest .vmic:active{background:color-mix(in srgb,var(--fc) 18%,transparent)!important}
+.card .grp.origin .vmic.on,.card .grp.dest .vmic.on{background:var(--fc)!important;color:#fff!important}
+/* ไมค์: ปุ่มสีทึบเด่นชัด ไอคอนขาว สีตามกล่อง */
+.card .grp.plate .vmic{background:#374151!important;color:#fff!important}
+.card .grp.origin .vmic,.card .grp.dest .vmic{background:var(--fc)!important;color:#fff!important}
+.card .grp .vmic svg{stroke-width:2.4}
+.card .grp .vmic:active{filter:brightness(.85)}
+.card .grp .vmic.on{box-shadow:0 0 0 4px color-mix(in srgb,currentColor 0%,transparent),0 0 0 4px rgba(0,0,0,.18)!important}
+@media (prefers-color-scheme:dark){.card .grp.origin .vmic,.card .grp.dest .vmic{color:#111827!important}}
+/* ไมค์: ไม่มีพื้นหลัง ใช้สีไอคอนเด่นๆ ตามกล่อง */
+.card .grp .vmic,.card .grp .vmic:active,.card .grp .vmic.on{background:transparent!important;filter:none}
+.card .grp.plate .vmic{color:#374151!important}
+.card .grp.origin .vmic,.card .grp.dest .vmic{color:var(--fc)!important}
+.card .grp .vmic svg{stroke-width:2.6}
+.card .grp .vmic.on{box-shadow:0 0 0 2px currentColor!important}
+@media (prefers-color-scheme:dark){.card .grp.origin .vmic,.card .grp.dest .vmic{color:var(--fc)!important}}
+/* ไมค์ทุกปุ่ม: สีแดงเหมือนกัน */
+.card .vmic,.card .grp .vmic,.card .grp.origin .vmic,.card .grp.dest .vmic,.card .grp.plate .vmic{color:#d92d20!important}
+.card .vmic:active,.card .grp .vmic:active,.card .grp.origin .vmic:active,.card .grp.dest .vmic:active,.card .grp.plate .vmic:active{background:rgba(217,45,32,.15)!important}
+.card .vmic.on,.card .grp .vmic.on,.card .grp.origin .vmic.on,.card .grp.dest .vmic.on,.card .grp.plate .vmic.on{background:#d92d20!important;color:#fff!important}
+/* ไมค์: ไม่มีพื้นหลังทุกสถานะ (คงไอคอนสีแดง) */
+.card .vmic,.card .vmic:active,.card .vmic.on,.card .grp .vmic,.card .grp .vmic:active,.card .grp .vmic.on,
+.card .grp.origin .vmic,.card .grp.origin .vmic:active,.card .grp.origin .vmic.on,
+.card .grp.dest .vmic,.card .grp.dest .vmic:active,.card .grp.dest .vmic.on,
+.card .grp.plate .vmic,.card .grp.plate .vmic:active,.card .grp.plate .vmic.on{background:transparent!important;color:#d92d20!important;box-shadow:none!important}
 </style>
 </head>
 <body class="oncalc">
@@ -717,15 +954,15 @@ main{padding-top:12px}
       <div class="total"><span>รวมต้นทาง</span><b id="originTotal">0<small>กก.</small></b></div>
     </div>
     <div class="grp dest">
-      <div class="ghrow dhead"><div class="gh"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20V11l6 3.5V11l6 3.5V8"/><path d="M3 20h18V8h-6"/><path d="M18 20V4h3v4M7 17h.01M11 17h.01M15 17h.01"/></svg><span class="gt"><b>ปลายทาง</b><small>น้ำหนักสุทธิ</small></span></div><div class="tolbox"><label for="tol">ขาดได้ไม่เกิน</label><span class="tolw"><input id="tol" class="tolin" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" value="100" aria-label="เกณฑ์น้ำหนักขาดที่ยอมรับได้ (กก.)"></span></div></div>
+      <div class="ghrow dhead"><div class="gh"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20V11l6 3.5V11l6 3.5V8"/><path d="M3 20h18V8h-6"/><path d="M18 20V4h3v4M7 17h.01M11 17h.01M15 17h.01"/></svg><span class="gt"><b>ปลายทาง</b></span></div><div class="tolbox"><label for="tol">ขาดได้ไม่เกิน</label><span class="tolw"><input id="tol" class="tolin" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" value="100" aria-label="เกณฑ์น้ำหนักขาดที่ยอมรับได้ (กก.)"></span></div></div>
       <div class="row destrow">
         <div class="fld">
-          <div class="nf"><input id="dest" class="num" type="text" inputmode="none" readonly placeholder="0" aria-label="น้ำหนัก กก."><button class="vmic" type="button" data-vf="dest" aria-label="พูดตัวเลขปลายทาง"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div>
+          <span class="dl">น้ำหนักสุทธิ</span><div class="nf"><input id="dest" class="num" type="text" inputmode="none" readonly placeholder="0" aria-label="น้ำหนัก กก."><button class="vmic" type="button" data-vf="dest" aria-label="พูดตัวเลขปลายทาง"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div>
       </div>
     </div>
   </section>
   <section class="result" id="result" aria-live="polite">
-    <div class="lbl">ส่วนต่าง (ปลายทาง − ต้นทาง)</div>
+    <div class="lbl">ส่วนต่าง</div>
     <div class="val" id="diff"></div>
     <div class="pct" id="pct"></div>
     <div class="msg" id="msg">กรอกน้ำหนักต้นทางและปลายทาง</div>
@@ -734,18 +971,31 @@ main{padding-top:12px}
 
 <div class="page" id="pHist" hidden>
   <section class="card">
+    <header class="hhead"><h2><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>ประวัติ</h2><span class="hcount" id="count">0 เที่ยว</span></header>
+    <div class="fbar" id="fbar" hidden>
+      <input id="fq" type="search" placeholder="ค้นหา" aria-label="ค้นหาทะเบียนหรือท่าข้าว" autocomplete="off">
+      <select id="fd" aria-label="ช่วงเวลา"><option value="all">ทุกวัน</option><option value="today">วันนี้</option><option value="7">7 วันล่าสุด</option><option value="month">เดือนนี้</option></select>
+      <select id="fs" aria-label="ท่าข้าว"><option value="">ทุกท่าข้าว</option></select>
+    </div>
+    <section class="sum" id="sum" hidden>
+      <button type="button" class="sumhd" id="sumHd" aria-expanded="true" aria-controls="sumBody"><span class="sumt"><svg class="sumic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>สรุป</span><span class="sumMini" id="sumMini"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="sumbody" id="sumBody">
+    <div class="stats" id="stats" hidden>
+      <div class="stat o"><span>ต้นทางรวม</span><b id="sOrigin">0</b><small>กก.</small></div>
+      <div class="stat d"><span>ปลายทางรวม</span><b id="sDest">0</b><small>กก.</small></div>
+      <div class="stat x ok" id="sBox"><span class="xl">ส่วนต่าง (ปลายทาง − ต้นทาง)</span><div class="xv"><b id="sDiff">0</b><small>กก.</small></div><em class="xp" id="sPct"></em></div>
+    </div>
+    <details class="bysrc" id="bysrc" hidden><summary>สรุปแยกตามท่าข้าว</summary><div id="bysrcList"></div></details>
+      </div>
+    </section>
+    <div id="list"></div>
+    <section class="manage" id="manage">
+      <div class="mhd"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>จัดการข้อมูล</div>
     <div class="store" id="store">
       <div class="st-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></div>
       <div class="st-tx"><span>ที่เก็บข้อมูล</span><b id="stName">ในเบราว์เซอร์</b><small id="stSub">บันทึกลงเครื่องอัตโนมัติ</small></div>
       <button class="st-btn" id="stBtn">เลือกไฟล์</button>
     </div>
-    <p class="hcount" id="count">0 เที่ยว</p>
-    <div class="stats" id="stats" hidden>
-      <div class="stat o"><span>ต้นทางรวม</span><b id="sOrigin">0</b><small>กก.</small></div>
-      <div class="stat d"><span>ปลายทางรวม</span><b id="sDest">0</b><small>กก.</small></div>
-      <div class="stat x ok" id="sBox"><span>ส่วนต่างรวม</span><div class="xv"><b id="sDiff">0</b><small>กก.</small></div></div>
-    </div>
-    <div id="list"></div>
     <button class="btn export" id="exportBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 13h8M8 17h8"/></svg>ดาวน์โหลด Excel (CSV)</button>
     <div class="jrow">
       <button class="btn ghost" id="jsonBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>สำรอง JSON</button>
@@ -753,6 +1003,7 @@ main{padding-top:12px}
       <input type="file" id="importFile" accept=".json,application/json" hidden>
     </div>
     <div style="text-align:right;margin-top:12px"><button class="link" id="clearAll">ล้างประวัติทั้งหมด</button></div>
+    </section>
   </section>
 </div>
 </main>
@@ -871,14 +1122,14 @@ function calc() {
   if (Math.abs(diff) >= DIFFMAX) {
     box.className = 'result bad';
     $('diff').innerHTML = sgn(diff) + ' กก.';
-    $('pct').innerHTML = sgn(pct, 2) + '% ของต้นทาง';
-    $('msg').innerHTML = ic('stop') + 'ส่วนต่างตั้งแต่ ' + fmt(DIFFMAX) + ' กก. ขึ้นไป น่าจะกรอกผิด บันทึกไม่ได้';
+    $('pct').innerHTML = sgn(pct, 2) + '%';
+    $('msg').innerHTML = ic('stop') + 'ต่างเกิน ' + fmt(DIFFMAX) + ' กก. อาจกรอกผิด · บันทึกไม่ได้';
     return null;
   }
   const st = judge(diff, tol);
   box.className = 'result ' + st;
   $('diff').innerHTML = sgn(diff) + ' กก.';
-  $('pct').innerHTML = sgn(pct, 2) + '% ของต้นทาง';
+  $('pct').innerHTML = sgn(pct, 2) + '%';
   $('msg').innerHTML =
     st === 'bad'  ? ic('bad') + 'น้ำหนักขาด ' + fmt(Math.abs(diff)) + ' กก. (เกณฑ์ ' + fmt(tol) + ')' :
     st === 'warn' ? ic('warn') + 'ขาดเล็กน้อย อยู่ในเกณฑ์ยอมรับได้' :
@@ -912,17 +1163,107 @@ function resetForm(keepSource) {
   $('plate').focus();
 }
 
+
+/* dropdown กำหนดเอง: ซ่อน <select> เดิมไว้เก็บค่า แล้วสร้างปุ่ม + รายการสวย ๆ แทน */
+function syncDD(sel) {
+  if (!sel._dd) {
+    const w = document.createElement('div'); w.className = 'dd';
+    w.innerHTML = '<button type="button" class="dd-btn" aria-haspopup="listbox" aria-expanded="false"><span></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><ul class="dd-list" role="listbox" hidden></ul>';
+    sel.hidden = true; sel.after(w);
+    const btn = w.querySelector('.dd-btn'), ul = w.querySelector('.dd-list');
+    const close = () => { ul.hidden = true; w.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); };
+    const open = () => {
+      document.querySelectorAll('.dd.open').forEach(o => o !== w && o._close());
+      ul.hidden = false; w.classList.add('open'); btn.setAttribute('aria-expanded', 'true');
+      const on = ul.querySelector('[aria-selected="true"]') || ul.firstElementChild; if (on) { on.focus(); on.scrollIntoView({block: 'nearest'}); }
+    };
+    w._close = close;
+    btn.onclick = () => ul.hidden ? open() : close();
+    btn.onkeydown = e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); open(); } };
+    ul.onclick = e => { const li = e.target.closest('li'); if (!li) return; sel.value = li.dataset.v; close(); btn.focus(); sel.dispatchEvent(new Event('change')); };
+    ul.onkeydown = e => {
+      const li = e.target.closest('li'); if (!li) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); (li.nextElementSibling || li).focus(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); (li.previousElementSibling || li).focus(); }
+      else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); li.click(); }
+      else if (e.key === 'Escape' || e.key === 'Tab') { close(); btn.focus(); }
+    };
+    if (!document._ddBound) {
+      document._ddBound = true;
+      document.addEventListener('pointerdown', e => document.querySelectorAll('.dd.open').forEach(o => o.contains(e.target) || o._close()));
+    }
+    sel._dd = w;
+  }
+  const w = sel._dd, ul = w.querySelector('.dd-list'), cur = sel.value;
+  const chk = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>';
+  ul.innerHTML = [...sel.options].map(o => '<li role="option" tabindex="-1" data-v="' + esc(o.value) + '" aria-selected="' + (o.value === cur) + '"><span>' + esc(o.textContent) + '</span>' + (o.value === cur ? chk : '') + '</li>').join('');
+  const o = sel.options[sel.selectedIndex]; w.querySelector('.dd-btn span').textContent = o ? o.textContent : '';
+}
+
+const NOSRC = '-';
+function filtered() {
+  const q = ($('fq').value || '').trim().toLowerCase(), fd = $('fd').value, fs = $('fs').value;
+  const now = new Date(), sod = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const som = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  return records.filter(r => {
+    if (q && !((r.plate || '') + ' ' + (r.source || '')).toLowerCase().includes(q)) return false;
+    if (fs && (r.source || NOSRC) !== fs) return false;
+    const t = Number(r.id) || 0;
+    if (fd === 'today' && t < sod) return false;
+    if (fd === '7' && t < sod - 6 * 864e5) return false;
+    if (fd === 'month' && t < som) return false;
+    return true;
+  });
+}
+
 function render() {
-  $('count').textContent = records.length + ' เที่ยว'; renderMenu();
-  $('stats').hidden = !records.length;
-  $('exportBtn').hidden = $('clearAll').parentElement.hidden = $('jsonBtn').hidden = !records.length;
-  if (!records.length) { $('list').innerHTML = '<div class="empty">ยังไม่มีรายการ<br>กรอกน้ำหนักด้านบนแล้วกด “บันทึก”</div>'; return; }
-  const sum = k => round2(records.reduce((a, r) => a + r[k], 0));
+  renderMenu();
+  const has = records.length > 0;
+  $('fbar').hidden = !has;
+  $('exportBtn').hidden = $('clearAll').parentElement.hidden = $('jsonBtn').hidden = !has;
+  if (!has) {
+    $('fq').value = ''; $('fd').value = 'all'; $('fs').value = ''; syncDD($('fs')); syncDD($('fd'));
+    $('count').textContent = '0 เที่ยว'; $('sum').hidden = $('stats').hidden = $('bysrc').hidden = true;
+    $('list').innerHTML = '<div class="empty">ยังไม่มีรายการ<br>กรอกน้ำหนักด้านบนแล้วกด “บันทึก”</div>'; return;
+  }
+  // รายการท่าข้าวในตัวเลือก (คงค่าที่เลือกไว้)
+  const cur = $('fs').value, srcs = [...new Set(records.map(r => r.source || NOSRC))].sort((x, y) => x.localeCompare(y, 'th'));
+  $('fs').innerHTML = '<option value="">ทุกท่าข้าว</option>' + srcs.map(v => '<option value="' + esc(v) + '">' + esc(v === NOSRC ? 'ไม่ระบุท่า' : v) + '</option>').join('');
+  $('fs').value = srcs.includes(cur) ? cur : '';
+  syncDD($('fs')); syncDD($('fd'));
+
+  const list = filtered();
+  $('count').textContent = list.length === records.length ? records.length + ' เที่ยว' : list.length + ' จาก ' + records.length + ' เที่ยว';
+  $('sum').hidden = $('stats').hidden = $('bysrc').hidden = !list.length;
+  if (!list.length) { $('list').innerHTML = '<div class="empty">ไม่พบรายการที่ตรงกับตัวกรอง</div>'; return; }
+
+  const sum = k => round2(list.reduce((a, r) => a + r[k], 0));
   $('sOrigin').textContent = fmt(sum('origin')); $('sDest').textContent = fmt(sum('dest'));
-  const d = sum('diff'); $('sDiff').innerHTML = sgn(d); $('sBox').className = 'stat x ' + (d < 0 ? 'bad' : 'ok');
-  $('list').innerHTML = records.map((r, i) => { const pc = r.origin ? r.diff / r.origin * 100 : 0, sg = r.diff > 0 ? '+' : ''; return `
-    <div class="item${i === 0 ? ' latest' : ''}">
-      <div class="l2">${i === 0 ? '<span class="new">ล่าสุด</span>' : ''}<span class="pl">${ic('truck')}${esc(r.plate)}</span>${r.source && r.source !== '-' ? '<i>·</i><span class="src">' + esc(r.source) + '</span>' : ''}<i>·</i>${ic('clock')}<span class="tm">${esc(r.time)}</span>${r.st === 'bad' ? '<em class="over">น้ำหนักขาด</em>' : ''}
+  const d = sum('diff'); $('sDiff').innerHTML = sgn(d); const sst = judge(d, round2(list.reduce((a, r) => a + (Number(r.tol) || 0), 0)));
+  $('sBox').className = 'stat x ' + sst; $('sum').dataset.st = sst;
+  const so = sum('origin'); $('sPct').innerHTML = (so ? sgn(d / so * 100, 2) : '0.00') + '% ของต้นทาง';
+  $('sumMini').innerHTML = sgn(d) + ' กก. · ' + (so ? sgn(d / so * 100, 2) : '0.00') + '%';
+
+  // สรุปแยกตามท่าข้าว (เรียงจากขาดมาก (%) ไปน้อย)
+  const g = {};
+  list.forEach(r => { const k = r.source && r.source !== NOSRC ? r.source : NOSRC, o = g[k] || (g[k] = {n: 0, o: 0, x: 0, bad: 0, tol: 0}); o.tol += Number(r.tol) || 0; o.n++; o.o += r.origin; o.x += r.diff; if (r.st === 'bad') o.bad++; });
+  $('bysrcList').innerHTML = Object.entries(g).map(([k, o]) => ({k, n: o.n, x: round2(o.x), bad: o.bad, st: judge(round2(o.x), round2(o.tol)), pc: o.o ? o.x / o.o * 100 : 0}))
+    .sort((a, b) => a.pc - b.pc).map(o => `
+    <div class="srow ${o.st}"><div class="sn"><b>${esc(o.k === NOSRC ? 'ไม่ระบุท่า' : o.k)}</b><small>${o.n} เที่ยว${o.bad ? ' · ขาดเกินเกณฑ์ ' + o.bad + ' เที่ยว' : ''}</small></div>
+      <div class="sv"><b>${sgn(o.x)} กก.</b><small>${sgn(o.pc, 2)}% ของต้นทาง</small></div></div>`).join('');
+
+  const dkey = r => { const d = new Date(Number(r.id) || 0); return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate(); };
+  const dlabel = r => {
+    const d = new Date(Number(r.id) || 0), n = new Date();
+    const gap = Math.round((new Date(n.getFullYear(), n.getMonth(), n.getDate()) - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 864e5);
+    return gap === 0 ? 'วันนี้' : gap === 1 ? 'เมื่อวาน' : d.toLocaleDateString('th-TH', {day: 'numeric', month: 'short', year: 'numeric'});
+  };
+  const dcount = {}; list.forEach(r => { const k = dkey(r); dcount[k] = (dcount[k] || 0) + 1; });
+  let lastK = null;
+  const latestId = records[0].id;
+  $('list').innerHTML = list.map(r => { const pc = r.origin ? r.diff / r.origin * 100 : 0, k = dkey(r); let hd = ''; if (k !== lastK) { lastK = k; hd = `<div class="dgrp"><span>${dlabel(r)}</span><small>${dcount[k]} เที่ยว</small></div>`; } return hd + `
+    <div class="item${r.id === latestId ? ' latest' : ''}">
+      <div class="l2">${r.id === latestId ? '<span class="new">ล่าสุด</span>' : ''}<span class="pl">${ic('truck')}${esc(r.plate)}</span>${r.source && r.source !== '-' ? '<i>·</i><span class="src">' + esc(r.source) + '</span>' : ''}<i>·</i>${ic('clock')}<span class="tm">${esc(r.time)}</span>${r.st === 'bad' ? '<em class="over">น้ำหนักขาด</em>' : ''}
         <button class="del" data-del="${r.id}" aria-label="ลบรายการนี้">${ic('trash')}</button></div>
       <div class="l3">
         <div class="w o"><span>ต้นทาง</span><b>${fmt(r.origin)}</b><small>${r.head && r.tail ? fmt(r.head) + ' + ' + fmt(r.tail) : '1 ใบชั่ง'}</small></div>
@@ -932,11 +1273,17 @@ function render() {
     </div>`; }).join('');
 }
 
+const pctOf = (d, o) => o ? (d / o * 100).toFixed(2) : '0.00';
 function exportCSV() {
+  const list = filtered();
+  if (!list.length) { toast('ไม่มีรายการตามตัวกรอง', true); return; }
   const q = v => '"' + String(v).replace(/"/g, '""') + '"';
-  const rows = [['วันที่-เวลา','ทะเบียนรถ','ท่าข้าว','ใบชั่งที่ 1(กก.)','ใบชั่งที่ 2(กก.)','รวมต้นทาง(กก.)','ปลายทาง น้ำหนักสุทธิ(กก.)','ส่วนต่าง(กก.)','เกณฑ์ขาดได้(กก.)','ผล']];
+  const rows = [['วันที่-เวลา','ทะเบียนรถ','ท่าข้าว','ใบชั่งที่ 1(กก.)','ใบชั่งที่ 2(กก.)','รวมต้นทาง(กก.)','ปลายทาง น้ำหนักสุทธิ(กก.)','ส่วนต่าง (ปลายทาง − ต้นทาง) (กก.)','ส่วนต่าง (% ของต้นทาง)','เกณฑ์ขาดได้(กก.)','ผล']];
   const label = {ok:'ปกติ', warn:'ขาดเล็กน้อย', bad:'น้ำหนักขาด'};
-  records.slice().reverse().forEach(r => rows.push([r.time, r.plate, r.source, r.head, r.tail, r.origin, r.dest, r.diff, r.tol, label[r.st]]));
+  list.slice().reverse().forEach(r => rows.push([r.time, r.plate, r.source, r.head, r.tail, r.origin, r.dest, r.diff, pctOf(r.diff, r.origin), r.tol, label[r.st]]));
+  const tot = k => round2(list.reduce((x, r) => x + r[k], 0));
+  rows.push([]);
+  rows.push(['รวม ' + list.length + ' เที่ยว', '', '', tot('head'), tot('tail'), tot('origin'), tot('dest'), tot('diff'), pctOf(tot('diff'), tot('origin')), '', '']);
   const csv = '\uFEFF' + rows.map(r => r.map(q).join(',')).join('\r\n');
   const url = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8;'}));
   const a = document.createElement('a');
@@ -1112,6 +1459,15 @@ $('plate').addEventListener('change', () => {
 $('save').onclick = save;
 $('reset').onclick = () => { $('source').value = ''; resetForm(true); };
 $('exportBtn').onclick = exportCSV;
+(function () {
+  const K = 'check-rice-sum-collapsed', box = $('sum'), hd = $('sumHd');
+  const apply = c => { box.classList.toggle('collapsed', c); hd.setAttribute('aria-expanded', String(!c)); };
+  try { apply(localStorage.getItem(K) === '1'); } catch (e) {}
+  hd.onclick = () => { const c = !box.classList.contains('collapsed'); apply(c); try { localStorage.setItem(K, c ? '1' : '0'); } catch (e) {} };
+})();
+$('fq').addEventListener('input', render); $('fd').addEventListener('change', render); $('fs').addEventListener('change', render);
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname)))
+  navigator.serviceWorker.register('sw.js').catch(() => {});
 $('jsonBtn').onclick = exportJSON;
 $('importBtn').onclick = () => $('importFile').click();
 $('importFile').onchange = importJSON;
