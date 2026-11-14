@@ -959,6 +959,8 @@ main{padding-top:12px}
   .grp.origin .gh .ic path:nth-of-type(2){stroke:color-mix(in srgb,var(--g-ink) 12%,#2b2510)}
   .grp.dest .gh .ic path:nth-of-type(2){stroke:color-mix(in srgb,var(--g-ink) 12%,#122539)}
 }
+/* เลขเวอร์ชัน: ท้ายหน้าเช็กน้ำหนัก ตัวเล็กสีจาง */
+.ver{text-align:center;font-size:.72rem;font-weight:500;letter-spacing:.04em;color:var(--muted);opacity:.6;padding:2px 0 8px;user-select:none}
 </style>
 </head>
 <body class="oncalc">
@@ -975,7 +977,7 @@ main{padding-top:12px}
   <section class="card form">
     <div class="row plate1 grp plate">
       <div><label for="pl1">ทะเบียนรถ</label>
-        <div class="vf pl4"><input id="plate" type="hidden"><input class="pp" id="pl1" maxlength="4" aria-label="หมวดอักษรทะเบียน" autocomplete="off" autocapitalize="off" enterkeyhint="next"><input class="pp" id="pl2" maxlength="2" inputmode="numeric" aria-label="เลขหน้าทะเบียน" autocomplete="off" enterkeyhint="next"><i>-</i><input class="pp" id="pl3" maxlength="4" inputmode="numeric" aria-label="เลขทะเบียน" autocomplete="off" enterkeyhint="next"><i>/</i><input class="pp" id="pl4" maxlength="4" inputmode="numeric" aria-label="เลขทะเบียนพ่วง (ถ้ามี)" autocomplete="off" enterkeyhint="next"><button class="vmic" type="button" data-vf="plate" aria-label="พูดทะเบียนรถ"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div>
+        <div class="vf pl4"><input id="plate" type="hidden"><input class="pp" id="pl1" maxlength="3" placeholder="กข" aria-label="หมวดอักษรทะเบียน" autocomplete="off" autocapitalize="off" enterkeyhint="next"><input class="pp" id="pl2" maxlength="2" placeholder="12" inputmode="numeric" aria-label="เลขหน้าทะเบียน" autocomplete="off" enterkeyhint="next"><i>-</i><input class="pp" id="pl3" maxlength="4" placeholder="3456" inputmode="numeric" aria-label="เลขทะเบียน" autocomplete="off" enterkeyhint="next"><i>/</i><input class="pp" id="pl4" maxlength="4" placeholder="7890" inputmode="numeric" aria-label="เลขทะเบียนพ่วง (ถ้ามี)" autocomplete="off" enterkeyhint="next"><button class="vmic" type="button" data-vf="plate" aria-label="พูดทะเบียนรถ"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div>
     </div>
     <div class="grp origin">
       <div class="ghrow"><div class="gh"><svg class="ic" viewBox="0 0 24 24" role="img" aria-label="ต้นทาง"><path d="M12 21s-7-5.8-7-11a7 7 0 0 1 14 0c0 5.2-7 11-7 11z"/><path d="M12 10h.01"/></svg></div>
@@ -1002,6 +1004,7 @@ main{padding-top:12px}
     <div class="pct" id="pct"></div>
     <div class="msg" id="msg">กรอกน้ำหนักต้นทางและปลายทาง</div>
   </section>
+  <div class="ver" id="appVer">v1.0</div>
 </div>
 
 <div class="page" id="pHist" hidden>
@@ -1574,34 +1577,28 @@ function micUI(on) {
   $('micTx').textContent = on && micActive === $('micBtn') ? 'กำลังฟัง… แตะเพื่อหยุด' : 'พูดตัวเลข';
 }
 function stopMic() { if (rec) { const r = rec; r.onresult = r.onerror = r.onend = r.onstart = null; /* กันเหตุการณ์ของรอบเก่ามาทับไมค์ใหม่ */ try { r.abort(); } catch (e) {} } rec = null; micUI(false); }
-function cleanPlate(t) {
-  // รูปแบบ: หมวด(ตัวอักษร) เลข 2 หลัก - เลข 4 หลัก / เลขพ่วง  เช่น "กข 12-3456/7890"
-  // พูดได้: "กอ ขอ หนึ่ง สอง สาม สี่ ห้า หก ทับ เจ็ด แปด เก้า ศูนย์"  (พูดเลขทีละตัว, "ทับ"/"พ่วง" = เครื่องหมาย /)
+function parsePlate(t) {
+  // แยกเสียงพูดเป็น 4 ช่อง เรียงจากซ้าย: หมวด | เลข 2 หลัก | เลข 4 หลัก | เลขพ่วง 4 หลัก
+  // พูด: "กอ ขอ หนึ่ง สอง สาม สี่ ห้า หก ทับ เจ็ด แปด เก้า ศูนย์"  (เลขทีละตัว, "ทับ"/"พ่วง" = เครื่องหมาย /)
   const W = {'ศูนย์': 0, 'ซีโร่': 0, 'โอ': 0, 'หนึ่ง': 1, 'เอ็ด': 1, 'สอง': 2, 'สาม': 3, 'สี่': 4, 'ห้า': 5, 'หก': 6, 'เจ็ด': 7, 'แปด': 8, 'เก้า': 9};
-  const orig = String(t || '');
-  t = orig.replace(/[๐-๙]/g, c => String(c.charCodeAt(0) - 0x0E50))
+  t = String(t || '').replace(/[๐-๙]/g, c => String(c.charCodeAt(0) - 0x0E50))
     .replace(/ทะเบียน|หมายเลข|เลข|หมวด|รถ/g, ' ')
     .replace(/ศูนย์|ซีโร่|หนึ่ง|เอ็ด|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า|โอ/g, w => ' ' + W[w] + ' ')
     .replace(/ทับ|พ่วง|สแลช|slash|หาร|\//gi, ' / ')
-    .replace(/ขีด|ยัติภังค์|แดช|dash|-/gi, ' - ')
+    .replace(/ขีด|ยัติภังค์|แดช|dash|-/gi, ' ')
     .replace(/\s+/g, ' ').trim();
-  // ชื่อพยัญชนะ เช่น "กอไก่" "ขอไข่" "กอ" -> ก ข
-  t = t.split(' ').map(w => /^[ก-ฮ]อ[^\s\d]{0,8}$/.test(w) ? w[0] : w).join(' ');
-  if (!/\d/.test(t) && (!/[ก-ฮ]/.test(t) || /[^ก-ฮ\s\/-]/.test(t))) return orig.replace(/\s+/g, ' ').trim();
+  t = t.split(' ').map(w => /^[ก-ฮ]อ[^\s\d]{0,8}$/.test(w) ? w[0] : w).join(' ');   // "กอไก่" "ขอ" -> ก ข
+  if (/[^ก-ฮ\s\d\/]/.test(t)) return null;                                          // ไม่ใช่ทะเบียน
   const parts = t.split('/');
-  let head = parts[0], trail = (parts.slice(1).join('').match(/\d/g) || []).join('').slice(0, 4);
-  let pre = '';
-  const mp = head.match(/^\s*(\d)\s*([ก-ฮ](?:\s*[ก-ฮ]){0,2})/);   // เช่น 1กข
-  if (mp) { pre = mp[1] + mp[2].replace(/\s+/g, ''); head = head.slice(mp[0].length); }
-  else { pre = (head.match(/[ก-ฮ]/g) || []).join(''); head = head.replace(/[ก-ฮ]/g, ' '); }
-  let nums;
-  if (/\d\s*-\s*\d/.test(head)) {                  // ผู้ใช้พูด "ขีด" มาเอง
-    nums = head.replace(/[^\d-]/g, '').replace(/-+/g, '-').replace(/^-|-$/g, '');
-  } else {
-    const D = (head.match(/\d/g) || []).join('');
-    nums = D.length >= 5 ? D.slice(0, 2) + '-' + D.slice(2, 6) : D;
-  }
-  return ((pre ? pre + (nums ? ' ' : '') : '') + nums + (trail ? '/' + trail : '')).trim();
+  let head = parts[0], trail = (parts.slice(1).join('').match(/\d/g) || []).join('');
+  let A = '';
+  const mp = head.match(/^\s*(\d)\s*([ก-ฮ](?:\s*[ก-ฮ]){0,2})/);                      // เช่น 1กข
+  if (mp) { A = mp[1] + mp[2].replace(/\s+/g, ''); head = head.slice(mp[0].length); }
+  else { A = (head.match(/[ก-ฮ]/g) || []).join('').slice(0, 3); head = head.replace(/[ก-ฮ]/g, ' '); }
+  const D = (head.match(/\d/g) || []).join('');
+  if (!trail && D.length > 6) trail = D.slice(6);
+  const o = {a: A, b: D.slice(0, 2), c: D.slice(2, 6), d: trail.slice(0, 4)};
+  return (o.a || o.b || o.c || o.d) ? o : null;
 }
 function startMic(field, btn) {
   if (!field) return;
@@ -1615,7 +1612,15 @@ function startMic(field, btn) {
     const res = ev.results[ev.results.length - 1], fin = res.isFinal;
     const alts = Array.from(res).map(a => a.transcript);
     if (!isNum) {
-      const t = field === 'plate' ? cleanPlate(alts[0]) : String(alts[0] || '').replace(/\s+/g, ' ').trim();
+      if (field === 'plate') {
+        let best = null, sc = -1;                // เลือกผลที่ได้ตัวอักษร/ตัวเลขมากที่สุด
+        for (const a of alts) { const o = parsePlate(a); if (!o) continue; const n = o.a.length + o.b.length + o.c.length + o.d.length; if (n > sc) { sc = n; best = o; } }
+        if (!best) { if (fin) toast('ฟังทะเบียนไม่ออก ลองพูดใหม่ เช่น “กอ ขอ หนึ่ง สอง สาม สี่ ห้า หก”', true, 4000); return; }
+        fillPlate(best);                         // ขึ้นทีละช่องเรียงจากซ้ายระหว่างพูด
+        if (fin) { $('plate').dispatchEvent(new Event('change')); toast('ได้ยิน ' + $('plate').value, false, 3000); }
+        return;
+      }
+      const t = String(alts[0] || '').replace(/\s+/g, ' ').trim();
       if (!t) { if (fin) toast('ฟังไม่ออก ลองพูดใหม่', true); return; }
       $(field).value = t;                       // ขึ้นทันทีระหว่างพูด
       if (fin) { $(field).dispatchEvent(new Event('change')); toast('ได้ยิน “' + t + '”', false, 3000); }
@@ -1718,13 +1723,16 @@ fitNums();
   };
   Object.defineProperty(plate, 'value', { get: compose, set: setParts, configurable: true });
   plate.focus = () => a.focus();
+  window.fillPlate = o => { a.value = o.a || ''; b.value = o.b || ''; c.value = o.c || ''; d.value = o.d || ''; plate.dispatchEvent(new Event('input')); };
   const wrap = plate.parentNode;
   P.forEach((el, i) => {
     el.addEventListener('focus', closePad);
     el.addEventListener('input', () => {
-      if (el !== a) el.value = digits(el.value);
+      if (el === a) el.value = el.value.replace(/[๐-๙]/g, ch => String(ch.charCodeAt(0) - 0x0E50)).replace(/[^ก-ฮ0-9]/g, '').replace(/(?!^)\d/g, '').slice(0, 3);   // ช่องแรก: พยัญชนะเท่านั้น (ขึ้นต้นด้วยเลข 1 ตัวได้)
+      else el.value = digits(el.value);                                            // ช่องอื่น: ตัวเลขเท่านั้น
       plate.dispatchEvent(new Event('input'));
-      if ((el === b && el.value.length >= 2) || (el === c && el.value.length >= 4)) P[i + 1].focus();
+      const full = el === a ? /^\d?[ก-ฮ]{2}$/.test(el.value) : (el === b && el.value.length >= 2) || (el === c && el.value.length >= 4);
+      if (full) P[i + 1].focus();
     });
     el.addEventListener('change', () => plate.dispatchEvent(new Event('change')));
     el.addEventListener('keydown', e => {
