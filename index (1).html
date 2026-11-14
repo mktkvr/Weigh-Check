@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d7a55">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Weigh-Check">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Weigh-Check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&family=Sarabun:wght@400;600" rel="stylesheet">
+<style>
+:root{
+  --font:'Prompt','Sarabun',system-ui,sans-serif;
+  --bg:#eef3ef;--surface:#fff;--sunk:#e7eee9;--ink:#12231b;--muted:#5d6f66;--line:#d6e1da;
+  --acc:#0d7a55;--on-acc:#fff;--hero:#0b3d2c;--hero-ink:#e8f5ee;
+  --org:#e0a100;--dst:#2b83c6;
+  --ok:#0d7a55;--warn:#b86e00;--bad:#c93a2f;--on-st:#fff;
+  --ok-soft:#dcf3e8;--ok-ink:#0b6a49;--warn-soft:#ffecc9;--warn-ink:#7d4a00;--bad-soft:#fde2df;--bad-ink:#a5281f;
+  --glass:rgba(11,61,44,.96);--shadow:0 12px 30px -20px rgba(11,61,44,.45);
+  --num:var(--font);
+}
+@media not all{:root{
+  --bg:#0b1210;--surface:#131c18;--sunk:#1a2621;--ink:#e9f1ed;--muted:#97aaa1;--line:#26362f;
+  --acc:#3ddba5;--on-acc:#052018;--hero:#0f2a21;--hero-ink:#d5efe3;
+  --org:#f0b429;--dst:#5aaee8;
+  --ok:#2fbf8a;--warn:#e0912a;--bad:#e5655a;--on-st:#06120d;
+  --ok-soft:#10301f;--ok-ink:#7beabf;--warn-soft:#382708;--warn-ink:#ffc266;--bad-soft:#3d1a17;--bad-ink:#ff9d94;
+  --glass:rgba(15,42,33,.96);--shadow:0 12px 30px -20px #000;color-scheme:dark}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-family:var(--font);color-scheme:light}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-size:16px;font-weight:400;line-height:1.5;
+  font-variant-numeric:tabular-nums;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+body.oncalc{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
+body.padopen{padding-bottom:420px}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+main{max-width:560px;margin:0 auto;padding:16px}
+[hidden]{display:none!important}
+.page{animation:in .2s ease}
+@keyframes in{from{opacity:0}}
+
+/* ส่วนหัว */
+.top{position:sticky;top:0;z-index:5;background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  padding:calc(12px + env(safe-area-inset-top,0px)) 16px 12px;color:var(--hero-ink)}
+.brand,.seg{max-width:560px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.logo{width:42px;height:42px;border-radius:12px;background:var(--acc);color:var(--on-acc);display:grid;place-items:center;flex:none}
+.brand h1{margin:0;font-size:1.1rem;font-weight:600;line-height:1.25}
+.brand p{margin:0;font-size:.8rem;opacity:.75}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:rgba(255,255,255,.1);padding:4px;border-radius:14px}
+.tab{min-height:44px;border:0;border-radius:10px;background:transparent;font:inherit;font-size:.98rem;font-weight:500;
+  color:var(--hero-ink);opacity:.8;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s,color .15s}
+.tab svg{flex:none}
+.tab.on{background:var(--surface);color:var(--ink);opacity:1;font-weight:600}
+.tab i{font-style:normal;font-family:var(--font);font-size:.75rem;font-weight:600;background:rgba(255,255,255,.18);border-radius:99px;padding:0 8px;min-width:22px;text-align:center}
+.tab.on i{background:var(--acc);color:var(--on-acc)}
+
+/* การ์ดและฟอร์ม */
+.card{background:var(--surface);border-radius:20px;padding:18px;box-shadow:var(--shadow)}
+#pCalc{display:grid;gap:16px}
+label{display:block;font-size:.84rem;font-weight:500;color:var(--muted);margin-bottom:6px}
+input{width:100%;min-height:54px;padding:8px 14px;font:inherit;font-size:1.05rem;font-weight:500;color:var(--ink);background:var(--bg);
+  border:2px solid transparent;border-radius:12px;outline:none;transition:border-color .15s,box-shadow .15s,background .15s}
+.grp input{background:var(--surface)}
+input:focus,input.num.active{border-color:var(--acc);box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 18%,transparent)}
+input::placeholder{color:color-mix(in srgb,var(--muted) 60%,transparent);font-weight:400}
+input.num,input.tolin{font-family:var(--font);font-weight:600}
+input.num{font-size:2rem;letter-spacing:-.03em;text-align:right;min-height:64px;caret-color:transparent;cursor:pointer}
+input.tolin{min-height:64px;font-size:1.6rem;text-align:center;padding:4px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.destrow{grid-template-columns:1fr 112px}
+.fld{scroll-margin-top:150px}
+.form{display:grid;gap:18px}
+.grp{border-radius:16px;padding:14px;display:grid;gap:12px;background:var(--sunk);position:relative}
+.gh{font-weight:600;font-size:1.02rem;display:flex;flex-wrap:wrap;align-items:center;gap:0 8px}
+.gh::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--org)}
+.dest .gh::before{background:var(--dst)}
+.gh small{font-size:.8rem;font-weight:400;color:var(--muted)}
+.total{display:flex;justify-content:space-between;align-items:center;padding:6px 2px 0;border-top:1px dashed var(--line);color:var(--muted);font-weight:500}
+.total b{font-family:var(--font);font-size:1.35rem;font-weight:600;color:var(--ink);letter-spacing:-.02em}
+
+/* ผลลัพธ์ */
+.result{border-radius:20px;padding:22px 16px 18px;text-align:center;background:var(--surface);color:var(--muted);box-shadow:var(--shadow);transition:background .2s,color .2s}
+.result .lbl{font-size:.84rem;font-weight:500}
+.result .val{font-family:var(--font);font-size:3.4rem;font-weight:600;line-height:1.15;letter-spacing:-.045em;color:var(--ink)}
+.result .pct{font-family:var(--font);font-size:.88rem;font-weight:500;min-height:1.4em}
+.result .msg{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-weight:600;font-size:.98rem}
+.result.ok{background:var(--ok);color:var(--on-st)}
+.result.warn{background:var(--warn);color:var(--on-st)}
+.result.bad{background:var(--bad);color:var(--on-st)}
+.result.ok .val,.result.warn .val,.result.bad .val{color:inherit}
+.result.ok .msg,.result.warn .msg,.result.bad .msg{border-top-color:color-mix(in srgb,currentColor 30%,transparent)}
+
+/* ปุ่ม */
+.bar{position:fixed;left:0;right:0;bottom:0;width:100%;max-width:560px;margin:0 auto;background:var(--glass);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));display:none;gap:10px;z-index:4;border-radius:20px 20px 0 0}
+body.oncalc:not(.padopen) .bar{display:flex}
+.btn{min-height:52px;border:0;border-radius:14px;font:inherit;font-size:1rem;font-weight:600;cursor:pointer;padding:0 18px;color:var(--ink);background:var(--sunk);transition:transform .1s,opacity .15s}
+.btn:active{transform:scale(.97);opacity:.85}
+.bar .btn.ghost{background:rgba(255,255,255,.14);color:var(--hero-ink)}
+.btn.save{flex:1;background:var(--acc);color:var(--on-acc)}
+.btn.export{width:100%;margin-top:16px;background:var(--acc);color:var(--on-acc)}
+.link{background:none;border:0;color:var(--bad-ink);font:inherit;font-size:.86rem;font-weight:500;padding:8px;margin:-8px;cursor:pointer;text-decoration:underline}
+.jrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.jrow .btn{min-height:46px;font-size:.92rem;padding:0 8px}
+
+/* ประวัติ */
+.hcount{margin:0 2px 14px;color:var(--muted);font-size:.92rem;font-weight:500}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.stat{border-radius:14px;padding:10px 4px;text-align:center;background:var(--sunk)}
+.stat span{display:block;font-size:.74rem;font-weight:500;color:var(--muted)}
+.stat b{font-family:var(--font);font-size:1.08rem;font-weight:600}
+.item{border-left:5px solid var(--line);border-radius:14px;background:var(--sunk);padding:12px 14px;margin-top:10px}
+.item.ok{border-left-color:var(--ok)}.item.warn{border-left-color:var(--warn)}.item.bad{border-left-color:var(--bad)}
+.item .l1{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:600;font-size:1.05rem}
+.item .l2{color:var(--muted);font-size:.88rem;margin:4px 0}
+.item .l2 b{font-family:var(--font);color:var(--ink);font-weight:600}
+.item .l3{display:flex;justify-content:space-between;align-items:center;font-size:.78rem;color:var(--muted)}
+.tag{font-family:var(--font);white-space:nowrap;padding:1px 10px;border-radius:99px;font-size:.9rem;font-weight:600}
+.tag.ok{color:var(--ok-ink);background:var(--ok-soft)}.tag.warn{color:var(--warn-ink);background:var(--warn-soft)}.tag.bad{color:var(--bad-ink);background:var(--bad-soft)}
+.empty{text-align:center;color:var(--muted);padding:26px 0}
+
+/* แป้นตัวเลข */
+#pad{position:fixed;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;background:var(--surface);display:none;z-index:6;
+  padding:12px 12px calc(10px + env(safe-area-inset-bottom,0px));border-radius:22px 22px 0 0;box-shadow:0 -12px 32px rgba(0,0,0,.14)}
+.padopen #pad{display:block}
+.padinfo{text-align:center;padding:8px 10px;border-radius:12px;margin-bottom:10px;background:var(--sunk);color:var(--muted);font-size:.9rem;line-height:1.3;font-weight:500}
+.padinfo #padLbl{display:block;font-family:var(--font);font-size:1.25rem;font-weight:600;color:var(--ink)}
+.padinfo.ok{background:var(--ok-soft);color:var(--ok-ink)}.padinfo.warn{background:var(--warn-soft);color:var(--warn-ink)}.padinfo.bad{background:var(--bad-soft);color:var(--bad-ink)}
+.padinfo.ok #padLbl,.padinfo.warn #padLbl,.padinfo.bad #padLbl{color:inherit}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.key{min-height:62px;border:0;border-radius:14px;background:var(--sunk);font-family:var(--font);font-size:1.75rem;font-weight:600;color:var(--ink);touch-action:manipulation;transition:background .1s,transform .1s}
+.key:active{background:var(--line);transform:scale(.96)}
+.key.fn{background:transparent;font-family:var(--font);font-size:1.05rem;font-weight:600;color:var(--muted)}
+.key.zero{grid-column:span 2}
+.key.go{background:var(--acc);color:var(--on-acc);font-family:var(--font);font-size:1.05rem;font-weight:600;grid-row:span 3}
+.key[data-k=clr]{color:var(--bad-ink)}
+
+.toast{position:fixed;left:50%;bottom:calc(110px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(12px);background:var(--hero);color:var(--hero-ink);
+  padding:11px 20px;border-radius:99px;font-size:.95rem;font-weight:600;opacity:0;pointer-events:none;transition:.2s;z-index:10;max-width:90%;text-align:center;box-shadow:var(--shadow)}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.toast.err{background:var(--bad);color:#fff}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* แท็บอย่างเดียว ไม่มีหัวเว็บ / กรอบไม่มีสี */
+.top{background:var(--bg);color:var(--ink);padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px}
+.seg{background:var(--sunk)}
+.tab{color:var(--muted);opacity:1}
+.tab i{background:var(--line);color:var(--muted)}
+.tab.on{background:var(--acc);color:var(--on-acc)}
+.tab.on i{background:var(--on-acc);color:var(--acc)}
+.bar{background:var(--bg)}
+.bar .btn.ghost{background:var(--sunk);color:var(--ink)}
+.gh::before{display:none}
+.fld{scroll-margin-top:90px}
+
+/* ส่วนต่าง แบบกระชับ */
+.result{display:grid;grid-template-columns:1fr auto;grid-template-areas:"lbl pct" "val val" "msg msg";align-items:baseline;text-align:left;padding:12px 16px 12px;border-radius:16px}
+.result .lbl{grid-area:lbl;font-size:.8rem}
+.result .pct{grid-area:pct;font-size:.8rem;min-height:0;text-align:right}
+.result .val{grid-area:val;font-size:2.5rem;line-height:1.1;letter-spacing:-.04em}
+.result .msg{grid-area:msg;margin-top:6px;padding-top:8px;font-size:.9rem;line-height:1.35}
+
+/* แป้นตัวเลข แบบคีย์บอร์ดมือถือ */
+body.padopen{padding-bottom:360px}
+#pad{--kb:#d3d6dc;--key:#fff;--keyfn:#aeb3bd;--keyink:#000;--keyact:#b8bcc6;--keysh:rgba(0,0,0,.35);
+  background:var(--kb);border-radius:0;box-shadow:0 -1px 0 rgba(0,0,0,.12);padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px))}
+@media not all{#pad{--kb:#1e2022;--key:#4a4d52;--keyfn:#313337;--keyink:#fff;--keyact:#65686e;--keysh:rgba(0,0,0,.6)}}
+.padtop{display:flex;gap:8px;align-items:stretch;margin:0 2px 8px}
+.padinfo{flex:1;margin:0;text-align:left;padding:6px 12px;min-width:0}
+.padinfo #padLbl{font-size:1.1rem}
+.padinfo #padTxt{display:block;font-size:.8rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.keys{grid-template-columns:repeat(3,1fr);gap:8px 6px}
+.key{font-family:var(--font);min-height:52px;border-radius:8px;background:var(--key);color:var(--keyink);
+  font-size:1.65rem;font-weight:400;box-shadow:0 1px 0 var(--keysh)}
+.key:active{background:var(--keyact);transform:none}
+.key.fn{background:var(--keyfn);color:var(--keyink);font-size:1.05rem;font-weight:500}
+.key[data-k=clr]{color:var(--bad-ink)}
+#pad .key.go{min-height:0;padding:0 18px;grid-row:auto;background:var(--acc);color:var(--on-acc);font-size:1rem;font-weight:600;box-shadow:none;white-space:nowrap}
+
+/* แป้นตัวเลข หน้าตาเหมือนคีย์บอร์ดมือถือ */
+#pad{--kb:#d3d6dc;--k:#fff;--kfn:#aeb3bc;--kink:#111;--kshadow:#8a8f98;
+  background:var(--kb);border-radius:0;padding:10px 6px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -1px 0 rgba(0,0,0,.12)}
+@media not all{#pad{--kb:#1e1f21;--k:#4b4d51;--kfn:#323437;--kink:#f2f2f2;--kshadow:#000}}
+.padinfo{margin:0 6px 8px;background:var(--surface)}
+.keys{gap:6px 6px;padding:0 2px}
+.key{min-height:54px;border-radius:8px;background:var(--k);color:var(--kink);font-family:var(--font);
+  font-size:1.6rem;font-weight:400;box-shadow:0 1px 0 var(--kshadow)}
+.key:active{background:var(--kfn);transform:none}
+.key.fn{background:var(--kfn);color:var(--kink);font-size:1.05rem;font-weight:500}
+.key[data-k=clr]{color:var(--kink)}
+.key.go{background:var(--acc);color:var(--on-acc);font-size:1.05rem;font-weight:600;box-shadow:0 1px 0 var(--kshadow)}
+
+/* ปุ่มแป้นตัวเลข สไตล์เรียบ */
+#pad{background:var(--surface);box-shadow:0 -1px 0 var(--line);padding:12px 12px calc(10px + env(safe-area-inset-bottom,0px))}
+#pad .padinfo{background:var(--sunk);margin:0}
+#pad .keys{gap:8px;padding:0}
+#pad .key{min-height:60px;border-radius:10px;background:var(--sunk);color:var(--ink);box-shadow:none;
+  font-family:var(--font);font-size:1.7rem;font-weight:500}
+#pad .key:active{background:var(--line)}
+#pad .key.fn{background:transparent;font-family:var(--font);font-size:1.05rem;font-weight:500;color:var(--muted)}
+#pad .key[data-k=clr]{color:var(--bad-ink)}
+#pad .key.go{min-height:0;border-radius:10px;background:var(--acc);color:var(--on-acc);font-family:var(--font);font-size:1rem;font-weight:600}
+
+/* แป้นตัวเลข: เตี้ย กะทัดรัด */
+body.padopen{padding-bottom:calc(250px + env(safe-area-inset-bottom,0px))}
+#pad{background:var(--surface);border-radius:20px 20px 0 0;box-shadow:0 -10px 30px -10px rgba(11,61,44,.28);padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px))}
+#pad .keys{grid-template-columns:repeat(4,1fr);gap:6px}
+#pad .key{min-height:48px;border-radius:12px;background:var(--sunk);color:var(--ink);box-shadow:none;font-size:1.5rem;font-weight:500;display:grid;place-items:center;padding:0}
+#pad .key:active{background:var(--line);transform:scale(.96)}
+#pad .key.fn{background:transparent;color:var(--muted);font-size:1rem;font-weight:500}
+#pad .key.fn:active{background:var(--sunk)}
+#pad .key[data-k=clr]{color:var(--bad-ink)}
+#pad .key.zero{grid-column:span 2}
+#pad .key.go{grid-row:span 3;min-height:0;background:var(--acc);color:var(--on-acc);font-size:1.05rem;font-weight:600;box-shadow:0 8px 18px -10px color-mix(in srgb,var(--acc) 80%,transparent)}
+#pad .key.go:active{filter:brightness(.92)}
+.toast{bottom:calc(100px + env(safe-area-inset-bottom,0px))}
+body.padopen .toast{bottom:calc(250px + env(safe-area-inset-bottom,0px))}
+
+/* หน้าคำนวณ แบบกระชับ */
+main{padding:10px 12px}
+#pCalc{gap:10px}
+.top{padding-top:calc(8px + env(safe-area-inset-top,0px));padding-bottom:8px}
+.tab{min-height:38px;font-size:.95rem}
+.card{padding:12px;border-radius:16px}
+.form{gap:10px}
+.row{gap:8px}
+label{font-size:.78rem;margin-bottom:3px}
+input{min-height:44px;padding:6px 12px;font-size:1rem;border-radius:10px}
+input.num{min-height:52px;font-size:1.6rem}
+input.tolin{min-height:52px;font-size:1.35rem}
+.destrow{grid-template-columns:1fr 96px}
+.grp{padding:10px 12px;gap:8px;border-radius:14px}
+.gh{font-size:.95rem}
+.gh small{font-size:.74rem}
+.total{padding-top:4px}
+.total b{font-size:1.15rem}
+.result{padding:10px 14px;border-radius:14px}
+.result .val{font-size:2.2rem}
+.result .msg{margin-top:4px;padding-top:6px;font-size:.86rem}
+.fld{scroll-margin-top:70px}
+body.oncalc{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+.bar{padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px))}
+.bar .btn{min-height:46px}
+
+/* ส่วนต่าง: ตัวเลขและสรุปเด่น */
+.result{padding:12px 14px 14px;border-radius:18px;grid-template-areas:"lbl pct" "val val" "msg msg";row-gap:0}
+.result .lbl{font-size:.8rem;font-weight:600;opacity:.9}
+.result .pct{font-size:.8rem;font-weight:600;padding:2px 10px;border-radius:99px;background:color-mix(in srgb,currentColor 14%,transparent)}
+.result .pct:empty{display:none}
+.result .val{font-size:3rem;font-weight:600;line-height:1.1;margin:2px 0 8px;letter-spacing:-.045em}
+.result .msg{margin:0;padding:9px 12px;border:0;border-radius:12px;font-size:1rem;font-weight:600;line-height:1.3;text-align:center;
+  background:color-mix(in srgb,currentColor 10%,var(--surface))}
+.result.ok,.result.warn,.result.bad{box-shadow:0 14px 28px -16px currentColor}
+.result.ok .msg,.result.warn .msg,.result.bad .msg{background:rgba(255,255,255,.2);color:inherit}
+.result.ok,.result.warn,.result.bad{--glow:transparent}
+.result:not(.ok):not(.warn):not(.bad) .msg{background:var(--sunk);color:var(--muted);font-weight:600;font-size:.92rem}
+
+/* ส่วนต่าง: กึ่งกลาง สีพื้นเรียบ */
+.result{grid-template-columns:1fr;grid-template-areas:"lbl" "val" "pct" "msg";justify-items:center;text-align:center;align-items:center}
+.result .pct{text-align:center;margin-bottom:8px}
+.result .val{margin:2px 0 4px}
+.result .msg{width:100%}
+.result.ok{background:var(--ok)}
+.result.warn{background:var(--warn)}
+.result.bad{background:var(--bad)}
+.result.ok,.result.warn,.result.bad{box-shadow:var(--shadow)}
+
+/* ไอคอนแทนอีโมจิ */
+.ic{width:1.15em;height:1.15em;flex:none;vertical-align:-.2em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-right:.4em}
+.gh .ic{width:1.3em;height:1.3em;margin-right:0;vertical-align:0}
+.item .l3 .ic{width:1em;height:1em;vertical-align:-.15em;margin-right:.3em}
+#pad .key.go{display:flex;align-items:center;justify-content:center}
+
+/* ช่องตัวเลขและยอดรวม */
+.fld{position:relative}
+.fld label{color:var(--ink);font-weight:600;opacity:.8}
+input.num{font-size:1.9rem;font-weight:600;letter-spacing:-.03em;padding:6px 14px;background:var(--surface);border:2px solid var(--line)}
+input.num::placeholder{color:color-mix(in srgb,var(--muted) 45%,transparent);font-weight:500}
+input.num:not(:placeholder-shown){border-color:color-mix(in srgb,var(--acc) 45%,var(--line))}
+input.num:focus,input.num.active{border-color:var(--acc)}
+.total{background:var(--surface);border:0;border-radius:12px;padding:8px 14px;margin-top:2px;color:var(--muted);font-weight:600;font-size:.92rem}
+.total b{font-size:1.6rem;font-weight:600;color:var(--ink);letter-spacing:-.03em;line-height:1.2}
+.total b small{font-size:.8rem;font-weight:500;color:var(--muted);margin-left:5px;letter-spacing:0}
+.tolin{font-weight:600}
+
+/* ส่วนต่าง: เปอร์เซ็นต์อยู่ต่อท้ายป้าย */
+.result{grid-template-columns:auto auto;grid-template-areas:"lbl pct" "val val" "msg msg";justify-content:stretch;column-gap:8px}
+.result .lbl{justify-self:end}
+.result .pct{justify-self:start;margin:0;font-size:.78rem;white-space:nowrap}
+.result .val{grid-column:1 / -1}
+.result .msg{grid-column:1 / -1}
+.result:has(.pct:empty) .lbl{grid-column:1 / -1;justify-self:center}
+
+/* จัดให้เข้าชุดกัน */
+.destrow label{color:var(--ink);font-weight:600;opacity:.8}
+input.tolin{font-size:1.5rem;font-weight:600;background:var(--surface);border:2px solid var(--line)}
+
+/* ต้นทาง / ปลายทาง คนละสีพื้น (ไม่มีแถบขอบ) */
+.grp.origin{background:#fbf0cf}
+.grp.dest{background:#d9eaf7}
+.origin .total{border-top:0}
+@media not all{
+  .grp.origin{background:#2b2510}
+  .grp.dest{background:#122539}
+}
+
+/* กรอบตอนกดช่อง: เส้นเดียว */
+input:focus,input:focus-visible,input.num.active,.grp input:focus,.grp input.num.active,.origin input:focus,.dest input:focus{
+  outline:none!important;box-shadow:none!important;border-color:var(--acc)!important}
+
+/* ความสูงช่องตัวเลขเท่ากัน + กรอบตอนกดช่อง 2 เส้น */
+input.num,input.tolin{height:56px;min-height:56px;line-height:1.2;padding-top:0;padding-bottom:0}
+input:focus,input:focus-visible,input.num.active,.grp input:focus,.grp input.num.active,.origin input:focus,.dest input:focus{
+  outline:none!important;border-color:var(--acc)!important;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 28%,transparent)!important}
+
+/* สีตัวหนังสือ ตามสีของกลุ่ม */
+.grp.origin{--g-ink:#5e3d00;--g-sub:#7a5200}
+.grp.dest{--g-ink:#093b61;--g-sub:#1d5a86}
+@media not all{
+  .grp.origin{--g-ink:#ffd25c;--g-sub:#d9b254}
+  .grp.dest{--g-ink:#8cc9f2;--g-sub:#6fa8d3}
+}
+.grp .gh,.grp .fld label,.grp .destrow label,.grp .total,.grp .total b,.grp input.num,.grp input.tolin{color:var(--g-ink)!important;opacity:1}
+.grp .gh small,.grp .total b small{color:var(--g-sub)}
+
+/* รวมต้นทาง: กล่องสีเข้ม */
+.grp .total{--t-bg:#8a5a00;--t-ink:#fff;--t-sub:rgba(255,255,255,.78);background:var(--t-bg)}
+.grp .total,.grp .total b{color:var(--t-ink)!important}
+.grp .total b small{color:var(--t-sub)}
+@media not all{
+  .grp .total{--t-bg:#f0b429;--t-ink:#2b2510;--t-sub:rgba(43,37,16,.7)}
+}
+
+/* รวมต้นทาง: พื้นอ่อน */
+.grp .total{--t-bg:#f6e2a4;--t-ink:#4a3000;--t-sub:#6e4b0e}
+@media not all{
+  .grp .total{--t-bg:#4a3b12;--t-ink:#ffd25c;--t-sub:#d9b254}
+}
+/* รวมต้นทาง: ตัวเลขเด่น */
+.grp .total{padding:10px 14px;border-radius:14px}
+.grp .total>span{font-size:.95rem;font-weight:600}
+.grp .total b{font-size:2.3rem!important;font-weight:700;line-height:1.1;letter-spacing:-.04em}
+.grp .total b small{font-size:.95rem;font-weight:600;margin-left:6px}
+/* ประวัติ: การ์ดกระชับ ไม่มีแถบสีข้างกรอบ */
+.hcount{margin-bottom:10px}
+.item,.item.ok,.item.warn,.item.bad{border:0;border-left:0;background:var(--sunk);border-radius:14px;padding:10px 12px 8px;margin-top:8px}
+.item .l1{font-size:1rem;gap:8px}
+.item .pl{display:flex;align-items:center;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .pl .ic{color:var(--muted);margin-right:.45em}
+.item .tag{font-size:.88rem;padding:1px 10px}
+.item .l2{display:flex;align-items:center;flex-wrap:wrap;gap:0 6px;font-size:.78rem;color:var(--muted);margin:2px 0 8px}
+.item .l2 i{font-style:normal;opacity:.6}
+.item .l2 .ic{width:.95em;height:.95em;margin:0 -2px 0 0}
+.item .l2 .over{font-style:normal;color:var(--bad-ink);font-weight:600;margin-left:4px}
+.item .l3{display:flex;align-items:center;gap:8px;font-size:inherit;color:var(--ink);background:var(--surface);border-radius:10px;padding:6px 8px 6px 12px}
+.item .w{display:flex;flex-direction:column;line-height:1.2;min-width:0}
+.item .w span{font-size:.7rem;font-weight:500;color:var(--muted)}
+.item .w b{font-size:1.1rem;font-weight:600;letter-spacing:-.02em}
+.item .w small{font-size:.68rem;color:var(--muted)}
+.item .arr{width:18px;height:18px;flex:none;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
+.item .del{margin:0 0 0 auto;padding:8px;width:36px;height:36px;border:0;border-radius:10px;background:transparent;color:var(--muted);cursor:pointer;display:grid;place-items:center}
+.item .del .ic{width:18px;height:18px;margin:0}
+.item .del:active{background:var(--sunk);color:var(--bad-ink)}
+/* ประวัติ: อ่านง่าย แยกสีต้นทาง/ปลายทางเหมือนหน้าคำนวณ */
+.item{padding:12px;margin-top:10px}
+.item .l1{font-size:1.1rem}
+.item .tag{font-size:.95rem;padding:2px 12px}
+.item .l2{margin:2px 0 10px;font-size:.82rem;flex-wrap:nowrap;white-space:nowrap}
+.item .l2 .src{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.item .l2 span:last-of-type{flex:none}
+.item .l2 .del{margin-left:auto;margin-right:-6px;flex:none}
+.item .l3{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:transparent;padding:0;border-radius:0}
+.item .w{border-radius:12px;padding:8px 12px;line-height:1.25;background:var(--wb);color:var(--wi)}
+.item .w.o{--wb:#fbf0cf;--wi:#7a4f00;--ws:#9a6a14}
+.item .w.d{--wb:#d9eaf7;--wi:#0e4c7a;--ws:#35709b}
+.item .w span{font-size:.78rem;font-weight:600;color:var(--wi)}
+.item .w b{font-size:1.5rem;font-weight:700;letter-spacing:-.03em;color:var(--wi)}
+.item .w small{font-size:.74rem;color:var(--ws)}
+@media not all{
+  .item .w.o{--wb:#2b2510;--wi:#ffd25c;--ws:#d9b254}
+  .item .w.d{--wb:#122539;--wi:#8cc9f2;--ws:#6fa8d3}
+}
+/* ประวัติ: พื้นหลังเรียบ ใช้เส้นคั่นแทนกล่องเทา */
+.item,.item.ok,.item.warn,.item.bad{background:transparent;border-radius:0;padding:14px 0;margin-top:0;border-bottom:1px solid var(--line)}
+#list .item:first-child{padding-top:8px}
+#list .item:last-child{border-bottom:0;padding-bottom:4px}
+.item .l2{margin-bottom:10px}
+.item .del{background:transparent}
+.item .w{border-radius:14px;padding:10px 14px}
+/* ประวัติ: การ์ดกระชับ */
+.item,.item.ok,.item.warn,.item.bad{padding:10px 0}
+#list .item:first-child{padding-top:4px}
+.item .l1{font-size:1rem;line-height:1.2}
+.item .tag{font-size:.88rem;padding:0 10px}
+.item .l2{margin:1px 0 7px;font-size:.76rem;line-height:1.2}
+.item .l2 .del{width:28px;height:28px;padding:4px;margin:-8px -6px -8px auto}
+.item .l2 .del .ic{width:16px;height:16px}
+.item .l3{gap:6px}
+.item .w{display:grid;grid-template-columns:1fr auto;grid-template-areas:"lb num" "sm num";align-items:center;column-gap:8px;padding:6px 12px;border-radius:12px;line-height:1.15}
+.item .w span{grid-area:lb;font-size:.72rem}
+.item .w small{grid-area:sm;font-size:.66rem;white-space:nowrap}
+.item .w b{grid-area:num;font-size:1.3rem;line-height:1.1}
+/* ประวัติ: เส้นขอบการ์ดชัดเจน */
+.item,.item.ok,.item.warn,.item.bad,#list .item:first-child,#list .item:last-child{
+  background:var(--surface);border:1.5px solid color-mix(in srgb,var(--ink) 16%,var(--surface));border-radius:16px;
+  padding:10px 12px 12px;margin-top:12px;box-shadow:0 2px 6px -2px color-mix(in srgb,var(--ink) 18%,transparent)}
+#list .item:first-child{margin-top:4px}
+.item .l2{padding-bottom:8px;margin-bottom:8px;border-bottom:1px dashed color-mix(in srgb,var(--ink) 16%,var(--surface))}
+.item .l2 .del{margin-bottom:-6px}
+/* กล่องยืนยันการลบ */
+.dlg{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:20px;background:rgba(8,18,14,.5);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:in .15s ease}
+.dlg-box{width:100%;max-width:340px;background:var(--surface);color:var(--ink);border-radius:22px;padding:22px 18px 16px;text-align:center;box-shadow:0 24px 60px -20px rgba(0,0,0,.5)}
+.dlg-ic{width:52px;height:52px;border-radius:50%;background:var(--bad-soft);color:var(--bad-ink);display:grid;place-items:center;margin:0 auto 10px}
+.dlg-ic svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.dlg-box h2{margin:0 0 6px;font-size:1.15rem;font-weight:600}
+.dlg-box p{margin:0 0 16px;color:var(--muted);font-size:.92rem;line-height:1.45;white-space:pre-line}
+.dlg-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn.danger{background:var(--bad);color:#fff}
+.item .del{color:var(--bad-ink)}
+/* ที่เก็บข้อมูล */
+.store{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:14px;border:1.5px solid color-mix(in srgb,var(--ink) 16%,var(--surface));border-radius:16px;background:var(--surface)}
+.st-ic{width:40px;height:40px;border-radius:12px;background:var(--ok-soft);color:var(--ok-ink);display:grid;place-items:center;flex:none}
+.st-ic svg,.opt svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.st-tx{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+.st-tx span{font-size:.72rem;font-weight:500;color:var(--muted)}
+.st-tx b{font-size:.98rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-tx small{font-size:.72rem;color:var(--ok-ink);font-weight:500}
+.st-btn{flex:none;min-height:40px;padding:0 14px;border:0;border-radius:12px;background:var(--acc);color:var(--on-acc);font:inherit;font-size:.9rem;font-weight:600;cursor:pointer}
+.st-btn:active{opacity:.85}
+.store.need .st-ic{background:var(--warn-soft);color:var(--warn-ink)}
+.store.need .st-tx small{color:var(--warn-ink)}
+/* คำแนะนำตอนพิมพ์ (แทน dropdown ของเบราว์เซอร์) */
+.sug{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:20;display:none;flex-wrap:wrap;gap:6px;padding:6px;border-radius:12px;background:var(--surface);border:1px solid color-mix(in srgb,var(--ink) 14%,var(--surface));box-shadow:0 6px 18px rgba(0,0,0,.14)}
+.sug.on{display:flex}
+.sug button{border:0;border-radius:99px;padding:6px 12px;min-height:32px;background:var(--ok-soft);color:var(--ok-ink);font:inherit;font-size:.84rem;font-weight:600;cursor:pointer}
+/* ที่เก็บข้อมูล: กระชับ 2 บรรทัด */
+.store{gap:10px;padding:8px 8px 8px 10px;margin-bottom:10px;border-width:1px;border-radius:14px;background:var(--sunk)}
+.st-ic{width:34px;height:34px;border-radius:10px}
+.st-ic svg{width:18px;height:18px}
+.st-tx{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"l n" "u u";column-gap:6px;align-items:baseline;line-height:1.3}
+.st-tx span{grid-area:l;font-size:.7rem;white-space:nowrap}
+.st-tx b{grid-area:n;font-size:.9rem}
+.st-tx small{grid-area:u;font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-btn{min-height:34px;padding:0 14px;border-radius:99px;font-size:.84rem}
+.dlg-box.sheet{max-width:380px;text-align:left}
+.dlg-box.sheet h2{text-align:center}
+.dlg-box.sheet p{text-align:center;margin-bottom:12px}
+.opt{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 8px;padding:12px;border:1.5px solid color-mix(in srgb,var(--ink) 16%,var(--surface));border-radius:14px;background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.opt:active{background:var(--sunk)}
+.opt svg{color:var(--acc);width:26px;height:26px}
+.opt span{display:flex;flex-direction:column;line-height:1.3;min-width:0}
+.opt b{font-size:.98rem;font-weight:600}
+.opt small{font-size:.76rem;color:var(--muted)}
+.opt[hidden]{display:none!important}
+/* ประวัติ: ต้นทาง / โรงสี / ส่วนต่าง เรียง 1 แถว */
+.item .l3{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.item .w{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:7px 10px;line-height:1.2}
+.item .w span{font-size:.7rem}
+.item .w b{font-size:1.15rem;line-height:1.2;white-space:nowrap;max-width:100%}
+.item .w small{font-size:.66rem;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.item .w.x.ok{--wb:var(--ok-soft);--wi:var(--ok-ink);--ws:var(--ok-ink)}
+.item .w.x.warn{--wb:var(--warn-soft);--wi:var(--warn-ink);--ws:var(--warn-ink)}
+.item .w.x.bad{--wb:var(--bad-soft);--wi:var(--bad-ink);--ws:var(--bad-ink)}
+/* ประวัติ: ทะเบียน + ท่าข้าว + เวลา อยู่แถวเดียวกัน */
+.item .l2{flex-wrap:wrap;white-space:normal;gap:2px 6px;align-items:center}
+.item .l2 .pl{font-size:1rem;font-weight:600;color:var(--ink);flex:none;line-height:1.2}
+.item .l2 .pl .ic{width:1.1em;height:1.1em;margin:0 .4em 0 0;color:var(--muted)}
+.item .l2 .src{flex:0 1 auto;min-width:0}
+.item .l2 .tm{flex:none}
+/* ขาดได้ไม่เกิน: เป็นค่าตั้ง ไม่ต้องเด่น */
+.destrow{align-items:end}
+.grp .destrow label[for=tol]{font-size:.7rem;font-weight:500;color:var(--g-sub)!important;opacity:.85;margin-bottom:3px}
+.grp input.tolin{height:44px;min-height:44px;font-size:1.05rem;font-weight:500;color:var(--g-sub)!important;background:transparent;
+  border:1.5px dashed color-mix(in srgb,var(--g-sub) 55%,transparent)}
+.grp input.tolin:focus{background:var(--surface);color:var(--g-ink)!important}
+/* ช่องเกณฑ์: สูงเท่าช่องน้ำหนัก */
+.grp input.tolin{height:56px;min-height:56px}
+/* ส่วนต่าง: ไอคอนเครื่องชั่งตอนยังไม่มีผล */
+#diff .ic{width:1em;height:1em;margin:0;vertical-align:-.1em;opacity:.35;stroke-width:1.6}
+/* หัวกลุ่ม: ไอคอนซ้าย ชื่อบน คำอธิบายใต้ชื่อ (ไม่ลอย) */
+.grp .gh{display:grid;grid-template-columns:auto 1fr;column-gap:12px;row-gap:0;align-items:center;line-height:1.25}
+.grp .gh .ic{grid-row:1 / 3;grid-column:1;width:2.6em;height:2.6em;margin:0;padding:.5em;border-radius:14px;background:color-mix(in srgb,var(--g-ink) 12%,transparent)}
+.grp .gh small{grid-column:2;font-size:.76rem;font-weight:500}
+
+
+/* เครื่องหมาย + − แบบไอคอนเส้นมน */
+.sg{display:inline-block;width:.6em;height:.6em;margin-right:.18em;vertical-align:.04em;flex:none;fill:none;stroke:currentColor;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.item .w small .sg{width:.85em;height:.85em;margin-right:.12em;stroke-width:3}
+/* เมนูและปุ่ม: สีเรียบ ไม่ไล่ระดับ */
+:root{--edge:color-mix(in srgb,var(--ink) 18%,var(--surface))}
+.top{background:var(--bg);backdrop-filter:none;-webkit-backdrop-filter:none}
+.seg{background:var(--surface);border:1.5px solid var(--edge);border-radius:16px;padding:4px;gap:4px}
+.tab{min-height:44px;border-radius:12px;font-size:1rem;font-weight:600;color:var(--muted);gap:8px}
+.tab svg{width:20px;height:20px}
+.tab:not(.on):active{background:var(--sunk)}
+.tab.on{background:var(--acc);color:var(--on-acc)}
+.tab i{background:var(--sunk);color:var(--muted)}
+.tab.on i{background:var(--on-acc);color:var(--acc)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;border:1.5px solid transparent;border-radius:14px;
+  font-size:1rem;font-weight:600;box-shadow:none;background:var(--sunk);color:var(--ink)}
+.btn .ic{margin:0;width:1.2em;height:1.2em}
+.btn:active{transform:scale(.98);opacity:1;filter:brightness(.94)}
+.btn.save,.btn.export{background:var(--acc);color:var(--on-acc);border-color:var(--acc)}
+.btn.ghost,.bar .btn.ghost,.dlg-btns .btn:not(.danger),#stDlgNo{background:transparent;color:var(--ink);border-color:var(--edge)}
+.btn.danger{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn.export{margin-top:14px}
+.jrow .btn{min-height:46px;font-size:.92rem}
+
+.bar{background:var(--surface);backdrop-filter:none;-webkit-backdrop-filter:none;border-top:1px solid var(--edge);border-radius:0;box-shadow:none;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));gap:10px}
+.bar .btn{min-height:50px}
+.bar .btn.ghost{flex:0 0 34%}
+.bar .btn.save{flex:1}
+
+.link{border:1.5px solid color-mix(in srgb,var(--bad) 40%,var(--surface));border-radius:12px;padding:8px 14px;margin:0;text-decoration:none;color:var(--bad-ink);font-weight:600}
+.link:active{background:var(--bad-soft)}
+#pad .key.go{box-shadow:none}
+#pad .key.go:active{filter:brightness(.92)}
+/* กรอบช่องกรอก: สีตามกลุ่ม ตอนกดและตอนมีข้อมูล */
+.card{--fc:var(--acc)}
+.grp.origin{--fc:#c98a00}
+.grp.dest{--fc:#2b83c6}
+@media not all{
+  .grp.origin{--fc:#f0b429}
+  .grp.dest{--fc:#5aaee8}
+}
+/* มีข้อมูลแล้ว: กรอบเข้มขึ้นและพื้นอมสีกลุ่มอ่อนๆ */
+.card input.num:not(:placeholder-shown),
+.card input:not(.num):not(.tolin):not(:placeholder-shown){
+  border-color:color-mix(in srgb,var(--fc) 65%,var(--surface));
+  background:color-mix(in srgb,var(--fc) 7%,var(--surface))}
+/* กำลังกด: กรอบสีกลุ่มเต็ม มีวงเรืองแสงบาง */
+.card input:focus,.card input:focus-visible,.card input.num.active,
+.card .grp input:focus,.card .grp input.num.active{
+  outline:none!important;border-color:var(--fc)!important;background:var(--surface)!important;
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--fc) 20%,transparent)!important}
+.card .grp input.tolin:focus{color:var(--g-ink)!important}
+/* พูดตัวเลข */
+.mic{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:44px;margin:0 0 8px;border:1.5px solid var(--edge);border-radius:12px;
+  background:var(--surface);color:var(--acc);font:inherit;font-size:.98rem;font-weight:600;cursor:pointer}
+.mic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.mic:active{background:var(--sunk)}
+.mic.on{background:var(--acc);border-color:var(--acc);color:var(--on-acc);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--acc) 25%,transparent)}}
+body.padopen{padding-bottom:calc(306px + env(safe-area-inset-bottom,0px))}
+body.padopen .toast{bottom:calc(306px + env(safe-area-inset-bottom,0px))}
+/* ป้ายช่องน้ำหนัก: ชื่อ + คำอธิบาย + หน่วยในช่อง */
+.fld label{display:flex;flex-direction:column;gap:1px;margin-bottom:6px;line-height:1.25}
+.fld label .ln{display:flex;align-items:center;gap:6px;font-size:.95rem;font-weight:600}
+.fld label .ln svg{width:19px;height:19px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.grp .fld label small{font-size:.74rem;font-weight:500;color:var(--g-sub)!important;padding-left:0}
+#list .item.latest{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 18%,transparent)}
+.item .l2 .new{flex:none;font-style:normal;font-size:.72rem;font-weight:600;line-height:1.5;padding:0 9px;border-radius:99px;background:var(--acc);color:var(--on-acc)}
+/* เลื่อนหน้าจอ: แถบบน/ล่างมีมุมมน ไม่ให้การ์ดดูเหมือนถูกตัดเป็นสี่เหลี่ยม */
+/* เมนู คำนวณ / ประวัติ อยู่ล่างสุด */
+:root{--navh:calc(72px + env(safe-area-inset-bottom,0px))}
+.top{position:fixed;top:auto;bottom:0;left:0;right:0;width:100%;max-width:560px;margin:0 auto;z-index:5;height:var(--navh);
+  padding:8px 12px env(safe-area-inset-bottom,0px);background:var(--surface);border-radius:20px 20px 0 0;
+  box-shadow:0 -8px 16px -10px color-mix(in srgb,var(--ink) 30%,transparent),0 -1px 0 var(--edge)}
+.top .seg{max-width:none;margin:0}
+body.padopen .top{display:none}
+/* สรุปรวมในหน้าประวัติ */
+.stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:8px}
+.stat{display:flex;flex-direction:row;flex-wrap:wrap;align-items:baseline;align-content:center;column-gap:3px;row-gap:0;min-width:0;text-align:left;padding:7px 9px 8px;border-radius:12px;background:var(--wb);color:var(--wi)}
+.stat span{flex:0 0 100%;font-size:.7rem;font-weight:600;line-height:1.3;white-space:nowrap;color:var(--wi)}
+.stat b{font-size:1.05rem;font-weight:700;letter-spacing:-.03em;line-height:1.25;color:var(--wi)}
+.stat small{font-size:.66rem;font-weight:500;color:var(--ws)}
+.stat.o{--wb:#fbf0cf;--wi:#7a4f00;--ws:#9a6a14}
+.stat.d{--wb:#d9eaf7;--wi:#0e4c7a;--ws:#35709b}
+.stat.x{grid-column:auto}
+.stat.x.ok{--wb:var(--ok-soft);--wi:var(--ok-ink);--ws:var(--ok-ink)}
+.stat.x.bad{--wb:var(--bad-soft);--wi:var(--bad-ink);--ws:var(--bad-ink)}
+.stat.x.warn{--wb:var(--warn-soft);--wi:var(--warn-ink);--ws:var(--warn-ink)}
+.stat.x .xv{display:contents}
+.stat.x .xl{white-space:normal}
+.stat.x .xp{flex:0 0 100%;font-style:normal;font-size:.68rem;font-weight:600;line-height:1.3;color:var(--wi)}
+@media not all{
+  .stat.o{--wb:#2b2510;--wi:#ffd25c;--ws:#d9b254}
+  .stat.d{--wb:#122539;--wi:#8cc9f2;--ws:#6fa8d3}
+}
+
+/* แถบปุ่ม ล้างช่อง / บันทึก: การ์ดลอยเหนือเมนู */
+.bar{left:12px;right:12px;width:auto;max-width:536px;bottom:calc(var(--navh) + 10px);padding:8px;gap:8px;
+  background:var(--surface);border:1.5px solid var(--edge);border-radius:20px;
+  box-shadow:0 12px 26px -14px color-mix(in srgb,var(--ink) 50%,transparent)}
+.bar .btn{min-height:50px;border-radius:14px;font-size:1rem}
+.bar .btn.ghost{flex:0 0 auto;padding:0 16px;background:var(--sunk);border-color:transparent;color:var(--muted);font-weight:600}
+.bar .btn.ghost .ic{transition:transform .35s}
+.bar .btn.ghost:active .ic{transform:rotate(-200deg)}
+.bar .btn.save{flex:1;font-size:1.05rem;box-shadow:0 8px 16px -10px color-mix(in srgb,var(--acc) 90%,transparent)}
+body.oncalc{padding-bottom:calc(var(--navh) + 106px)}
+body.padopen,body.padopen.oncalc{padding-bottom:calc(306px + env(safe-area-inset-bottom,0px))}
+
+/* สไตล์เมนูล่าง: ไอคอนบน ชื่อใต้ มีแคปซูลสีเมื่อเลือก */
+.top .seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;height:100%;padding:0;background:transparent;border:0;border-radius:0}
+.top .seg .tab{position:relative;flex-direction:column;justify-content:center;gap:2px;height:100%;min-height:0;padding:0;border-radius:14px;
+  background:transparent;color:var(--muted);font-size:.8rem;font-weight:500;line-height:1.2;opacity:1;transition:color .15s}
+.top .seg .tab svg{width:24px;height:24px;box-sizing:content-box;padding:4px 20px;border-radius:99px;stroke-width:1.9;transition:background .2s}
+.top .seg .tab.on{background:transparent;color:var(--acc);font-weight:600}
+.top .seg .tab.on svg{background:color-mix(in srgb,var(--acc) 16%,transparent);stroke-width:2.2}
+.top .seg .tab:not(.on):active svg{background:var(--sunk)}
+.top .seg .tab i{position:absolute;top:2px;left:calc(50% + 10px);min-width:18px;height:18px;padding:0 5px;border-radius:99px;
+  font-size:.68rem;font-weight:600;line-height:18px;background:var(--acc);color:var(--on-acc);box-shadow:0 0 0 2px var(--surface)}
+
+.bar{bottom:var(--navh);border-radius:0;border-top:1px solid var(--edge);box-shadow:none;padding:10px 12px;z-index:4}
+body{padding-bottom:calc(var(--navh) + 20px)}
+body.oncalc{padding-bottom:calc(var(--navh) + 92px)}
+.toast{bottom:calc(var(--navh) + 90px)}
+
+.bar{border-top:0;border-radius:20px 20px 0 0;box-shadow:0 -8px 16px -10px color-mix(in srgb,var(--ink) 35%,transparent),0 -1px 0 var(--edge)}
+main{padding-top:12px}
+/* ช่องน้ำหนัก: ให้ตัวเลขเห็นครบ */
+.fld input.num{font-size:1.6rem;padding-left:10px;padding-right:40px;letter-spacing:-.04em}
+.fld::after{right:10px;font-size:.78rem}
+.fld input.num{font-size:1.6rem;padding-left:10px;padding-right:40px;letter-spacing:-.04em}
+.fld::after{right:10px;font-size:.78rem}
+/* หัวกลุ่ม ต้นทาง/ปลายทาง: ตัวอักษรใหญ่สมดุลกับไอคอน */
+.grp .gh{display:flex;align-items:center;font-size:1.7rem;font-weight:600;line-height:1.1;gap:12px}
+.grp .gh .ic{flex:none;width:44px;height:44px;padding:9px;border-radius:14px}
+/* ปุ่มพูดในช่องทะเบียน/ท่าข้าว */
+.vf{position:relative}
+.vf input{padding-right:48px}
+.vmic{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:38px;height:38px;border:0;border-radius:10px;background:transparent;color:var(--acc);display:grid;place-items:center;cursor:pointer;padding:0}
+.vmic svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.vmic:active{background:var(--sunk)}
+.vmic.on{background:var(--acc);color:var(--on-acc);animation:pulse 1.2s ease-in-out infinite}
+/* ท่าข้าว อยู่ในกรอบต้นทาง ฝั่งขวาบน */
+.row.plate1{grid-template-columns:1fr}
+.ghrow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center}
+.srcf{min-width:0}
+.srcf label{font-size:.74rem;font-weight:500;margin-bottom:3px;color:var(--g-sub)!important;opacity:1}
+.srcf input{height:44px;min-height:44px;font-size:1rem}
+.fld label .ln{flex-wrap:wrap;gap:0 6px}
+.grp .fld label .ln small{padding:0;font-size:.74rem;font-weight:500}
+.fld::after{content:"กก.";position:absolute;right:14px;bottom:0;height:56px;display:flex;align-items:center;
+  font-size:.9rem;font-weight:600;color:var(--g-sub);pointer-events:none}
+.fld input.num{padding-right:52px}
+/* ไมค์อยู่ในช่องกรอกเลข ถัดจาก กก. */
+.fld::after{content:none!important}
+.nf{position:relative}
+.nf::after{content:"กก.";position:absolute;right:44px;top:0;bottom:0;display:flex;align-items:center;font-size:.8rem;font-weight:600;color:var(--g-sub);pointer-events:none}
+.fld .nf input.num{padding-left:8px;padding-right:70px;font-size:1.5rem}
+/* ทะเบียนรถ: แบ่งช่อง หมวด · เลข - เลขทะเบียน / พ่วง */
+.pl4{display:flex;align-items:center;gap:4px}
+.vf.pl4 input.pp{min-width:0;padding:6px 2px;text-align:center;font-size:1.1rem;font-weight:600;letter-spacing:.02em}
+.pl4 input.pp::placeholder{font-weight:500;letter-spacing:0;opacity:.45}
+#pl1{flex:1.15 1 0}#pl2{flex:1 1 0}#pl3{flex:1.7 1 0}#pl4{flex:1.7 1 0}
+.pl4 i{font-style:normal;font-weight:700;color:var(--muted);flex:none}
+.pl4 .vmic{position:static;transform:none;flex:none;margin-left:2px}
+/* กรอบทะเบียนรถ */
+.grp.plate{--g-ink:var(--ink);--g-sub:var(--muted);padding:9px 12px 11px;gap:0;border:1.5px solid color-mix(in srgb,var(--ink) 16%,var(--surface));background:var(--sunk)}
+.grp.plate label{display:block;margin:0 0 6px;font-size:.78rem;font-weight:600;color:var(--g-sub);opacity:1}
+/* ต้นทาง/ปลายทาง: อ่านง่ายขึ้น (ตัวใหญ่ขึ้น เข้มขึ้น) */
+.grp .gh{font-weight:700}
+.grp .fld label .ln{font-size:1rem;font-weight:700}
+.grp .fld label small,.grp .fld label .ln small{font-size:.8rem!important;font-weight:600!important}
+.srcf label,.grp .destrow label[for=tol]{font-size:.82rem!important;font-weight:600!important;opacity:1!important}
+.grp input::placeholder{color:var(--g-sub)!important;opacity:.7}
+.grp input.num{font-weight:700}
+.grp input.tolin{font-size:1.1rem;font-weight:600}
+.nf::after{font-size:.9rem;font-weight:700}
+.grp .total>span{font-size:1rem;font-weight:700}
+.grp .total b small{font-weight:700}
+@media all{.grp .total b small{color:var(--t-sub)}}
+.dest .gh{font-size:1.5rem}
+/* ปลายทาง: เกณฑ์ขาดได้ ขึ้นไปอยู่แถวหัวกล่อง */
+.dest .gh{font-size:1.2rem}
+.dhead{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.dest .destrow{grid-template-columns:1fr}
+.tolbox{display:flex;align-items:center;gap:6px}
+.grp .tolbox label[for=tol]{margin:0!important;font-size:.8rem!important;font-weight:600!important;line-height:1.15;text-align:right;color:var(--g-sub)!important}
+.tolw{position:relative;display:block;width:84px}
+.tolw::after{content:"กก.";position:absolute;right:8px;top:0;bottom:0;display:flex;align-items:center;font-size:.78rem;font-weight:600;color:var(--g-sub);pointer-events:none}
+.grp .tolbox input.tolin{width:100%;height:38px;min-height:38px;padding:0 28px 0 8px;font-size:1.05rem;font-weight:700;text-align:right;color:var(--g-ink)!important}
+.dest .gh .gt{display:flex;flex-direction:column;min-width:0;line-height:1.15}
+.dest .gh .gt b{font-size:1.2rem;font-weight:700}
+.dest .gh .gt small{font-size:.82rem;font-weight:600;color:var(--g-sub)}
+/* รวมต้นทาง: เลขกับ กก. และป้ายชื่อ อยู่บนเส้นฐานเดียวกัน */
+.grp .total{align-items:baseline}
+.grp .total b{display:inline-flex;align-items:baseline;gap:6px}
+.grp .total b small{margin-left:0!important;line-height:1}
+/* ช่องกรอก: ขยับ กก. ลงเล็กน้อยให้เส้นฐานตรงกับตัวเลข (ไม่ใช้ flex baseline) */
+.nf::after{top:.24rem;bottom:-.24rem}
+.tolw::after{top:.1rem;bottom:-.1rem}
+/* รวมต้นทาง: แถบสรุปสะอาดตา */
+.grp .total{--t-bg:color-mix(in srgb,var(--surface) 80%,transparent);--t-ink:var(--g-ink);--t-sub:var(--g-sub);
+  background:var(--t-bg);border:1.5px solid color-mix(in srgb,var(--g-sub) 30%,transparent);border-radius:14px;padding:7px 14px 8px 12px;gap:10px}
+.grp .total>span{display:flex;align-items:center;gap:8px;font-size:.95rem;font-weight:700;color:var(--g-sub)!important;white-space:nowrap}
+.grp .total>span::before{content:"";width:4px;height:1.15em;border-radius:3px;background:var(--g-sub);opacity:.75}
+.grp .total b{font-size:2rem!important;font-weight:800;line-height:1.05;letter-spacing:-.04em;color:var(--g-ink)!important;font-variant-numeric:tabular-nums}
+.grp .total b small{font-size:.9rem;font-weight:700;color:var(--g-sub)!important}
+/* ปลายทาง: ช่องน้ำหนักสุทธิ ทรงเดียวกับแถบรวมต้นทาง */
+.dest .fld{display:flex;align-items:center;gap:8px;background:color-mix(in srgb,var(--surface) 80%,transparent);border:1.5px solid color-mix(in srgb,var(--g-sub) 30%,transparent);border-radius:14px;padding:3px 4px 3px 12px;transition:border-color .15s,box-shadow .15s}
+.dest .fld:focus-within,.dest .fld:has(input.active){border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
+.dest .dl{display:flex;align-items:center;gap:8px;flex:none;font-size:.95rem;font-weight:700;color:var(--g-sub);white-space:nowrap}
+.dest .dl::before{content:"";width:4px;height:1.15em;border-radius:3px;background:var(--g-sub);opacity:.75}
+.dest .fld .nf{flex:1;min-width:0}
+.card .grp.dest .fld input.num{background:transparent!important;border:0!important;box-shadow:none!important;height:52px;min-height:52px;font-size:2rem;font-weight:800;letter-spacing:-.04em;color:var(--g-ink)!important;font-variant-numeric:tabular-nums}
+.dest .nf::after{top:.43rem;bottom:-.43rem;font-size:.95rem;font-weight:700}
+/* ความคมมุมของทุกช่องเท่ากัน */
+:root{--rb:14px}
+.card,.grp,.result,.result .msg,.dd-btn,.dd-list,.btn,.bar .btn,.stat,.item .w,.item .l3,.item .del,.total,.grp .total,.dest .fld,.grp .tolbox,.grp .tolbox input.tolin,.store,.st-ic,.st-btn,.sug,.opt,.link,.mic,.vmic,.padinfo,.key,#pad .key,#pad .key.go,input,.logo,.dlg-box,.grp .gh .ic{border-radius:var(--rb)!important}
+.item,.item.ok,.item.warn,.item.bad{border-radius:var(--rb)!important}
+/* กล่องสรุปทั้ง 3 ช่อง: รูปแบบเดียวกัน (สีคงเดิม) */
+.stats{align-items:stretch}
+.stat,.stat.o,.stat.d,.stat.x{display:flex;flex-direction:row;flex-wrap:wrap;align-content:flex-start;align-items:baseline;column-gap:3px;row-gap:0;padding:8px 10px 9px;text-align:left}
+.stat span,.stat.x .xl{flex:0 0 100%;min-height:2.6em;font-size:.7rem;font-weight:600;line-height:1.3;white-space:normal;color:var(--wi)}
+.stat b{font-size:1.05rem;font-weight:700;line-height:1.25;letter-spacing:-.03em;color:var(--wi)}
+.stat small{font-size:.66rem;font-weight:500;color:var(--ws)}
+.stat.x .xp{flex:0 0 100%;display:flex;align-items:center;gap:1px;font-size:.7rem;font-weight:600;line-height:1.3;font-style:normal;color:var(--wi);white-space:nowrap}
+.stat.x .xp .sg{width:.9em;height:.9em;margin:0 .1em 0 0;vertical-align:0;stroke-width:3}
+/* ตัวกรองประวัติ + สรุปแยกท่าข้าว */
+.fbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.fbar #fq{grid-column:1/-1}
+.fbar input,.fbar select{width:100%;min-width:0;height:44px;min-height:44px;padding:0 12px;font:inherit;font-size:.95rem;font-weight:500;color:var(--ink);background:var(--surface);border:1.5px solid var(--edge)}
+.fbar select{padding-right:6px;text-overflow:ellipsis}
+.bysrc{margin:0 0 10px;border:1.5px solid var(--edge);border-radius:var(--rb);background:var(--surface);overflow:hidden}
+.bysrc summary{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;font-size:.9rem;font-weight:600;cursor:pointer;list-style:none}
+.bysrc summary::-webkit-details-marker{display:none}
+.bysrc summary::after{content:"▾";color:var(--muted);transition:transform .15s}
+.bysrc[open] summary::after{transform:rotate(180deg)}
+.srow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 14px;border-top:1px solid var(--edge)}
+.srow .sn,.srow .sv{display:flex;flex-direction:column;min-width:0}
+.srow .sn b{font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow .sv{flex:none;text-align:right}
+.srow .sv b{font-size:.95rem;white-space:nowrap}
+.srow small{font-size:.72rem;color:var(--muted)}
+.srow.ok .sv b{color:var(--ok-ink)}
+.srow.bad .sv b{color:var(--bad-ink)}
+.srow.warn .sv b{color:var(--warn-ink)}
+/* dropdown กำหนดเอง */
+.dd{position:relative;min-width:0}
+.dd-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;height:44px;padding:0 12px;font:inherit;font-size:.95rem;font-weight:500;text-align:left;color:var(--ink);background:var(--surface);border:1.5px solid var(--edge);cursor:pointer}
+.dd-btn span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dd-btn svg{flex:none;width:16px;height:16px;fill:none;stroke:var(--muted);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+.dd.open .dd-btn,.dd-btn:focus-visible{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
+.dd.open .dd-btn svg{transform:rotate(180deg)}
+.dd-list{position:absolute;z-index:30;top:calc(100% + 6px);left:0;min-width:100%;max-width:78vw;max-height:260px;overflow-y:auto;margin:0;padding:5px;list-style:none;background:var(--surface);border:1.5px solid var(--edge);box-shadow:0 14px 30px -12px rgba(0,0,0,.4);animation:in .12s ease}
+.dd:last-child .dd-list{left:auto;right:0}
+.dd-list li{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:42px;padding:0 12px;font-size:.95rem;font-weight:500;color:var(--ink);cursor:pointer;white-space:nowrap;border-radius:var(--rb)}
+.dd-list li+li{margin-top:2px}
+.dd-list li:hover,.dd-list li:focus{outline:none;background:var(--sunk)}
+.dd-list li[aria-selected="true"]{font-weight:700;color:var(--acc);background:color-mix(in srgb,var(--acc) 12%,transparent)}
+.dd-list li svg{flex:none;width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.dd-list[hidden]{display:none}
+/* กล่องสรุป (ดีไซน์ใหม่): ต้นทาง/ปลายทางคู่กัน ส่วนต่างเต็มแถวเป็นตัวเด่น — สีคงเดิม */
+.stats{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.stats .stat{align-content:center;padding:11px 14px 12px;border:1.5px solid color-mix(in srgb,var(--wi) 18%,transparent);box-shadow:0 6px 14px -12px color-mix(in srgb,var(--wi) 70%,transparent)}
+.stats .stat span{min-height:0;margin-bottom:3px;font-size:.76rem;font-weight:600;letter-spacing:.01em;opacity:.92}
+.stats .stat b{font-size:1.5rem;font-weight:800;letter-spacing:-.035em;line-height:1.15;font-variant-numeric:tabular-nums}
+.stats .stat small{font-size:.78rem;font-weight:600}
+.stats .stat.x{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 12px;padding:13px 16px 14px}
+.stats .stat.x .xl{flex:0 0 100%;margin-bottom:0}
+.stats .stat.x .xv{display:flex;align-items:baseline;gap:5px;flex:0 1 auto;white-space:nowrap}
+.stats .stat.x b{font-size:1.95rem;white-space:nowrap;font-weight:800;letter-spacing:-.04em}
+.stats .stat.x b .sg{width:.5em;height:.5em;margin-right:.1em;vertical-align:.12em;stroke-width:3.4}
+.stats .stat.x small{font-size:.9rem}
+.stats .stat.x .xp{flex:none;display:inline-flex;align-items:center;gap:1px;padding:5px 11px;border-radius:99px;background:color-mix(in srgb,var(--wi) 14%,transparent);font-size:.78rem;font-weight:700;white-space:nowrap}
+.stats .stat.x .xp .sg{width:.85em;height:.85em;margin:0 .08em 0 0}
+/* กล่องสรุป: แบบกระชับ ใช้ความสูงน้อย */
+.stats{gap:6px;margin-bottom:8px}
+.stats .stat{padding:7px 12px 8px;box-shadow:none}
+.stats .stat span{margin-bottom:0;font-size:.7rem;line-height:1.25}
+.stats .stat b{font-size:1.3rem;line-height:1.15}
+.stats .stat small{font-size:.72rem}
+.stats .stat.x{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"l p" "v p";align-items:center;column-gap:10px;row-gap:0;padding:7px 12px 8px}
+.stats .stat.x .xl{grid-area:l;flex:none;min-height:0;white-space:nowrap}
+.stats .stat.x .xv{grid-area:v}
+.stats .stat.x b{font-size:1.6rem;line-height:1.1}
+.stats .stat.x small{font-size:.8rem}
+.stats .stat.x .xp{grid-area:p;padding:4px 10px;font-size:.74rem}
+@media (max-width:350px){
+  .stats .stat.x{grid-template-columns:minmax(0,1fr);grid-template-areas:"l" "v" "p"}
+  .stats .stat.x .xp{justify-self:start;margin-top:4px}
+}
+/* สรุปในประวัติ: ย่อ/ขยายได้ */
+.sum{margin-bottom:8px}
+.sumhd{display:flex;align-items:center;gap:8px;width:100%;height:40px;padding:0 12px;font:inherit;font-size:.9rem;font-weight:700;color:var(--ink);background:var(--surface);border:1.5px solid var(--edge);border-radius:var(--rb);cursor:pointer;margin-bottom:8px}
+.sumhd .sumt{flex:none}
+.sumhd>svg{flex:none;width:16px;height:16px;margin-left:auto;fill:none;stroke:var(--muted);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+.sum.collapsed .sumhd>svg{transform:rotate(-90deg)}
+.sum.collapsed .sumhd{margin-bottom:0}
+.sumhd:focus-visible{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
+.sumMini{display:none;align-items:center;gap:4px;margin-left:auto;padding:3px 10px;border-radius:99px;font-size:.78rem;font-weight:700;white-space:nowrap;background:var(--ok-soft);color:var(--ok-ink)}
+.sumMini .sg{width:.85em;height:.85em;margin:0 .08em 0 0}
+.sum.collapsed .sumMini{display:inline-flex}
+.sum.collapsed .sumhd>svg{margin-left:0}
+.sum[data-st="warn"] .sumMini{background:var(--warn-soft);color:var(--warn-ink)}
+.sum[data-st="bad"] .sumMini{background:var(--bad-soft);color:var(--bad-ink)}
+.sum.collapsed .sumbody{display:none}
+.sumbody .stats{margin-bottom:8px}
+/* กล่องสรุป: 3 ช่องอยู่แถวเดียว */
+.stats{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.3fr);gap:6px;margin-bottom:8px;align-items:stretch}
+.stats .stat,.stats .stat.x{grid-column:auto;display:flex;flex-direction:row;flex-wrap:wrap;align-content:center;align-items:baseline;column-gap:3px;row-gap:1px;padding:7px 9px 8px}
+.stats .stat span,.stats .stat.x .xl{flex:0 0 100%;min-height:0;margin:0;font-size:.66rem;line-height:1.25;white-space:normal}
+.stats .stat b,.stats .stat.x b{font-size:clamp(.95rem,4.6vw,1.2rem);line-height:1.15;white-space:nowrap}
+.stats .stat.x b .sg{width:.45em;height:.45em;vertical-align:.14em}
+.stats .stat small,.stats .stat.x small{font-size:.64rem}
+.stats .stat.x .xv{flex:0 0 100%;display:flex;align-items:baseline;gap:3px;white-space:nowrap}
+.stats .stat.x .xp{flex:0 0 100%;display:flex;align-items:center;margin:0;padding:0;border-radius:0;background:none;font-size:.66rem;font-weight:700;line-height:1.3;justify-self:auto}
+.stats .stat.x .xp .sg{width:.8em;height:.8em}
+@media (max-width:350px){
+  .stats{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.5fr);gap:5px}
+  .stats .stat,.stats .stat.x{padding:6px 7px 7px}
+  .stats .stat span,.stats .stat.x .xl{font-size:.6rem}
+  .stats .stat small,.stats .stat.x small{font-size:.58rem}
+  .stats .stat.x .xp{font-size:.6rem;white-space:normal;align-items:flex-start}
+}
+/* กรอบสรุป: โทนสีเขียวอ่อน แยกจากช่องกรอก/รายการ */
+.sum{padding:6px;margin-bottom:10px;background:color-mix(in srgb,var(--acc) 8%,var(--surface));border:1.5px solid color-mix(in srgb,var(--acc) 38%,var(--surface));border-radius:var(--rb);box-shadow:0 8px 18px -14px color-mix(in srgb,var(--acc) 80%,transparent)}
+.sumhd{height:36px;padding:0 6px;margin-bottom:6px;color:var(--acc);background:transparent;border:0;border-radius:calc(var(--rb) - 4px)}
+.sumhd:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 24%,transparent)}
+.sumhd .sumt{display:inline-flex;align-items:center;gap:7px;font-size:.92rem;font-weight:700;letter-spacing:.01em}
+.sumhd .sumic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.sum.collapsed .sumhd{margin-bottom:0}
+.sum .bysrc{margin-bottom:0;border-color:color-mix(in srgb,var(--acc) 22%,var(--surface))}
+.sum .stats{margin-bottom:6px}
+.sum{padding:5px}
+.sum .stats{gap:5px}
+.sum .stats .stat,.sum .stats .stat.x{padding:7px 8px 8px}
+.sum .stats .stat b,.sum .stats .stat.x b{font-size:clamp(.9rem,4.2vw,1.1rem)}
+.sum .stats .stat small,.sum .stats .stat.x small{font-size:.62rem}
+/* ตัวกรอง: แถวเดียว */
+.fbar{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr);gap:6px;margin-bottom:8px}
+.fbar #fq{grid-column:auto}
+.fbar input,.fbar .dd-btn{height:42px;min-height:42px;padding:0 10px;font-size:.88rem}
+.fbar .dd-btn{gap:4px}
+.fbar .dd-btn svg{width:14px;height:14px}
+.fbar .dd-list li{font-size:.9rem}
+/* โครงหน้าประวัติ */
+.hhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 2px 12px}
+.hhead h2{display:flex;align-items:center;gap:8px;margin:0;font-size:1.25rem;font-weight:700;letter-spacing:-.01em}
+.hhead h2 svg{width:22px;height:22px;fill:none;stroke:var(--acc);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.hhead .hcount{margin:0;padding:4px 12px;border-radius:99px;background:var(--sunk);color:var(--muted);font-size:.82rem;font-weight:600;white-space:nowrap}
+.dgrp{display:flex;align-items:baseline;justify-content:space-between;margin:16px 4px 0;font-size:.84rem;font-weight:700;color:var(--muted)}
+.dgrp:first-child{margin-top:4px}
+.dgrp small{font-size:.74rem;font-weight:500}
+.dgrp+.item{margin-top:6px}
+.manage{margin-top:20px;padding:10px;border-radius:var(--rb);background:var(--sunk);border:1.5px solid var(--edge)}
+.manage .mhd{display:flex;align-items:center;gap:7px;margin:0 2px 8px;font-size:.85rem;font-weight:700;color:var(--muted)}
+.manage .mhd svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.manage .store{margin-bottom:0;background:var(--surface)}
+.manage .btn.export{margin-top:10px}
+.manage .btn.ghost{background:var(--surface)}
+.bysrc summary::after{content:"";width:16px;height:16px;background:var(--muted);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/contain no-repeat}
+/* ทะเบียนรถ: โทนเทาเข้ม พื้นหลังขาว (ทั้งโหมดสว่าง/มืด) */
+.grp.plate{--g-ink:#374151;--g-sub:#4b5563;background:#d1d5db!important;border:1.5px solid #374151!important}
+.grp.plate label{color:#374151!important}
+.grp.plate input,.grp.plate input.pp{background:#fff!important;color:#374151!important;border:1.5px solid #6b7280!important;caret-color:#374151}
+.grp.plate input.pp::placeholder{color:#6b7280!important;opacity:.6}
+.grp.plate input.pp:focus{border-color:#374151!important;box-shadow:0 0 0 4px rgba(55,65,81,.18)!important}
+.grp.plate .pl4 i{color:#374151}
+.grp.plate .vmic{color:#374151}
+.grp.plate .vmic:active{background:#e5e7eb}
+.grp.plate .vmic.on{background:#374151;color:#fff}
+/* กรอบทุกช่องกรอกเหมือนกัน: พื้นขาว ขอบเทา 1.5px มุม 14px สูง 56px ตัวอักษรเทาเข้ม */
+.card .grp input#pl1,.card .grp input#pl2,.card .grp input#pl3,.card .grp input#pl4,
+.card .grp input#source,.card .grp input#head,.card .grp input#tail,.card .grp input#tol,
+.card .grp.dest .fld{background:#fff!important;color:#374151!important;border:1.5px solid #6b7280!important;border-radius:14px!important;height:56px;min-height:56px;box-shadow:none}
+.card .grp input#pl1,.card .grp input#pl2,.card .grp input#pl3,.card .grp input#pl4,
+.card .grp input#source,.card .grp input#head,.card .grp input#tail,.card .grp input#tol{padding-top:0;padding-bottom:0;line-height:1.2}
+.card .grp input#source{font-size:1.1rem;font-weight:600}
+.card .grp input#head:focus,.card .grp input#tail:focus,.card .grp input#head.active,.card .grp input#tail.active,
+.card .grp input#pl1:focus,.card .grp input#pl2:focus,.card .grp input#pl3:focus,.card .grp input#pl4:focus,
+.card .grp input#source:focus,.card .grp input#tol:focus,.card .grp.dest .fld:focus-within,.card .grp.dest .fld:has(input.active){border-color:#374151!important;box-shadow:0 0 0 4px rgba(55,65,81,.18)!important}
+.card .grp.dest .fld{padding:0 4px 0 12px}
+.card .grp.dest .fld input#dest{height:100%;min-height:0;color:#374151!important}
+.card .grp .dest .dl,.card .grp.dest .dl{color:#374151}
+.card .grp.dest .dl::before{background:#374151}
+.card .grp input::placeholder{color:#6b7280!important}
+.card .grp input#tol{height:40px;min-height:40px;font-size:1.05rem;font-weight:700}
+/* ทะเบียนรถ + ท่าข้าว: ลดความสูงให้กะทัดรัด */
+.card .grp input#pl1,.card .grp input#pl2,.card .grp input#pl3,.card .grp input#pl4,.card .grp input#source{height:42px;min-height:42px;font-size:1rem;border-radius:12px!important}
+.card .grp.plate{padding:7px 12px 9px}
+.card .grp.plate label{margin:0 0 4px}
+.card .grp .pl4 .vmic,.card .grp .srcf .vmic{width:34px;height:34px}
+/* ทะเบียนรถ + ท่าข้าว + ขาดได้ไม่เกิน: ไม่มีขอบ เหมือนกัน */
+.card .grp input#pl1,.card .grp input#pl2,.card .grp input#pl3,.card .grp input#pl4,
+.card .grp input#source,.card .grp input#tol{border:0!important;box-shadow:none!important}
+.card .grp input#pl1:focus,.card .grp input#pl2:focus,.card .grp input#pl3:focus,.card .grp input#pl4:focus,
+.card .grp input#source:focus,.card .grp input#tol:focus{border:0!important;box-shadow:0 0 0 3px rgba(55,65,81,.28)!important}
+/* เส้นขอบช่องใบชั่ง/น้ำหนักสุทธิ: ตามสีธีมของกล่อง (ต้นทาง=เหลืองอำพัน, ปลายทาง=ฟ้า) */
+.card .grp.origin input#head,.card .grp.origin input#tail,.card .grp.dest .fld{border-color:var(--fc)!important}
+.card .grp.origin input#head:focus,.card .grp.origin input#tail:focus,.card .grp.origin input#head.active,.card .grp.origin input#tail.active,
+.card .grp.dest .fld:focus-within,.card .grp.dest .fld:has(input.active){border-color:var(--fc)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--fc) 28%,transparent)!important}
+.card .grp.origin input#head,.card .grp.origin input#tail,.card .grp.dest .fld{border-width:3px!important}
+/* ไมค์ทุกปุ่ม: สีเดียวกัน (เทาเข้ม) */
+.card .vmic{color:#374151!important}
+.card .vmic:active{background:#e5e7eb!important}
+.card .vmic.on{background:#374151!important;color:#fff!important}
+/* ไมค์: สีตามกล่อง (ทะเบียน=เทาเข้ม, ต้นทาง=เหลืองอำพัน, ปลายทาง=ฟ้า) */
+.card .grp.origin .vmic{color:var(--fc)!important}
+.card .grp.dest .vmic{color:var(--fc)!important}
+.card .grp.origin .vmic:active,.card .grp.dest .vmic:active{background:color-mix(in srgb,var(--fc) 18%,transparent)!important}
+.card .grp.origin .vmic.on,.card .grp.dest .vmic.on{background:var(--fc)!important;color:#fff!important}
+/* ไมค์: ปุ่มสีทึบเด่นชัด ไอคอนขาว สีตามกล่อง */
+.card .grp.plate .vmic{background:#374151!important;color:#fff!important}
+.card .grp.origin .vmic,.card .grp.dest .vmic{background:var(--fc)!important;color:#fff!important}
+.card .grp .vmic svg{stroke-width:2.4}
+.card .grp .vmic:active{filter:brightness(.85)}
+.card .grp .vmic.on{box-shadow:0 0 0 4px color-mix(in srgb,currentColor 0%,transparent),0 0 0 4px rgba(0,0,0,.18)!important}
+@media not all{.card .grp.origin .vmic,.card .grp.dest .vmic{color:#111827!important}}
+/* ไมค์: ไม่มีพื้นหลัง ใช้สีไอคอนเด่นๆ ตามกล่อง */
+.card .grp .vmic,.card .grp .vmic:active,.card .grp .vmic.on{background:transparent!important;filter:none}
+.card .grp.plate .vmic{color:#374151!important}
+.card .grp.origin .vmic,.card .grp.dest .vmic{color:var(--fc)!important}
+.card .grp .vmic svg{stroke-width:2.6}
+.card .grp .vmic.on{box-shadow:0 0 0 2px currentColor!important}
+@media not all{.card .grp.origin .vmic,.card .grp.dest .vmic{color:var(--fc)!important}}
+/* ไมค์ทุกปุ่ม: สีแดงเหมือนกัน */
+.card .vmic,.card .grp .vmic,.card .grp.origin .vmic,.card .grp.dest .vmic,.card .grp.plate .vmic{color:#d92d20!important}
+.card .vmic:active,.card .grp .vmic:active,.card .grp.origin .vmic:active,.card .grp.dest .vmic:active,.card .grp.plate .vmic:active{background:rgba(217,45,32,.15)!important}
+.card .vmic.on,.card .grp .vmic.on,.card .grp.origin .vmic.on,.card .grp.dest .vmic.on,.card .grp.plate .vmic.on{background:#d92d20!important;color:#fff!important}
+/* ไมค์: ไม่มีพื้นหลังทุกสถานะ (คงไอคอนสีแดง) */
+.card .vmic,.card .vmic:active,.card .vmic.on,.card .grp .vmic,.card .grp .vmic:active,.card .grp .vmic.on,
+.card .grp.origin .vmic,.card .grp.origin .vmic:active,.card .grp.origin .vmic.on,
+.card .grp.dest .vmic,.card .grp.dest .vmic:active,.card .grp.dest .vmic.on,
+.card .grp.plate .vmic,.card .grp.plate .vmic:active,.card .grp.plate .vmic.on{background:transparent!important;color:#d92d20!important;box-shadow:none!important}
+/* ไมค์ที่กำลังฟัง: ไอคอนทึบ + กะพริบ + จุดแดง (ไม่ใช้พื้นหลัง) */
+@keyframes micblink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(1.18)}}
+.card .pl4 .vmic{position:relative}
+.card .vmic.on{animation:none!important}
+.card .vmic.on svg{animation:micblink 1s ease-in-out infinite}
+.card .vmic svg rect{fill:currentColor}
+.card .vmic.on::after{content:"";position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:#d92d20;animation:micblink 1s ease-in-out infinite}
+/* ไมค์ที่กำลังฟัง: วงแหวนแดงขยายออกเป็นจังหวะ (ไม่มีพื้นหลัง) */
+@keyframes micring{0%{transform:scale(.55);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+.card .vmic.on svg{animation:none!important}
+.card .vmic.on::after{content:"";position:absolute;inset:0;top:0;right:0;width:auto;height:auto;border-radius:50%!important;border:2px solid #d92d20;background:transparent;pointer-events:none;animation:micring 1.2s ease-out infinite}
+/* ไมค์: ขนาดเท่ากันทุกปุ่ม ไอคอนเรียบคม วงแหวน 2 ชั้นตอนฟัง */
+.card .vmic,.card .grp .pl4 .vmic,.card .grp .srcf .vmic{width:38px;height:38px;border-radius:50%!important;-webkit-tap-highlight-color:transparent}
+.card .vmic svg{width:21px;height:21px;stroke-width:2.2;transition:transform .15s ease;filter:drop-shadow(0 1px 1px rgba(217,45,32,.25))}
+.card .vmic:active svg{transform:scale(.88)}
+.card .vmic:focus-visible{outline:2px solid #d92d20;outline-offset:-2px}
+@keyframes micring2{0%{transform:scale(.6);opacity:.85}100%{transform:scale(1.4);opacity:0}}
+.card .vmic.on::before,.card .vmic.on::after{content:"";position:absolute;inset:3px;top:3px;right:3px;width:auto;height:auto;border-radius:50%!important;border:1.5px solid #d92d20;background:transparent;pointer-events:none;animation:micring2 1.6s ease-out infinite}
+.card .vmic.on::after{animation-delay:.8s}
+/* ไมค์สไตล์ใหม่: ปกติ=วงกลมเส้นแดง + ไมค์แดง / เปิดอยู่=วงกลมแดงทึบ ไอคอนขาว มีแสงเรืองกระเพื่อม */
+@keyframes micpulse{0%{box-shadow:0 0 0 0 rgba(217,45,32,.55),0 2px 8px rgba(217,45,32,.35)}70%{box-shadow:0 0 0 11px rgba(217,45,32,0),0 2px 8px rgba(217,45,32,.35)}100%{box-shadow:0 0 0 0 rgba(217,45,32,0),0 2px 8px rgba(217,45,32,.35)}}
+@keyframes micbreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.card .vmic,.card .grp .vmic,.card .grp.origin .vmic,.card .grp.dest .vmic,.card .grp.plate .vmic{background:transparent!important;color:#d92d20!important;box-shadow:inset 0 0 0 1.5px rgba(217,45,32,.5)!important;transition:background .2s,color .2s,box-shadow .2s}
+.card .vmic.on,.card .grp .vmic.on,.card .grp.origin .vmic.on,.card .grp.dest .vmic.on,.card .grp.plate .vmic.on{background:#d92d20!important;color:#fff!important;box-shadow:0 2px 8px rgba(217,45,32,.35)!important;animation:micpulse 1.3s ease-out infinite!important}
+.card .vmic.on svg{filter:none;animation:micbreathe 1.3s ease-in-out infinite!important}
+.card .vmic.on::before,.card .vmic.on::after{content:none!important;display:none!important}
+/* ไอคอนหัวกล่องต้นทาง/ปลายทาง: แบบทึบ */
+.grp.origin .gh .ic path:nth-of-type(1){fill:currentColor}
+.grp.origin .gh .ic path:nth-of-type(2){stroke:color-mix(in srgb,var(--g-ink) 12%,#fbf0cf);stroke-width:5}
+.grp.dest .gh .ic path:nth-of-type(1){fill:currentColor;stroke-width:1.2}
+.grp.dest .gh .ic path:nth-of-type(2){stroke:color-mix(in srgb,var(--g-ink) 12%,#d9eaf7);stroke-width:2.4}
+@media not all{
+  .grp.origin .gh .ic path:nth-of-type(2){stroke:color-mix(in srgb,var(--g-ink) 12%,#2b2510)}
+  .grp.dest .gh .ic path:nth-of-type(2){stroke:color-mix(in srgb,var(--g-ink) 12%,#122539)}
+}
+/* เลขเวอร์ชัน: ท้ายหน้าเช็กน้ำหนัก ตัวเล็กสีจาง */
+.ver{text-align:center;font-size:.72rem;font-weight:500;letter-spacing:.04em;color:var(--muted);opacity:.6;padding:2px 0 8px;user-select:none}
+/* กล่องทะเบียนรถ: ไม่มีเส้นกรอบ */
+.card .grp.plate,.grp.plate{border:0!important}
+/* ปุ่มจัดการข้อมูล มุมขวาบนของหน้าประวัติ + แผ่นเมนู */
+.hright{display:flex;align-items:center;gap:8px}
+.hbtn{width:34px;height:34px;padding:0;border:0;border-radius:50%!important;background:var(--sunk);color:var(--muted);display:grid;place-items:center;cursor:pointer;flex:none}
+.hbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.hbtn:active{background:var(--line)}
+.dlg-box.mg{max-height:88vh;overflow-y:auto}
+.dlg-box.mg .manage{margin-top:0;padding:0;background:transparent;border:0}
+.dlg-box.mg .manage .mhd{font-size:1.1rem;color:var(--ink);margin-bottom:12px}
+/* ล็อกหน้าหลังเมื่อกล่องโต้ตอบเปิด: ห้ามเลื่อน ห้ามกดพื้นที่อื่น */
+html.modal-open{overflow:hidden;overscroll-behavior:none}
+body.modal-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
+.dlg{overscroll-behavior:contain;touch-action:none}
+.dlg-box{touch-action:auto}
+.dlg-box.mg{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+[inert]{pointer-events:none;user-select:none}
+/* ไมค์ชิดกรอบเท่ากันทุกช่อง: ห่างขอบใน 6px */
+.card .vf:not(.pl4) > .vmic{right:6px!important}
+.card .vf.pl4 > .vmic{margin-right:2px!important}
+.card .row .nf > .vmic{right:9px!important}
+.card .row .nf::after{right:50px!important}
+.card .row .fld .nf input.num{padding-right:76px!important}
+.card .dest .nf > .vmic{right:2px!important}
+.card .dest .nf::after{right:42px!important}
+.card .dest .fld .nf input.num{padding-right:66px!important}
+/* ปุ่มพูดตัวเลข: อยู่ใต้เลข 3 (ขวาของเลข 0) */
+#pad .key.go{grid-row:span 3!important}
+#pad .key.zero{grid-column:span 1!important}
+/* ไมค์ในแป้น: หน้าตาเหมือนไมค์ในกล่องข้อความ (วงกลมขอบแดง ไอคอนแดง ไม่มีข้อความ) */
+#pad .keys .mic{position:relative;width:auto;min-height:48px;margin:0;padding:0;border:0!important;background:transparent!important;color:#d92d20;box-shadow:none;animation:none!important;-webkit-tap-highlight-color:transparent}
+#pad .keys .mic::before{content:"";position:absolute;left:50%;top:50%;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;box-shadow:inset 0 0 0 1.5px rgba(217,45,32,.5);transition:background .2s,box-shadow .2s}
+#pad .keys .mic:active::before{background:rgba(217,45,32,.15)}
+#pad .keys .mic svg{position:relative;width:21px;height:21px;stroke-width:2.2;filter:drop-shadow(0 1px 1px rgba(217,45,32,.25))}
+#pad .keys .mic svg rect{fill:currentColor}
+#pad .keys .mic #micTx{display:none}
+#pad .keys .mic.on{color:#fff}
+#pad .keys .mic.on::before{background:#d92d20;box-shadow:0 2px 8px rgba(217,45,32,.35);animation:micpulse 1.3s ease-out infinite}
+/* แถบเมนูล่าง (คำนวณ / ประวัติ): ไม่มีขอบโค้ง */
+header.top,.top .seg,.top .seg .tab,.top .seg .tab i{border-radius:0!important}
+.top .seg .tab svg{border-radius:99px!important}
+</style>
+</head>
+<body class="oncalc">
+
+<header class="top">
+  <nav class="seg" role="tablist">
+    <button class="tab on" data-go="calc" role="tab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/></svg>คำนวณ</button>
+    <button class="tab" data-go="hist" role="tab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>ประวัติ <i id="tabCount">0</i></button>
+  </nav>
+</header>
+
+<main>
+<div class="page" id="pCalc">
+  <section class="card form">
+    <div class="row plate1 grp plate">
+      <div><label for="pl1">ทะเบียนรถ</label>
+        <div class="vf pl4"><input id="plate" type="hidden"><input class="pp" id="pl1" maxlength="3" placeholder="กข" aria-label="หมวดอักษรทะเบียน" autocomplete="off" autocapitalize="off" enterkeyhint="next"><input class="pp" id="pl2" maxlength="2" placeholder="12" inputmode="numeric" aria-label="เลขหน้าทะเบียน" autocomplete="off" enterkeyhint="next"><i>-</i><input class="pp" id="pl3" maxlength="4" placeholder="3456" inputmode="numeric" aria-label="เลขทะเบียน" autocomplete="off" enterkeyhint="next"><i>/</i><input class="pp" id="pl4" maxlength="4" placeholder="7890" inputmode="numeric" aria-label="เลขทะเบียนพ่วง (ถ้ามี)" autocomplete="off" enterkeyhint="next"><button class="vmic" type="button" data-vf="plate" aria-label="พูดทะเบียนรถ"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div>
+    </div>
+    <div class="grp origin">
+      <div class="ghrow"><div class="gh"><svg class="ic" viewBox="0 0 24 24" role="img" aria-label="ต้นทาง"><path d="M12 21s-7-5.8-7-11a7 7 0 0 1 14 0c0 5.2-7 11-7 11z"/><path d="M12 10h.01"/></svg></div>
+        <div class="srcf"><div class="vf"><input id="source" placeholder="ท่าข้าว / แหล่งที่มา" aria-label="ท่าข้าว / แหล่งที่มา" autocomplete="off" enterkeyhint="next"><button class="vmic" type="button" data-vf="source" aria-label="พูดชื่อท่าข้าว"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div></div>
+      <div class="row">
+        <div class="fld"><label for="head"><span class="ln">ใบชั่งที่ 1</span></label>
+          <div class="nf"><input id="head" class="num" type="text" inputmode="none" readonly placeholder="0" aria-label="ใบชั่งที่ 1 น้ำหนักสุทธิ กก."><button class="vmic" type="button" data-vf="head" aria-label="พูดตัวเลขใบชั่งที่ 1"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div>
+        <div class="fld"><label for="tail"><span class="ln">ใบชั่งที่ 2 <small>(ถ้ามี)</small></span></label>
+          <div class="nf"><input id="tail" class="num" type="text" inputmode="none" readonly placeholder="0" aria-label="ใบชั่งที่ 2 น้ำหนักสุทธิ กก."><button class="vmic" type="button" data-vf="tail" aria-label="พูดตัวเลขใบชั่งที่ 2"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div>
+      </div>
+      <div class="total"><span>รวมต้นทาง</span><b id="originTotal">0<small>กก.</small></b></div>
+    </div>
+    <div class="grp dest">
+      <div class="ghrow dhead"><div class="gh"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20V11l6 3.5V11l6 3.5V8h3V4h3v16z"/><path d="M7 17h.01M11.5 17h.01M16 17h.01"/></svg><span class="gt"><b>ปลายทาง</b></span></div><div class="tolbox"><label for="tol">ขาดได้ไม่เกิน</label><span class="tolw"><input id="tol" class="tolin" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" value="100" aria-label="เกณฑ์น้ำหนักขาดที่ยอมรับได้ (กก.)"></span></div></div>
+      <div class="row destrow">
+        <div class="fld">
+          <span class="dl">น้ำหนักสุทธิ</span><div class="nf"><input id="dest" class="num" type="text" inputmode="none" readonly placeholder="0" aria-label="น้ำหนัก กก."><button class="vmic" type="button" data-vf="dest" aria-label="พูดตัวเลขปลายทาง"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div>
+      </div>
+    </div>
+  </section>
+  <section class="result" id="result" aria-live="polite">
+    <div class="lbl">ส่วนต่าง</div>
+    <div class="val" id="diff"></div>
+    <div class="pct" id="pct"></div>
+    <div class="msg" id="msg">กรอกน้ำหนักต้นทางและปลายทาง</div>
+  </section>
+  <div class="ver" id="appVer">v1.0</div>
+</div>
+
+<div class="page" id="pHist" hidden>
+  <section class="card">
+    <header class="hhead"><h2><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>ประวัติ</h2><div class="hright"><span class="hcount" id="count">0 เที่ยว</span><button class="hbtn" id="mgBtn" type="button" aria-label="จัดการข้อมูล" title="จัดการข้อมูล"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h8M18 6h2M4 12h2M12 12h8M4 18h10M20 18h0"/><circle cx="15" cy="6" r="2.2"/><circle cx="9" cy="12" r="2.2"/><circle cx="17" cy="18" r="2.2"/></svg></button></div></header>
+    <div class="fbar" id="fbar" hidden>
+      <input id="fq" type="search" placeholder="ค้นหา" aria-label="ค้นหาทะเบียนหรือท่าข้าว" autocomplete="off">
+      <select id="fd" aria-label="ช่วงเวลา"><option value="all">ทุกวัน</option><option value="today">วันนี้</option><option value="7">7 วันล่าสุด</option><option value="month">เดือนนี้</option></select>
+      <select id="fs" aria-label="ท่าข้าว"><option value="">ทุกท่าข้าว</option></select>
+    </div>
+    <section class="sum" id="sum" hidden>
+      <button type="button" class="sumhd" id="sumHd" aria-expanded="true" aria-controls="sumBody"><span class="sumt"><svg class="sumic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>สรุป</span><span class="sumMini" id="sumMini"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="sumbody" id="sumBody">
+    <div class="stats" id="stats" hidden>
+      <div class="stat o"><span>ต้นทางรวม</span><b id="sOrigin">0</b><small>กก.</small></div>
+      <div class="stat d"><span>ปลายทางรวม</span><b id="sDest">0</b><small>กก.</small></div>
+      <div class="stat x ok" id="sBox"><span class="xl">ส่วนต่าง (ปลายทาง − ต้นทาง)</span><div class="xv"><b id="sDiff">0</b><small>กก.</small></div><em class="xp" id="sPct"></em></div>
+    </div>
+    <details class="bysrc" id="bysrc" hidden><summary>สรุปแยกตามท่าข้าว</summary><div id="bysrcList"></div></details>
+      </div>
+    </section>
+    <div id="list"></div>
+
+  </section>
+</div>
+</main>
+
+<div class="bar">
+  <button class="btn ghost" id="reset"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>เริ่มใหม่</button>
+  <button class="btn save" id="save"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>บันทึก</button>
+</div>
+<div id="pad" role="group" aria-label="แป้นตัวเลข">
+  <div class="padinfo" id="padInfo" hidden><span id="padLbl"></span><span id="padTxt"></span></div>
+  <div class="keys">
+    <button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button><button class="key fn" data-k="del" aria-label="ลบ"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5h11a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9l-6-7Z"/><path d="m12 9 5 5m0-5-5 5"/></svg></button>
+    <button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button><button class="key go" id="goKey" data-k="next">ถัดไป ›</button>
+    <button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button>
+    <button class="key fn" data-k="clr">ล้าง</button><button class="key zero" data-k="0">0</button><button class="mic" id="micBtn" type="button" aria-live="polite" aria-label="พูดตัวเลข"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="micTx">พูด</span></button>
+  </div>
+</div>
+<div class="dlg" id="mgDlg" hidden>
+  <div class="dlg-box sheet mg" role="dialog" aria-modal="true" aria-label="จัดการข้อมูล">
+    <section class="manage" id="manage">
+      <div class="mhd"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>จัดการข้อมูล</div>
+    <div class="store" id="store">
+      <div class="st-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></div>
+      <div class="st-tx"><span>ที่เก็บข้อมูล</span><b id="stName">ในเบราว์เซอร์</b><small id="stSub">บันทึกลงเครื่องอัตโนมัติ</small></div>
+      <button class="st-btn" id="stBtn">เลือกไฟล์</button>
+    </div>
+    <button class="btn export" id="exportBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 13h8M8 17h8"/></svg>ดาวน์โหลด Excel (CSV)</button>
+    <div class="jrow">
+      <button class="btn ghost" id="jsonBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>สำรอง JSON</button>
+      <button class="btn ghost" id="importBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m0 0L8 7m4-4 4 4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>นำเข้า JSON</button>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
+    </div>
+    <div style="text-align:right;margin-top:12px"><button class="link" id="clearAll">ล้างประวัติทั้งหมด</button></div>
+    </section>
+    <button class="btn" id="mgClose" type="button" style="width:100%;margin-top:10px">ปิด</button>
+  </div>
+</div>
+<div class="dlg" id="dlg" hidden>
+  <div class="dlg-box" role="alertdialog" aria-modal="true" aria-labelledby="dlgT">
+    <div class="dlg-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></div>
+    <h2 id="dlgT">ลบรายการนี้?</h2>
+    <p id="dlgP"></p>
+    <div class="dlg-btns">
+      <button class="btn" id="dlgNo">ยกเลิก</button>
+      <button class="btn danger" id="dlgYes">ลบ</button>
+    </div>
+  </div>
+</div>
+<div class="dlg" id="stDlg" hidden>
+  <div class="dlg-box sheet" role="dialog" aria-modal="true" aria-labelledby="stDlgT">
+    <h2 id="stDlgT">เลือกที่เก็บข้อมูล</h2>
+    <p id="stDlgP">ข้อมูลจะบันทึกลงไฟล์ JSON ที่คุณเลือกทุกครั้งที่บันทึกหรือลบรายการ</p>
+    <button class="opt" id="optNew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M12 12v6M9 15h6"/></svg><span><b>สร้างไฟล์ JSON ใหม่</b><small>ตั้งชื่อและเลือกตำแหน่งที่จะเก็บ</small></span></button>
+    <button class="opt" id="optOpen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg><span><b>เปิดไฟล์ JSON เดิม</b><small>ดึงข้อมูลจากไฟล์ แล้วบันทึกต่อในไฟล์นั้น</small></span></button>
+    <button class="opt" id="optLocal"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg><span><b>เก็บในเบราว์เซอร์</b><small>เลิกเชื่อมไฟล์ (ไฟล์เดิมยังอยู่ ไม่ถูกลบ)</small></span></button>
+    <button class="btn" id="stDlgNo" style="width:100%;margin-top:6px">ปิด</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const ICO={"save": "<path d=\"M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z\"/><path d=\"M17 21v-8H7v8M7 3v5h8\"/>", "file": "<path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z\"/><path d=\"M14 3v6h6M8 13h8M8 17h8\"/>", "down": "<path d=\"M12 3v12m0 0-4-4m4 4 4-4\"/><path d=\"M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2\"/>", "up": "<path d=\"M12 15V3m0 0L8 7m4-4 4 4\"/><path d=\"M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2\"/>", "bad": "<path d=\"M10.3 3.9 1.8 18.6A2 2 0 0 0 3.5 21.6h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z\"/><path d=\"M12 9v4m0 4h.01\"/>", "warn": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 8v5m0 3h.01\"/>", "ok": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"m8 12 3 3 5-6\"/>", "stop": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"m9 9 6 6m0-6-6 6\"/>", "truck": "<path d=\"M2 6h12v10H2zM14 9h4l4 4v3h-8\"/><circle cx=\"7\" cy=\"18\" r=\"1.8\"/><circle cx=\"17\" cy=\"18\" r=\"1.8\"/>", "clock": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/>", "check": "<path d=\"m5 12 5 5 9-10\"/>"};
+ICO.scale='<path d="M12 3v18M8 21h8M4 7h16"/><path d="m4 7-3 7a3.5 3.5 0 0 0 6 0Z"/><path d="m20 7-3 7a3.5 3.5 0 0 0 6 0Z"/>';
+ICO.trash='<path d="M4 7h16M10 11v6m4-6v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>';
+const ic = n => '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + ICO[n] + '</svg>';
+const MAX = 70000; // สูงสุด 70 ตัน
+const DIFFMAX = 10000; // ส่วนต่างตั้งแต่ 10,000 กก. ถือว่าผิดปกติ ไม่ให้บันทึก
+const KEY = 'paddyRecords', TOLKEY = 'paddyTolerance';
+const nf = new Intl.NumberFormat('th-TH', {maximumFractionDigits: 2});
+const fmt = n => nf.format(n);
+const SGP = '<svg class="sg" viewBox="0 0 24 24" aria-hidden="true"><desc>+</desc><path d="M12 5v14M5 12h14"/></svg>';
+const SGM = '<svg class="sg" viewBox="0 0 24 24" aria-hidden="true"><desc>−</desc><path d="M5 12h14"/></svg>';
+const sgn = (n, dec) => (n > 0 ? SGP : n < 0 ? SGM : '') + (dec ? Math.abs(n).toFixed(dec) : fmt(Math.abs(n)));
+const round2 = n => Math.round(n * 100) / 100;
+const val = id => { const v = parseFloat(String($(id).value).replace(/,/g, '')); return isFinite(v) && v > 0 ? v : 0; };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// จำทะเบียน/ท่าข้าวที่เคยบันทึก (แยกจากประวัติ ล้างประวัติแล้วยังอยู่)
+const MEMKEY = 'paddyMemory';
+let mem = {plates: [], sources: [], map: {}};
+try { const m = JSON.parse(localStorage.getItem(MEMKEY) || 'null'); if (m) mem = Object.assign(mem, m); } catch (e) {}
+function remember(plate, source) {
+  const add = (arr, v) => { if (v && v !== '-' && v !== 'ไม่ระบุทะเบียน') { const i = arr.indexOf(v); if (i > -1) arr.splice(i, 1); arr.unshift(v); arr.length = Math.min(arr.length, 100); } };
+  add(mem.plates, plate); add(mem.sources, source);
+  if (plate && source && source !== '-') mem.map[plate] = source;
+  try { localStorage.setItem(MEMKEY, JSON.stringify(mem)); } catch (e) {}
+  fillLists();
+}
+function fillLists() {
+}
+
+let records = [];
+try { records = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) {}
+try { const t = localStorage.getItem(TOLKEY); if (t !== null) $('tol').value = t; } catch (e) {}
+
+function persist() { try { localStorage.setItem(KEY, JSON.stringify(records)); } catch (e) { toast('บันทึกลงเครื่องไม่ได้', true); } writeFile(); }
+
+// ผลเทียบน้ำหนัก: ok / warn / bad
+function judge(diff, tol) {
+  if (diff < -tol) return 'bad';
+  if (diff < 0) return 'warn';
+  return 'ok';
+}
+
+function fitNums() {
+  ['head','tail','dest'].forEach(id => {
+    const el = $(id); el.style.fontSize = '';
+    let fs = parseFloat(getComputedStyle(el).fontSize);
+    while (el.scrollWidth > el.clientWidth && fs > 12) { fs -= 1; el.style.fontSize = fs + 'px'; }
+  });
+}
+function calc() {
+  const head = val('head'), tail = val('tail'), dest = val('dest'), tol = val('tol');
+  const origin = round2(head + tail);
+  setTimeout(fitNums, 0);
+  $('originTotal').innerHTML = fmt(origin) + '<small>กก.</small>';
+  try { localStorage.setItem(TOLKEY, $('tol').value || '0'); } catch (e) {}
+
+  const box = $('result');
+  if (origin > MAX) {
+    box.className = 'result bad';
+    $('diff').innerHTML = ic('scale'); $('pct').textContent = '';
+    $('msg').innerHTML = ic('bad') + 'ต้นทางรวมเกิน 70 ตัน ตรวจสอบตัวเลขอีกครั้ง';
+    return null;
+  }
+  if (!origin || !dest) {
+    box.className = 'result';
+    $('diff').innerHTML = ic('scale'); $('pct').textContent = '';
+    $('msg').textContent = !origin ? 'กรอกน้ำหนักต้นทางก่อน' : 'กรอกน้ำหนักปลายทาง';
+    return null;
+  }
+  const diff = round2(dest - origin);
+  const pct = diff / origin * 100;
+  if (Math.abs(diff) >= DIFFMAX) {
+    box.className = 'result bad';
+    $('diff').innerHTML = sgn(diff) + ' กก.';
+    $('pct').innerHTML = sgn(pct, 2) + '%';
+    $('msg').innerHTML = ic('stop') + 'ต่างเกิน ' + fmt(DIFFMAX) + ' กก. อาจกรอกผิด · บันทึกไม่ได้';
+    return null;
+  }
+  const st = judge(diff, tol);
+  box.className = 'result ' + st;
+  $('diff').innerHTML = sgn(diff) + ' กก.';
+  $('pct').innerHTML = sgn(pct, 2) + '%';
+  $('msg').innerHTML =
+    st === 'bad'  ? ic('bad') + 'น้ำหนักขาด ' + fmt(Math.abs(diff)) + ' กก. (เกณฑ์ ' + fmt(tol) + ')' :
+    st === 'warn' ? ic('warn') + 'ขาดเล็กน้อย อยู่ในเกณฑ์ยอมรับได้' :
+    diff > 0      ? ic('ok') + 'น้ำหนักเพิ่ม' : ic('ok') + 'น้ำหนักตรงกัน';
+  return {head, tail, origin, dest, diff, tol, st};
+}
+
+function save() {
+  const r = calc();
+  if (!r) { const o = val('head') + val('tail'), d = val('dest');
+    toast(o > MAX ? 'ต้นทางรวมเกิน 70 ตัน บันทึกไม่ได้'
+      : (o && d && Math.abs(d - o) >= DIFFMAX) ? 'ส่วนต่างหลักหมื่น กก. บันทึกไม่ได้ ตรวจสอบตัวเลข'
+      : 'กรอกน้ำหนักต้นทางและปลายทางให้ครบก่อน', true); return; }
+  const now = new Date();
+  records.unshift({
+    id: Date.now(),
+    time: now.toLocaleDateString('th-TH') + ' ' + now.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'}),
+    plate: $('plate').value.trim() || 'ไม่ระบุทะเบียน',
+    source: $('source').value.trim() || '-',
+    head: r.head, tail: r.tail, origin: r.origin, dest: r.dest, diff: r.diff, tol: r.tol, st: r.st
+  });
+  remember($('plate').value.trim(), $('source').value.trim());
+  persist(); render(); closePad(); resetForm(false, false, true);
+  toast('บันทึกแล้ว');
+}
+
+function resetForm(keepSource, keepPlate, noFocus) {
+  // keepPlate: เริ่มใหม่แต่คงทะเบียนรถไว้ ไม่ต้องพิมพ์ใหม่
+  (keepPlate ? ['head','tail','dest'] : ['plate','head','tail','dest']).forEach(i => $(i).value = '');
+  if (!keepSource) {} // ท่าข้าวคงไว้ เพราะมักเป็นที่เดียวกันหลายเที่ยว
+  calc();
+  if (noFocus) { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); }
+  else if (!keepPlate) $('plate').focus();
+}
+
+
+/* dropdown กำหนดเอง: ซ่อน <select> เดิมไว้เก็บค่า แล้วสร้างปุ่ม + รายการสวย ๆ แทน */
+function syncDD(sel) {
+  if (!sel._dd) {
+    const w = document.createElement('div'); w.className = 'dd';
+    w.innerHTML = '<button type="button" class="dd-btn" aria-haspopup="listbox" aria-expanded="false"><span></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><ul class="dd-list" role="listbox" hidden></ul>';
+    sel.hidden = true; sel.after(w);
+    const btn = w.querySelector('.dd-btn'), ul = w.querySelector('.dd-list');
+    const close = () => { ul.hidden = true; w.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); };
+    const open = () => {
+      document.querySelectorAll('.dd.open').forEach(o => o !== w && o._close());
+      ul.hidden = false; w.classList.add('open'); btn.setAttribute('aria-expanded', 'true');
+      const on = ul.querySelector('[aria-selected="true"]') || ul.firstElementChild; if (on) { on.focus(); on.scrollIntoView({block: 'nearest'}); }
+    };
+    w._close = close;
+    btn.onclick = () => ul.hidden ? open() : close();
+    btn.onkeydown = e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); open(); } };
+    ul.onclick = e => { const li = e.target.closest('li'); if (!li) return; sel.value = li.dataset.v; close(); btn.focus(); sel.dispatchEvent(new Event('change')); };
+    ul.onkeydown = e => {
+      const li = e.target.closest('li'); if (!li) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); (li.nextElementSibling || li).focus(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); (li.previousElementSibling || li).focus(); }
+      else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); li.click(); }
+      else if (e.key === 'Escape' || e.key === 'Tab') { close(); btn.focus(); }
+    };
+    if (!document._ddBound) {
+      document._ddBound = true;
+      document.addEventListener('pointerdown', e => document.querySelectorAll('.dd.open').forEach(o => o.contains(e.target) || o._close()));
+    }
+    sel._dd = w;
+  }
+  const w = sel._dd, ul = w.querySelector('.dd-list'), cur = sel.value;
+  const chk = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>';
+  ul.innerHTML = [...sel.options].map(o => '<li role="option" tabindex="-1" data-v="' + esc(o.value) + '" aria-selected="' + (o.value === cur) + '"><span>' + esc(o.textContent) + '</span>' + (o.value === cur ? chk : '') + '</li>').join('');
+  const o = sel.options[sel.selectedIndex]; w.querySelector('.dd-btn span').textContent = o ? o.textContent : '';
+}
+
+const NOSRC = '-';
+function filtered() {
+  const q = ($('fq').value || '').trim().toLowerCase(), fd = $('fd').value, fs = $('fs').value;
+  const now = new Date(), sod = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const som = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  return records.filter(r => {
+    if (q && !((r.plate || '') + ' ' + (r.source || '')).toLowerCase().includes(q)) return false;
+    if (fs && (r.source || NOSRC) !== fs) return false;
+    const t = Number(r.id) || 0;
+    if (fd === 'today' && t < sod) return false;
+    if (fd === '7' && t < sod - 6 * 864e5) return false;
+    if (fd === 'month' && t < som) return false;
+    return true;
+  });
+}
+
+function render() {
+  renderMenu();
+  const has = records.length > 0;
+  $('fbar').hidden = !has;
+  $('exportBtn').hidden = $('clearAll').parentElement.hidden = $('jsonBtn').hidden = !has;
+  if (!has) {
+    $('fq').value = ''; $('fd').value = 'all'; $('fs').value = ''; syncDD($('fs')); syncDD($('fd'));
+    $('count').textContent = '0 เที่ยว'; $('sum').hidden = $('stats').hidden = $('bysrc').hidden = true;
+    $('list').innerHTML = '<div class="empty">ยังไม่มีรายการ<br>กรอกน้ำหนักด้านบนแล้วกด “บันทึก”</div>'; return;
+  }
+  // รายการท่าข้าวในตัวเลือก (คงค่าที่เลือกไว้)
+  const cur = $('fs').value, srcs = [...new Set(records.map(r => r.source || NOSRC))].sort((x, y) => x.localeCompare(y, 'th'));
+  $('fs').innerHTML = '<option value="">ทุกท่าข้าว</option>' + srcs.map(v => '<option value="' + esc(v) + '">' + esc(v === NOSRC ? 'ไม่ระบุท่า' : v) + '</option>').join('');
+  $('fs').value = srcs.includes(cur) ? cur : '';
+  syncDD($('fs')); syncDD($('fd'));
+
+  const list = filtered();
+  $('count').textContent = list.length === records.length ? records.length + ' เที่ยว' : list.length + ' จาก ' + records.length + ' เที่ยว';
+  $('sum').hidden = $('stats').hidden = $('bysrc').hidden = !list.length;
+  if (!list.length) { $('list').innerHTML = '<div class="empty">ไม่พบรายการที่ตรงกับตัวกรอง</div>'; return; }
+
+  const sum = k => round2(list.reduce((a, r) => a + r[k], 0));
+  $('sOrigin').textContent = fmt(sum('origin')); $('sDest').textContent = fmt(sum('dest'));
+  const d = sum('diff'); $('sDiff').innerHTML = sgn(d); const sst = judge(d, round2(list.reduce((a, r) => a + (Number(r.tol) || 0), 0)));
+  $('sBox').className = 'stat x ' + sst; $('sum').dataset.st = sst;
+  const so = sum('origin'); $('sPct').innerHTML = (so ? sgn(d / so * 100, 2) : '0.00') + '% ของต้นทาง';
+  $('sumMini').innerHTML = sgn(d) + ' กก. · ' + (so ? sgn(d / so * 100, 2) : '0.00') + '%';
+
+  // สรุปแยกตามท่าข้าว (เรียงจากขาดมาก (%) ไปน้อย)
+  const g = {};
+  list.forEach(r => { const k = r.source && r.source !== NOSRC ? r.source : NOSRC, o = g[k] || (g[k] = {n: 0, o: 0, x: 0, bad: 0, tol: 0}); o.tol += Number(r.tol) || 0; o.n++; o.o += r.origin; o.x += r.diff; if (r.st === 'bad') o.bad++; });
+  $('bysrcList').innerHTML = Object.entries(g).map(([k, o]) => ({k, n: o.n, x: round2(o.x), bad: o.bad, st: judge(round2(o.x), round2(o.tol)), pc: o.o ? o.x / o.o * 100 : 0}))
+    .sort((a, b) => a.pc - b.pc).map(o => `
+    <div class="srow ${o.st}"><div class="sn"><b>${esc(o.k === NOSRC ? 'ไม่ระบุท่า' : o.k)}</b><small>${o.n} เที่ยว${o.bad ? ' · ขาดเกินเกณฑ์ ' + o.bad + ' เที่ยว' : ''}</small></div>
+      <div class="sv"><b>${sgn(o.x)} กก.</b><small>${sgn(o.pc, 2)}% ของต้นทาง</small></div></div>`).join('');
+
+  const dkey = r => { const d = new Date(Number(r.id) || 0); return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate(); };
+  const dlabel = r => {
+    const d = new Date(Number(r.id) || 0), n = new Date();
+    const gap = Math.round((new Date(n.getFullYear(), n.getMonth(), n.getDate()) - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 864e5);
+    return gap === 0 ? 'วันนี้' : gap === 1 ? 'เมื่อวาน' : d.toLocaleDateString('th-TH', {day: 'numeric', month: 'short', year: 'numeric'});
+  };
+  const dcount = {}; list.forEach(r => { const k = dkey(r); dcount[k] = (dcount[k] || 0) + 1; });
+  let lastK = null;
+  const latestId = records[0].id;
+  $('list').innerHTML = list.map(r => { const pc = r.origin ? r.diff / r.origin * 100 : 0, k = dkey(r); let hd = ''; if (k !== lastK) { lastK = k; hd = `<div class="dgrp"><span>${dlabel(r)}</span><small>${dcount[k]} เที่ยว</small></div>`; } return hd + `
+    <div class="item${r.id === latestId ? ' latest' : ''}">
+      <div class="l2">${r.id === latestId ? '<span class="new">ล่าสุด</span>' : ''}<span class="pl">${ic('truck')}${esc(r.plate)}</span>${r.source && r.source !== '-' ? '<i>·</i><span class="src">' + esc(r.source) + '</span>' : ''}<i>·</i>${ic('clock')}<span class="tm">${esc(r.time)}</span>${r.st === 'bad' ? '<em class="over">น้ำหนักขาด</em>' : ''}
+        <button class="del" data-del="${r.id}" aria-label="ลบรายการนี้">${ic('trash')}</button></div>
+      <div class="l3">
+        <div class="w o"><span>ต้นทาง</span><b>${fmt(r.origin)}</b><small>${r.head && r.tail ? fmt(r.head) + ' + ' + fmt(r.tail) : '1 ใบชั่ง'}</small></div>
+        <div class="w d"><span>ปลายทาง</span><b>${fmt(r.dest)}</b><small>กก.</small></div>
+        <div class="w x ${r.st}"><span>ส่วนต่าง</span><b>${sgn(r.diff)}</b><small>${sgn(pc, 2)}%</small></div>
+      </div>
+    </div>`; }).join('');
+}
+
+const pctOf = (d, o) => o ? (d / o * 100).toFixed(2) : '0.00';
+function exportCSV() {
+  const list = filtered();
+  if (!list.length) { toast('ไม่มีรายการตามตัวกรอง', true); return; }
+  const q = v => '"' + String(v).replace(/"/g, '""') + '"';
+  const rows = [['วันที่-เวลา','ทะเบียนรถ','ท่าข้าว','ใบชั่งที่ 1(กก.)','ใบชั่งที่ 2(กก.)','รวมต้นทาง(กก.)','ปลายทาง น้ำหนักสุทธิ(กก.)','ส่วนต่าง (ปลายทาง − ต้นทาง) (กก.)','ส่วนต่าง (% ของต้นทาง)','เกณฑ์ขาดได้(กก.)','ผล']];
+  const label = {ok:'ปกติ', warn:'ขาดเล็กน้อย', bad:'น้ำหนักขาด'};
+  list.slice().reverse().forEach(r => rows.push([r.time, r.plate, r.source, r.head, r.tail, r.origin, r.dest, r.diff, pctOf(r.diff, r.origin), r.tol, label[r.st]]));
+  const tot = k => round2(list.reduce((x, r) => x + r[k], 0));
+  rows.push([]);
+  rows.push(['รวม ' + list.length + ' เที่ยว', '', '', tot('head'), tot('tail'), tot('origin'), tot('dest'), tot('diff'), pctOf(tot('diff'), tot('origin')), '', '']);
+  const csv = '\uFEFF' + rows.map(r => r.map(q).join(',')).join('\r\n');
+  const url = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8;'}));
+  const a = document.createElement('a');
+  a.href = url; a.download = 'Weigh-Check_' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function exportJSON() {
+  const data = buildData();
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}));
+  const a = document.createElement('a');
+  a.href = url; a.download = 'Weigh-Check_' + new Date().toISOString().slice(0, 10) + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast('บันทึกไฟล์ JSON ลงเครื่องแล้ว');
+}
+function buildData() { return {app: 'check-rice', version: 1, exported: new Date().toISOString(), tol: $('tol').value, records, memory: mem}; }
+function mergeRecords(d) {
+  const arr = Array.isArray(d) ? d : d && d.records;
+  if (!Array.isArray(arr)) throw new Error('bad');
+  const ids = new Set(records.map(r => r.id)); let n = 0;
+  arr.forEach(r => {
+    if (!r || !r.id || !isFinite(r.origin) || !isFinite(r.dest) || ids.has(r.id)) return;
+    records.push({id: +r.id, time: String(r.time || ''), plate: String(r.plate || 'ไม่ระบุทะเบียน'), source: String(r.source || '-'),
+      head: +r.head || 0, tail: +r.tail || 0, origin: +r.origin, dest: +r.dest, diff: +r.diff || 0, tol: +r.tol || 0,
+      st: ['ok', 'warn', 'bad'].includes(r.st) ? r.st : 'ok'});
+    ids.add(r.id); n++;
+  });
+  records.sort((a, b) => b.id - a.id);
+  records.slice().reverse().forEach(r => remember(r.plate, r.source));
+  return n;
+}
+async function importJSON(e) {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const n = mergeRecords(JSON.parse(await f.text()));
+    persist(); render();
+    toast('นำเข้า ' + n + ' รายการ');
+  } catch (err) { toast('ไฟล์ไม่ถูกต้อง', true); }
+}
+
+/* ที่เก็บข้อมูล: เลือกไฟล์ JSON แล้วบันทึกลงไฟล์อัตโนมัติ */
+const hasFS = typeof window.showSaveFilePicker === 'function' && typeof window.showOpenFilePicker === 'function';
+const JSON_TYPES = [{description: 'ไฟล์ JSON', accept: {'application/json': ['.json']}}];
+let fh = null, fstate = 'local', wq = Promise.resolve();
+const idb = () => new Promise((res, rej) => { const q = indexedDB.open('paddyFS', 1); q.onupgradeneeded = () => q.result.createObjectStore('kv'); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
+const idbDo = async (mode, fn) => { const d = await idb(); return new Promise((res, rej) => { const r = fn(d.transaction('kv', mode).objectStore('kv')); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); };
+const idbGet = k => idbDo('readonly', s => s.get(k));
+const idbSet = (k, v) => idbDo('readwrite', s => s.put(v, k));
+const idbDel = k => idbDo('readwrite', s => s.delete(k));
+
+function setStore() {
+  const box = $('store');
+  box.classList.toggle('need', fstate === 'need' || fstate === 'err');
+  if (!fh || fstate === 'local') {
+    $('stName').textContent = 'ในเบราว์เซอร์ (เครื่องนี้)'; $('stSub').textContent = 'บันทึกลงเครื่องอัตโนมัติ'; $('stBtn').textContent = 'เลือกไฟล์';
+  } else {
+    $('stName').textContent = fh.name;
+    $('stSub').textContent = fstate === 'ok' ? 'บันทึกลงไฟล์นี้อัตโนมัติ' : 'แตะ “เชื่อมต่อ” เพื่ออนุญาตเขียนไฟล์อีกครั้ง';
+    $('stBtn').textContent = fstate === 'ok' ? 'เปลี่ยน' : 'เชื่อมต่อ';
+  }
+}
+function buildFileText() { return JSON.stringify(buildData(), null, 2); }
+function writeFile() {
+  if (!fh || fstate !== 'ok') return;
+  wq = wq.then(async () => {
+    try { const w = await fh.createWritable(); await w.write(buildFileText()); await w.close(); }
+    catch (e) { fstate = 'err'; setStore(); toast('เขียนไฟล์ไม่ได้ แตะ “เชื่อมต่อ” ที่ที่เก็บข้อมูล', true); }
+  });
+}
+async function readHandle(h) {
+  const t = await (await h.getFile()).text();
+  if (!t.trim()) return 0;
+  const d = JSON.parse(t);
+  const n = mergeRecords(d);
+  if (d && !Array.isArray(d) && d.tol !== undefined && /^\d{1,5}$/.test(String(d.tol))) { $('tol').value = String(d.tol); calc(); }
+  return n;
+}
+async function useHandle(h) {
+  const n = await readHandle(h);           // อ่านก่อน ถ้าไฟล์เสียจะไม่เชื่อมต่อ
+  fh = h; fstate = 'ok';
+  try { await idbSet('h', h); } catch (e) {}
+  persist(); render(); setStore();
+  toast(n ? 'ดึงข้อมูล ' + n + ' รายการจากไฟล์แล้ว' : 'เชื่อมต่อไฟล์แล้ว');
+}
+function fallbackErr(e, alt) {
+  if (e && e.name === 'AbortError') return;
+  toast('เลือกไฟล์ตรงๆ ไม่ได้ที่นี่ ใช้การดาวน์โหลด/นำเข้าแทน', true); alt();
+}
+async function pickNew() {
+  closeStDlg();
+  if (!hasFS) { exportJSON(); return; }
+  try {
+    const h = await window.showSaveFilePicker({suggestedName: 'Weigh-Check.json', types: JSON_TYPES});
+    await useHandle(h);
+  } catch (e) { if (e instanceof SyntaxError || (e && e.message === 'bad')) toast('ไฟล์ที่เลือกไม่ใช่ข้อมูลของแอปนี้', true); else fallbackErr(e, exportJSON); }
+}
+async function pickOpen() {
+  closeStDlg();
+  if (!hasFS) { $('importFile').click(); return; }
+  try {
+    const [h] = await window.showOpenFilePicker({types: JSON_TYPES});
+    if ((await h.requestPermission({mode: 'readwrite'})) !== 'granted') { toast('ต้องอนุญาตให้เขียนไฟล์ก่อน', true); return; }
+    await useHandle(h);
+  } catch (e) { if (e instanceof SyntaxError || (e && e.message === 'bad')) toast('ไฟล์ที่เลือกไม่ใช่ข้อมูลของแอปนี้', true); else fallbackErr(e, () => $('importFile').click()); }
+}
+async function pickLocal() {
+  closeStDlg();
+  fh = null; fstate = 'local';
+  try { await idbDel('h'); } catch (e) {}
+  setStore(); toast('กลับมาเก็บในเบราว์เซอร์แล้ว');
+}
+function openStDlg() {
+  $('optLocal').hidden = !fh;
+  $('stDlgP').textContent = hasFS ? 'ข้อมูลจะบันทึกลงไฟล์ JSON ที่คุณเลือกทุกครั้งที่บันทึกหรือลบรายการ'
+    : 'เบราว์เซอร์นี้เลือกไฟล์เก็บตรงๆ ไม่ได้ จะใช้การดาวน์โหลดไฟล์ JSON / นำเข้าไฟล์แทน';
+  $('stDlg').hidden = false;
+}
+function closeStDlg() { $('stDlg').hidden = true; }
+$('stBtn').onclick = async () => {
+  if (fh && fstate !== 'ok') {
+    try {
+      if ((await fh.requestPermission({mode: 'readwrite'})) === 'granted') {
+        await readHandle(fh); fstate = 'ok'; persist(); render(); setStore(); toast('เชื่อมต่อไฟล์แล้ว'); return;
+      }
+    } catch (e) {}
+  }
+  openStDlg();
+};
+$('optNew').onclick = pickNew; $('optOpen').onclick = pickOpen; $('optLocal').onclick = pickLocal;
+$('stDlgNo').onclick = closeStDlg;
+$('mgBtn').onclick = () => { $('mgDlg').hidden = false; };
+const closeMg = () => { $('mgDlg').hidden = true; };
+$('mgClose').onclick = closeMg;
+// แตะพื้นหลังไม่ปิดกล่อง ต้องกดปุ่ม "ปิด" เท่านั้น
+$('mgDlg').addEventListener('click', e => { if (e.target === $('mgDlg')) e.stopPropagation(); });
+
+$('stDlg').addEventListener('click', e => { if (e.target === $('stDlg')) e.stopPropagation(); });
+async function initStore() {
+  if (!hasFS) return;
+  try {
+    const h = await idbGet('h'); if (!h) return;
+    fh = h;
+    if ((await h.queryPermission({mode: 'readwrite'})) === 'granted') {
+      fstate = 'ok';
+      try { await readHandle(h); persist(); render(); } catch (e) { fstate = 'err'; }
+    } else fstate = 'need';
+  } catch (e) {}
+  setStore();
+  // เบราว์เซอร์ล็อกสิทธิ์เขียนไฟล์ทุกครั้งที่ปิดแอป จึงขออนุญาตใหม่อัตโนมัติเมื่อแตะหน้าจอครั้งแรก
+  if (fh && fstate === 'need') {
+    const auto = async () => {
+      document.removeEventListener('pointerup', auto, true);
+      if (!fh || fstate !== 'need') return;
+      try {
+        if ((await fh.requestPermission({mode: 'readwrite'})) === 'granted') {
+          await readHandle(fh); fstate = 'ok'; persist(); render(); setStore(); toast('เชื่อมต่อไฟล์แล้ว');
+        }
+      } catch (e) {}
+    };
+    document.addEventListener('pointerup', auto, true);
+  }
+}
+
+let tt;
+function toast(msg, err, ms) {
+  const t = $('toast'); t.textContent = msg; t.className = 'toast show' + (err ? ' err' : '');
+  clearTimeout(tt); tt = setTimeout(() => t.className = 'toast', ms || 2200);
+}
+
+// events
+// รับเฉพาะตัวเลข สูงสุด 5 หลัก
+['tol'].forEach(i => $(i).addEventListener('input', e => {
+  let c = e.target.value.replace(/\D/g, '').slice(0, 5);
+  if (c && +c > MAX) { c = String(MAX); toast('สูงสุดไม่เกิน 70 ตัน (70,000 กก.)', true); }
+  if (c !== e.target.value) e.target.value = c;
+}));
+['head','tail','dest','tol'].forEach(i => $(i).addEventListener('input', calc));
+// Enter = ไปช่องถัดไป / ช่องสุดท้ายบันทึก
+const order = ['plate','source','head','tail','dest'];
+order.forEach((id, i) => $(id).addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  i < order.length - 1 ? $(order[i + 1]).focus() : (document.activeElement.blur(), save());
+}));
+// เลือกทะเบียนที่เคยใช้ → เติมท่าข้าวเดิมให้ (ถ้ายังว่าง)
+$('plate').addEventListener('change', () => {
+  const src = mem.map[$('plate').value.trim()];
+  if (src && !$('source').value.trim()) $('source').value = src;
+});
+$('save').onclick = save;
+$('reset').onclick = () => { $('source').value = ''; closePad(); resetForm(true, false, true); };
+$('exportBtn').onclick = exportCSV;
+(function () {
+  const K = 'check-rice-sum-collapsed', box = $('sum'), hd = $('sumHd');
+  const apply = c => { box.classList.toggle('collapsed', c); hd.setAttribute('aria-expanded', String(!c)); };
+  try { apply(localStorage.getItem(K) === '1'); } catch (e) {}
+  hd.onclick = () => { const c = !box.classList.contains('collapsed'); apply(c); try { localStorage.setItem(K, c ? '1' : '0'); } catch (e) {} };
+})();
+$('fq').addEventListener('input', render); $('fd').addEventListener('change', render); $('fs').addEventListener('change', render);
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname)))
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+$('jsonBtn').onclick = exportJSON;
+$('importBtn').onclick = () => $('importFile').click();
+$('importFile').onchange = importJSON;
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+$('clearAll').onclick = async () => {
+  if (await askConfirm('ล้างประวัติทั้งหมด?', 'จะลบทั้งหมด ' + records.length + ' เที่ยว\nกู้คืนไม่ได้', 'ลบทั้งหมด')) { records = []; persist(); render(); toast('ลบประวัติทั้งหมดแล้ว'); }
+};
+$('list').addEventListener('click', async e => {
+  const btn = e.target.closest('[data-del]'); if (!btn) return;
+  const r = records.find(x => String(x.id) === btn.dataset.del); if (!r) return;
+  const msg = r.plate + (r.source && r.source !== '-' ? ' · ' + r.source : '') + '\nต้นทาง ' + fmt(r.origin) + ' · ปลายทาง ' + fmt(r.dest) + ' กก.\n' + r.time;
+  if (await askConfirm('ลบรายการนี้?', msg, 'ลบ')) { records = records.filter(x => x.id !== r.id); persist(); render(); toast('ลบแล้ว'); }
+});
+
+// กล่องยืนยัน (แทน confirm ของเบราว์เซอร์ ซึ่งบางแอปไม่แสดง)
+function askConfirm(title, text, okLabel) {
+  return new Promise(res => {
+    $('dlgT').textContent = title; $('dlgP').textContent = text; $('dlgYes').textContent = okLabel || 'ตกลง';
+    const d = $('dlg'); d.hidden = false; $('dlgNo').focus();
+    const done = v => { d.hidden = true; $('dlgYes').onclick = $('dlgNo').onclick = d.onclick = null; document.removeEventListener('keydown', key); res(v); };
+    const key = e => { if (e.key === 'Escape') done(false); };
+    document.addEventListener('keydown', key);
+    $('dlgYes').onclick = () => done(true);
+    $('dlgNo').onclick = () => done(false);
+    d.onclick = e => { if (e.target === d) done(false); };
+  });
+}
+
+// แป้นตัวเลขในหน้าเว็บ (ปุ่มใหญ่ ไม่ต้องเรียกคีย์บอร์ดมือถือ)
+const padFields = ['head', 'tail', 'dest'];
+let cur = null;
+function parseThaiNumber(t) {
+  t = String(t || '').replace(/[๐-๙]/g, c => String(c.charCodeAt(0) - 0x0E50));
+  t = t.replace(/กิโลกรัม|กิโล|กก\.?|kg|เคจี/gi, '').replace(/[,\s]/g, '');
+  if (/\d/.test(t)) {
+    const d = t.replace(/\D/g, '');
+    return d ? parseInt(d, 10) : 0;
+  }
+  const DIG = {'ศูนย์': 0, 'หนึ่ง': 1, 'เอ็ด': 1, 'สอง': 2, 'ยี่': 2, 'สาม': 3, 'สี่': 4, 'ห้า': 5, 'หก': 6, 'เจ็ด': 7, 'แปด': 8, 'เก้า': 9};
+  const UNI = {'สิบ': 10, 'ร้อย': 100, 'พัน': 1000, 'หมื่น': 10000, 'แสน': 100000, 'ล้าน': 1000000};
+  const words = Object.keys(DIG).concat(Object.keys(UNI)).sort((a, b) => b.length - a.length);
+  const toks = []; let i = 0;
+  while (i < t.length) {
+    const w = words.find(x => t.startsWith(x, i));
+    if (w) { toks.push(w); i += w.length; } else i++;
+  }
+  if (!toks.length) return 0;
+  if (!toks.some(x => x in UNI)) return parseInt(toks.map(x => DIG[x]).join(''), 10) || 0;
+  let total = 0, sec = 0, cur = null;
+  toks.forEach(x => {
+    if (x in DIG) { cur = DIG[x]; return; }
+    const u = UNI[x];
+    if (u <= 100) { sec += (cur === null ? 1 : cur) * u; }
+    else if (u < 1000000) { total += (sec + (cur === null ? (sec ? 0 : 1) : cur)) * u; sec = 0; }
+    else { total = (total + sec + (cur === null ? (total + sec ? 0 : 1) : cur)) * u; sec = 0; }
+    cur = null;
+  });
+  return total + sec + (cur === null ? 0 : cur);
+}
+
+/* พูด (Web Speech API): ตัวเลขน้ำหนัก / ทะเบียนรถ / ท่าข้าว */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, listening = false, micActive = null;
+function micUI(on) {
+  listening = on;
+  document.querySelectorAll('.vmic, #micBtn').forEach(b => b.classList.remove('on'));
+  if (on && micActive) micActive.classList.add('on');
+  $('micTx').textContent = on && micActive === $('micBtn') ? 'หยุด' : 'พูด';
+}
+function stopMic() { if (rec) { const r = rec; r.onresult = r.onerror = r.onend = r.onstart = null; /* กันเหตุการณ์ของรอบเก่ามาทับไมค์ใหม่ */ try { r.abort(); } catch (e) {} } rec = null; micUI(false); }
+function parsePlate(t) {
+  // แยกเสียงพูดเป็น 4 ช่อง เรียงจากซ้าย: หมวด | เลข 2 หลัก | เลข 4 หลัก | เลขพ่วง 4 หลัก
+  // พูด: "กอ ขอ หนึ่ง สอง สาม สี่ ห้า หก ทับ เจ็ด แปด เก้า ศูนย์"  (เลขทีละตัว, "ทับ"/"พ่วง" = เครื่องหมาย /)
+  const W = {'ศูนย์': 0, 'ซีโร่': 0, 'โอ': 0, 'หนึ่ง': 1, 'เอ็ด': 1, 'สอง': 2, 'สาม': 3, 'สี่': 4, 'ห้า': 5, 'หก': 6, 'เจ็ด': 7, 'แปด': 8, 'เก้า': 9};
+  t = String(t || '').replace(/[๐-๙]/g, c => String(c.charCodeAt(0) - 0x0E50))
+    .replace(/ทะเบียน|หมายเลข|เลข|หมวด|รถ/g, ' ')
+    .replace(/ศูนย์|ซีโร่|หนึ่ง|เอ็ด|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า|โอ/g, w => ' ' + W[w] + ' ')
+    .replace(/ทับ|พ่วง|สแลช|slash|หาร|\//gi, ' / ')
+    .replace(/ขีด|ยัติภังค์|แดช|dash|-/gi, ' ')
+    .replace(/\s+/g, ' ').trim();
+  t = t.split(' ').map(w => /^[ก-ฮ]อ[^\s\d]{0,8}$/.test(w) ? w[0] : w).join(' ');   // "กอไก่" "ขอ" -> ก ข
+  if (/[^ก-ฮ\s\d\/]/.test(t)) return null;                                          // ไม่ใช่ทะเบียน
+  const parts = t.split('/');
+  let head = parts[0], trail = (parts.slice(1).join('').match(/\d/g) || []).join('');
+  let A = '';
+  const mp = head.match(/^\s*(\d)\s*([ก-ฮ](?:\s*[ก-ฮ]){0,2})/);                      // เช่น 1กข
+  if (mp) { A = mp[1] + mp[2].replace(/\s+/g, ''); head = head.slice(mp[0].length); }
+  else { A = (head.match(/[ก-ฮ]/g) || []).join('').slice(0, 3); head = head.replace(/[ก-ฮ]/g, ' '); }
+  const D = (head.match(/\d/g) || []).join('');
+  if (!trail && D.length > 6) trail = D.slice(6);
+  const o = {a: A, b: D.slice(0, 2), c: D.slice(2, 6), d: trail.slice(0, 4)};
+  return (o.a || o.b || o.c || o.d) ? o : null;
+}
+function startMic(field, btn) {
+  if (!field) return;
+  if (!SR) { toast('เบราว์เซอร์นี้ยังไม่รองรับการพูด ลองใช้ Chrome (Android) หรือ Safari (iPhone)', true); return; }
+  if (listening) { const same = micActive === btn; stopMic(); if (same) return; }
+  const isNum = padFields.includes(field);
+  micActive = btn;
+  rec = new SR();
+  rec.lang = 'th-TH'; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 5;
+  rec.onresult = ev => {
+    const res = ev.results[ev.results.length - 1], fin = res.isFinal;
+    const alts = Array.from(res).map(a => a.transcript);
+    if (!isNum) {
+      if (field === 'plate') {
+        let best = null, sc = -1;                // เลือกผลที่ได้ตัวอักษร/ตัวเลขมากที่สุด
+        for (const a of alts) { const o = parsePlate(a); if (!o) continue; const n = o.a.length + o.b.length + o.c.length + o.d.length; if (n > sc) { sc = n; best = o; } }
+        if (!best) { if (fin) toast('ฟังทะเบียนไม่ออก ลองพูดใหม่ เช่น “กอ ขอ หนึ่ง สอง สาม สี่ ห้า หก”', true, 4000); return; }
+        fillPlate(best);                         // ขึ้นทีละช่องเรียงจากซ้ายระหว่างพูด
+        if (fin) { $('plate').dispatchEvent(new Event('change')); toast('ได้ยิน ' + $('plate').value, false, 3000); }
+        return;
+      }
+      const t = String(alts[0] || '').replace(/\s+/g, ' ').trim();
+      if (!t) { if (fin) toast('ฟังไม่ออก ลองพูดใหม่', true); return; }
+      $(field).value = t;                       // ขึ้นทันทีระหว่างพูด
+      if (fin) { $(field).dispatchEvent(new Event('change')); toast('ได้ยิน “' + t + '”', false, 3000); }
+      return;
+    }
+    let v = 0;
+    for (const t of alts) { v = parseThaiNumber(t); if (v > 0) break; }
+    if (!v) { if (fin) toast('ได้ยินว่า “' + (alts[0] || '') + '” ไม่ใช่ตัวเลข ลองพูดใหม่ เช่น “หนึ่งหมื่นสองพัน”', true, 4000); return; }
+    if (v > MAX) { if (fin) toast('เกิน 70 ตัน (70,000 กก.) ลองพูดใหม่', true); return; }
+    $(field).value = Number(v).toLocaleString('en-US');   // ขึ้นทันทีระหว่างพูด
+    if (cur === field) { calc(); syncPad(); } else calc();
+    if (fin) toast('ได้ยิน ' + Number(v).toLocaleString('en-US') + ' กก.');
+  };
+  rec.onerror = ev => {
+    if (ev.error === 'aborted') return;
+    const blocked = location.protocol === 'file:' ? ' (เปิดไฟล์จากเครื่องใช้ไมค์ไม่ได้ ต้องเปิดผ่านลิงก์ https)' : '';
+    const m = {'not-allowed': 'ไม่ได้รับอนุญาตใช้ไมโครโฟน ให้อนุญาตในเบราว์เซอร์' + blocked, 'service-not-allowed': 'เบราว์เซอร์นี้ไม่อนุญาตให้ใช้การพูด' + blocked, 'no-speech': 'ไม่ได้ยินเสียง ลองพูดใกล้ไมค์แล้วแตะใหม่', 'audio-capture': 'ไม่พบไมโครโฟน', 'network': 'ต้องใช้อินเทอร์เน็ตสำหรับการพูด', 'language-not-supported': 'เครื่องนี้ยังไม่รองรับภาษาไทย'};
+    toast((m[ev.error] || 'ใช้การพูดไม่ได้ในตอนนี้') + ' [' + ev.error + ']', true, 5000);
+  };
+  rec.onstart = () => toast(field === 'plate' ? 'พูดทะเบียนรถได้เลย' : field === 'source' ? 'พูดชื่อท่าข้าวได้เลย' : 'พูดตัวเลขได้เลย');
+  rec.onend = () => { rec = null; micUI(false); };
+  try { rec.start(); micUI(true); } catch (e) { rec = null; micUI(false); toast('เริ่มฟังไม่ได้ ลองใหม่', true); }
+}
+$('micBtn').addEventListener('click', () => startMic(cur, $('micBtn')));
+document.querySelectorAll('.vmic').forEach(b => b.addEventListener('click', e => {
+  e.stopPropagation(); closePadKeepMic(); startMic(b.dataset.vf, b);
+}));
+function closePadKeepMic() { cur = null; padFields.forEach(f => $(f).classList.remove('active')); document.body.classList.remove('padopen'); }
+
+function openPad(id) {
+  if (cur !== id) stopMic();
+  cur = id;
+  padFields.forEach(f => $(f).classList.toggle('active', f === id));
+  document.body.classList.add('padopen');
+  $('goKey').innerHTML = id === 'dest' ? ic('check') + 'เสร็จ' : 'ถัดไป ›';
+  syncPad();
+  setTimeout(() => $(id).closest('.fld').scrollIntoView({block: 'start', behavior: 'smooth'}), 50);
+}
+function closePad() {
+  stopMic();
+  cur = null;
+  padFields.forEach(f => $(f).classList.remove('active'));
+  document.body.classList.remove('padopen');
+}
+const PADNAME = {head: 'ใบชั่งที่ 1', tail: 'ใบชั่งที่ 2', dest: 'ปลายทาง'};
+function syncPad() {
+  const box = $('result'), d = $('diff').textContent;
+  $('padInfo').className = 'padinfo ' + box.className.replace('result', '').trim();
+  $('padLbl').textContent = (PADNAME[cur] || '') + ': ' + ($(cur).value || '0') + ' กก.';
+  $('padTxt').textContent = (d && d !== '–' ? d + '  ' : '') + $('msg').textContent;
+}
+function press(k) {
+  if (!cur) return;
+  if (k === 'next') { const i = padFields.indexOf(cur); i < padFields.length - 1 ? openPad(padFields[i + 1]) : closePad(); return; }
+  let d = $(cur).value.replace(/\D/g, '');
+  d = k === 'clr' ? '' : k === 'del' ? d.slice(0, -1) : d + k;
+  d = d.replace(/^0+(?=\d)/, ''); if (/^0+$/.test(d)) d = '';
+  if (d.length > 5) return;
+  if (+d > MAX) { d = String(MAX); toast('สูงสุดไม่เกิน 70 ตัน (70,000 กก.)', true); }
+  $(cur).value = d ? Number(d).toLocaleString('en-US') : '';
+  calc(); syncPad();
+}
+padFields.forEach(f => { $(f).addEventListener('focus', () => openPad(f)); $(f).addEventListener('click', () => openPad(f)); });
+['plate', 'source', 'tol'].forEach(f => $(f).addEventListener('focus', closePad));
+$('pad').addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (b) press(b.dataset.k); });
+document.addEventListener('click', e => { if (cur && !e.target.closest('#pad, .num, .toast')) closePad(); });
+
+const PAGES = {calc: 'pCalc', hist: 'pHist'};
+function show() {
+  closePad();
+  const p = location.hash === '#hist' ? 'hist' : 'calc';
+  Object.keys(PAGES).forEach(k => { $(PAGES[k]).hidden = k !== p; document.body.classList.toggle('on' + k, k === p); });
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.go === p));
+  window.scrollTo(0, 0);
+}
+function renderMenu() { $('tabCount').textContent = records.length; $('tabCount').hidden = !records.length; }
+document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) location.hash = b.dataset.go; });
+window.addEventListener('hashchange', show);
+records.slice().reverse().forEach(r => remember(r.plate, r.source)); // ดึงจากประวัติเดิมด้วย
+fillLists(); calc(); render(); show(); initStore();
+['head','tail','dest'].forEach(i => $(i).addEventListener('input', fitNums));
+window.addEventListener('resize', fitNums);
+fitNums();
+
+/* ทะเบียนรถแบ่งช่อง: #plate เป็นค่ารวม เช่น "รอ 80-5050/5051" (ใช้ร่วมกับโค้ดเดิมได้ทั้งหมด) */
+(function () {
+  const plate = $('plate'), P = ['pl1', 'pl2', 'pl3', 'pl4'].map(id => $(id)), [a, b, c, d] = P;
+  const digits = v => String(v).replace(/[๐-๙]/g, ch => String(ch.charCodeAt(0) - 0x0E50)).replace(/\D/g, '');
+  const compose = () => {
+    const A = a.value.trim(), B = b.value.trim(), C = c.value.trim(), D = d.value.trim();
+    const nums = [B, C].filter(Boolean).join('-');
+    return ((A ? A + (nums ? ' ' : '') : '') + nums + (D ? '/' + D : '')).trim();
+  };
+  const setParts = v => {
+    v = String(v || '').trim();
+    let m;
+    if ((m = v.match(/^(\d?[^\d\s\/-]+)?\s*(\d{1,2})\s*[- ]\s*(\d{1,4})(?:\s*\/\s*(\d{1,4}))?$/))) { a.value = m[1] || ''; b.value = m[2]; c.value = m[3]; d.value = m[4] || ''; }
+    else if ((m = v.match(/^(\d?[^\d\s\/-]+)?\s*(\d{1,4})(?:\s*\/\s*(\d{1,4}))?$/))) { a.value = m[1] || ''; b.value = ''; c.value = m[2]; d.value = m[3] || ''; }
+    else { a.value = v; b.value = c.value = d.value = ''; }
+  };
+  Object.defineProperty(plate, 'value', { get: compose, set: setParts, configurable: true });
+  plate.focus = () => a.focus();
+  window.fillPlate = o => { a.value = o.a || ''; b.value = o.b || ''; c.value = o.c || ''; d.value = o.d || ''; plate.dispatchEvent(new Event('input')); };
+  const wrap = plate.parentNode;
+  P.forEach((el, i) => {
+    el.addEventListener('focus', closePad);
+    el.addEventListener('input', () => {
+      if (el === a) el.value = el.value.replace(/[๐-๙]/g, ch => String(ch.charCodeAt(0) - 0x0E50)).replace(/[^ก-ฮ0-9]/g, '').replace(/(?!^)\d/g, '').slice(0, 3);   // ช่องแรก: พยัญชนะเท่านั้น (ขึ้นต้นด้วยเลข 1 ตัวได้)
+      else el.value = digits(el.value);                                            // ช่องอื่น: ตัวเลขเท่านั้น
+      plate.dispatchEvent(new Event('input'));
+      const full = el === a ? /^\d?[ก-ฮ]{2}$/.test(el.value) : (el === b && el.value.length >= 2) || (el === c && el.value.length >= 4);
+      if (full) P[i + 1].focus();
+    });
+    el.addEventListener('change', () => plate.dispatchEvent(new Event('change')));
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); i < 3 ? P[i + 1].focus() : $('source').focus(); }
+      else if (e.key === 'Backspace' && !el.value && i > 0) { e.preventDefault(); P[i - 1].focus(); }
+    });
+  });
+})();
+
+/* คำแนะนำตอนพิมพ์: แสดงเฉพาะเมื่อพิมพ์และมีรายการตรง ไม่เด้งตอนแตะช่อง */
+(function () {
+  [['plate', 'plates'], ['source', 'sources']].forEach(([id, key]) => {
+    const inp = $(id), box = document.createElement('div');
+    box.className = 'sug'; inp.parentNode.appendChild(box);
+    const hide = () => box.classList.remove('on');
+    inp.addEventListener('input', () => {
+      const q = inp.value.trim().toLowerCase();
+      if (!q) return hide();
+      const hits = (mem[key] || []).filter(v => v.toLowerCase().includes(q) && v.toLowerCase() !== q).slice(0, 4);
+      if (!hits.length) return hide();
+      box.innerHTML = hits.map(v => '<button type="button">' + esc(v) + '</button>').join('');
+      box.classList.add('on');
+    });
+    box.addEventListener('pointerdown', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      e.preventDefault(); inp.value = b.textContent; hide();
+      inp.dispatchEvent(new Event('input')); hide();
+    });
+    inp.parentNode.addEventListener('focusout', () => setTimeout(hide, 120));
+  });
+})();
+
+// ล็อกหน้าหลังเมื่อมีกล่องโต้ตอบเปิดอยู่
+(function () {
+  const dlgs = Array.from(document.querySelectorAll('.dlg'));
+  let locked = false, savedY = 0;
+  function sync() {
+    const open = dlgs.some(d => !d.hidden);
+    if (open === locked) return;
+    locked = open;
+    const bg = Array.from(document.body.children).filter(el =>
+      !el.classList.contains('dlg') && !el.classList.contains('toast') && el.tagName !== 'SCRIPT');
+    if (open) {
+      savedY = window.scrollY || document.documentElement.scrollTop || 0;
+      document.body.style.top = -savedY + 'px';
+      document.documentElement.classList.add('modal-open');
+      document.body.classList.add('modal-open');
+      bg.forEach(el => el.setAttribute('inert', ''));
+    } else {
+      bg.forEach(el => el.removeAttribute('inert'));
+      document.documentElement.classList.remove('modal-open');
+      document.body.classList.remove('modal-open');
+      document.body.style.top = '';
+      window.scrollTo(0, savedY);
+    }
+  }
+  const mo = new MutationObserver(sync);
+  dlgs.forEach(d => mo.observe(d, {attributes: true, attributeFilter: ['hidden']}));
+  // กันเลื่อนบน iOS: ปล่อยให้เลื่อนได้เฉพาะในกล่องที่เลื่อนได้เอง
+  document.addEventListener('touchmove', e => {
+    if (!locked) return;
+    const box = e.target.closest && e.target.closest('.dlg-box.mg');
+    if (!box || box.scrollHeight <= box.clientHeight) e.preventDefault();
+  }, {passive: false});
+  document.addEventListener('wheel', e => {
+    if (!locked) return;
+    const box = e.target.closest && e.target.closest('.dlg-box.mg');
+    if (!box || box.scrollHeight <= box.clientHeight) e.preventDefault();
+  }, {passive: false});
+  sync();
+})();
+</script>
+</body>
+</html>
