@@ -978,6 +978,15 @@ body.modal-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .dlg-box{touch-action:auto}
 .dlg-box.mg{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 [inert]{pointer-events:none;user-select:none}
+/* ไมค์ชิดกรอบเท่ากันทุกช่อง: ห่างขอบใน 6px */
+.card .vf:not(.pl4) > .vmic{right:6px!important}
+.card .vf.pl4 > .vmic{margin-right:2px!important}
+.card .row .nf > .vmic{right:9px!important}
+.card .row .nf::after{right:50px!important}
+.card .row .fld .nf input.num{padding-right:76px!important}
+.card .dest .nf > .vmic{right:2px!important}
+.card .dest .nf::after{right:42px!important}
+.card .dest .fld .nf input.num{padding-right:66px!important}
 </style>
 </head>
 <body class="oncalc">
@@ -1112,7 +1121,7 @@ const ICO={"save": "<path d=\"M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2
 ICO.scale='<path d="M12 3v18M8 21h8M4 7h16"/><path d="m4 7-3 7a3.5 3.5 0 0 0 6 0Z"/><path d="m20 7-3 7a3.5 3.5 0 0 0 6 0Z"/>';
 ICO.trash='<path d="M4 7h16M10 11v6m4-6v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>';
 const ic = n => '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + ICO[n] + '</svg>';
-const MAX = 100000; // สูงสุด 100 ตัน
+const MAX = 70000; // สูงสุด 70 ตัน
 const DIFFMAX = 10000; // ส่วนต่างตั้งแต่ 10,000 กก. ถือว่าผิดปกติ ไม่ให้บันทึก
 const KEY = 'paddyRecords', TOLKEY = 'paddyTolerance';
 const nf = new Intl.NumberFormat('th-TH', {maximumFractionDigits: 2});
