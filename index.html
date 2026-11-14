@@ -1564,7 +1564,7 @@ function micUI(on) {
   if (on && micActive) micActive.classList.add('on');
   $('micTx').textContent = on && micActive === $('micBtn') ? 'กำลังฟัง… แตะเพื่อหยุด' : 'พูดตัวเลข';
 }
-function stopMic() { if (rec) { try { rec.abort(); } catch (e) {} } rec = null; micUI(false); }
+function stopMic() { if (rec) { const r = rec; r.onresult = r.onerror = r.onend = r.onstart = null; /* กันเหตุการณ์ของรอบเก่ามาทับไมค์ใหม่ */ try { r.abort(); } catch (e) {} } rec = null; micUI(false); }
 function cleanPlate(t) {
   const W = {'ศูนย์': 0, 'หนึ่ง': 1, 'สอง': 2, 'สาม': 3, 'สี่': 4, 'ห้า': 5, 'หก': 6, 'เจ็ด': 7, 'แปด': 8, 'เก้า': 9};
   t = String(t || '').replace(/[๐-๙]/g, c => String(c.charCodeAt(0) - 0x0E50))
