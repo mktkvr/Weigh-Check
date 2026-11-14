@@ -6,12 +6,12 @@
 <meta name="theme-color" content="#0d7a55">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="icon-192.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Weigh-Check">
+<meta name="apple-mobile-web-app-title" content="เช็กข้าว">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>Weigh-Check</title>
+<title>เช็กน้ำหนักต้นทางปลายทาง</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&family=Sarabun:wght@400;600" rel="stylesheet">
@@ -971,37 +971,6 @@ main{padding-top:12px}
 .dlg-box.mg{max-height:88vh;overflow-y:auto}
 .dlg-box.mg .manage{margin-top:0;padding:0;background:transparent;border:0}
 .dlg-box.mg .manage .mhd{font-size:1.1rem;color:var(--ink);margin-bottom:12px}
-/* ล็อกหน้าหลังเมื่อกล่องโต้ตอบเปิด: ห้ามเลื่อน ห้ามกดพื้นที่อื่น */
-html.modal-open{overflow:hidden;overscroll-behavior:none}
-body.modal-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
-.dlg{overscroll-behavior:contain;touch-action:none}
-.dlg-box{touch-action:auto}
-.dlg-box.mg{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-[inert]{pointer-events:none;user-select:none}
-/* ไมค์ชิดกรอบเท่ากันทุกช่อง: ห่างขอบใน 6px */
-.card .vf:not(.pl4) > .vmic{right:6px!important}
-.card .vf.pl4 > .vmic{margin-right:2px!important}
-.card .row .nf > .vmic{right:9px!important}
-.card .row .nf::after{right:50px!important}
-.card .row .fld .nf input.num{padding-right:76px!important}
-.card .dest .nf > .vmic{right:2px!important}
-.card .dest .nf::after{right:42px!important}
-.card .dest .fld .nf input.num{padding-right:66px!important}
-/* ปุ่มพูดตัวเลข: อยู่ใต้เลข 3 (ขวาของเลข 0) */
-#pad .key.go{grid-row:span 3!important}
-#pad .key.zero{grid-column:span 1!important}
-/* ไมค์ในแป้น: หน้าตาเหมือนไมค์ในกล่องข้อความ (วงกลมขอบแดง ไอคอนแดง ไม่มีข้อความ) */
-#pad .keys .mic{position:relative;width:auto;min-height:48px;margin:0;padding:0;border:0!important;background:transparent!important;color:#d92d20;box-shadow:none;animation:none!important;-webkit-tap-highlight-color:transparent}
-#pad .keys .mic::before{content:"";position:absolute;left:50%;top:50%;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;box-shadow:inset 0 0 0 1.5px rgba(217,45,32,.5);transition:background .2s,box-shadow .2s}
-#pad .keys .mic:active::before{background:rgba(217,45,32,.15)}
-#pad .keys .mic svg{position:relative;width:21px;height:21px;stroke-width:2.2;filter:drop-shadow(0 1px 1px rgba(217,45,32,.25))}
-#pad .keys .mic svg rect{fill:currentColor}
-#pad .keys .mic #micTx{display:none}
-#pad .keys .mic.on{color:#fff}
-#pad .keys .mic.on::before{background:#d92d20;box-shadow:0 2px 8px rgba(217,45,32,.35);animation:micpulse 1.3s ease-out infinite}
-/* แถบเมนูล่าง (คำนวณ / ประวัติ): ไม่มีขอบโค้ง */
-header.top,.top .seg,.top .seg .tab,.top .seg .tab i{border-radius:0!important}
-.top .seg .tab svg{border-radius:99px!important}
 </style>
 </head>
 <body class="oncalc">
@@ -1079,11 +1048,12 @@ header.top,.top .seg,.top .seg .tab,.top .seg .tab i{border-radius:0!important}
 </div>
 <div id="pad" role="group" aria-label="แป้นตัวเลข">
   <div class="padinfo" id="padInfo" hidden><span id="padLbl"></span><span id="padTxt"></span></div>
+  <button class="mic" id="micBtn" type="button" aria-live="polite"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="micTx">พูดตัวเลข</span></button>
   <div class="keys">
     <button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button><button class="key fn" data-k="del" aria-label="ลบ"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5h11a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9l-6-7Z"/><path d="m12 9 5 5m0-5-5 5"/></svg></button>
     <button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button><button class="key go" id="goKey" data-k="next">ถัดไป ›</button>
     <button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button>
-    <button class="key fn" data-k="clr">ล้าง</button><button class="key zero" data-k="0">0</button><button class="mic" id="micBtn" type="button" aria-live="polite" aria-label="พูดตัวเลข"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="micTx">พูด</span></button>
+    <button class="key fn" data-k="clr">ล้าง</button><button class="key zero" data-k="0">0</button>
   </div>
 </div>
 <div class="dlg" id="mgDlg" hidden>
@@ -1373,7 +1343,7 @@ function exportCSV() {
   const csv = '\uFEFF' + rows.map(r => r.map(q).join(',')).join('\r\n');
   const url = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8;'}));
   const a = document.createElement('a');
-  a.href = url; a.download = 'Weigh-Check_' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.href = url; a.download = 'เช็กน้ำหนักข้าว_' + new Date().toISOString().slice(0, 10) + '.csv';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
@@ -1382,7 +1352,7 @@ function exportJSON() {
   const data = buildData();
   const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}));
   const a = document.createElement('a');
-  a.href = url; a.download = 'Weigh-Check_' + new Date().toISOString().slice(0, 10) + '.json';
+  a.href = url; a.download = 'เช็กน้ำหนักข้าว_' + new Date().toISOString().slice(0, 10) + '.json';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   toast('บันทึกไฟล์ JSON ลงเครื่องแล้ว');
@@ -1464,7 +1434,7 @@ async function pickNew() {
   closeStDlg();
   if (!hasFS) { exportJSON(); return; }
   try {
-    const h = await window.showSaveFilePicker({suggestedName: 'Weigh-Check.json', types: JSON_TYPES});
+    const h = await window.showSaveFilePicker({suggestedName: 'เช็กน้ำหนักข้าว.json', types: JSON_TYPES});
     await useHandle(h);
   } catch (e) { if (e instanceof SyntaxError || (e && e.message === 'bad')) toast('ไฟล์ที่เลือกไม่ใช่ข้อมูลของแอปนี้', true); else fallbackErr(e, exportJSON); }
 }
@@ -1505,10 +1475,9 @@ $('stDlgNo').onclick = closeStDlg;
 $('mgBtn').onclick = () => { $('mgDlg').hidden = false; };
 const closeMg = () => { $('mgDlg').hidden = true; };
 $('mgClose').onclick = closeMg;
-// แตะพื้นหลังไม่ปิดกล่อง ต้องกดปุ่ม "ปิด" เท่านั้น
-$('mgDlg').addEventListener('click', e => { if (e.target === $('mgDlg')) e.stopPropagation(); });
+$('mgDlg').addEventListener('click', e => { if (e.target === $('mgDlg')) closeMg(); });
 
-$('stDlg').addEventListener('click', e => { if (e.target === $('stDlg')) e.stopPropagation(); });
+$('stDlg').addEventListener('click', e => { if (e.target === $('stDlg')) closeStDlg(); });
 async function initStore() {
   if (!hasFS) return;
   try {
@@ -1520,19 +1489,6 @@ async function initStore() {
     } else fstate = 'need';
   } catch (e) {}
   setStore();
-  // เบราว์เซอร์ล็อกสิทธิ์เขียนไฟล์ทุกครั้งที่ปิดแอป จึงขออนุญาตใหม่อัตโนมัติเมื่อแตะหน้าจอครั้งแรก
-  if (fh && fstate === 'need') {
-    const auto = async () => {
-      document.removeEventListener('pointerup', auto, true);
-      if (!fh || fstate !== 'need') return;
-      try {
-        if ((await fh.requestPermission({mode: 'readwrite'})) === 'granted') {
-          await readHandle(fh); fstate = 'ok'; persist(); render(); setStore(); toast('เชื่อมต่อไฟล์แล้ว');
-        }
-      } catch (e) {}
-    };
-    document.addEventListener('pointerup', auto, true);
-  }
 }
 
 let tt;
@@ -1640,7 +1596,7 @@ function micUI(on) {
   listening = on;
   document.querySelectorAll('.vmic, #micBtn').forEach(b => b.classList.remove('on'));
   if (on && micActive) micActive.classList.add('on');
-  $('micTx').textContent = on && micActive === $('micBtn') ? 'หยุด' : 'พูด';
+  $('micTx').textContent = on && micActive === $('micBtn') ? 'กำลังฟัง… แตะเพื่อหยุด' : 'พูดตัวเลข';
 }
 function stopMic() { if (rec) { const r = rec; r.onresult = r.onerror = r.onend = r.onstart = null; /* กันเหตุการณ์ของรอบเก่ามาทับไมค์ใหม่ */ try { r.abort(); } catch (e) {} } rec = null; micUI(false); }
 function parsePlate(t) {
@@ -1829,46 +1785,6 @@ fitNums();
     });
     inp.parentNode.addEventListener('focusout', () => setTimeout(hide, 120));
   });
-})();
-
-// ล็อกหน้าหลังเมื่อมีกล่องโต้ตอบเปิดอยู่
-(function () {
-  const dlgs = Array.from(document.querySelectorAll('.dlg'));
-  let locked = false, savedY = 0;
-  function sync() {
-    const open = dlgs.some(d => !d.hidden);
-    if (open === locked) return;
-    locked = open;
-    const bg = Array.from(document.body.children).filter(el =>
-      !el.classList.contains('dlg') && !el.classList.contains('toast') && el.tagName !== 'SCRIPT');
-    if (open) {
-      savedY = window.scrollY || document.documentElement.scrollTop || 0;
-      document.body.style.top = -savedY + 'px';
-      document.documentElement.classList.add('modal-open');
-      document.body.classList.add('modal-open');
-      bg.forEach(el => el.setAttribute('inert', ''));
-    } else {
-      bg.forEach(el => el.removeAttribute('inert'));
-      document.documentElement.classList.remove('modal-open');
-      document.body.classList.remove('modal-open');
-      document.body.style.top = '';
-      window.scrollTo(0, savedY);
-    }
-  }
-  const mo = new MutationObserver(sync);
-  dlgs.forEach(d => mo.observe(d, {attributes: true, attributeFilter: ['hidden']}));
-  // กันเลื่อนบน iOS: ปล่อยให้เลื่อนได้เฉพาะในกล่องที่เลื่อนได้เอง
-  document.addEventListener('touchmove', e => {
-    if (!locked) return;
-    const box = e.target.closest && e.target.closest('.dlg-box.mg');
-    if (!box || box.scrollHeight <= box.clientHeight) e.preventDefault();
-  }, {passive: false});
-  document.addEventListener('wheel', e => {
-    if (!locked) return;
-    const box = e.target.closest && e.target.closest('.dlg-box.mg');
-    if (!box || box.scrollHeight <= box.clientHeight) e.preventDefault();
-  }, {passive: false});
-  sync();
 })();
 </script>
 </body>
