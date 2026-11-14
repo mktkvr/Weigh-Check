@@ -950,6 +950,15 @@ main{padding-top:12px}
 .card .vmic.on,.card .grp .vmic.on,.card .grp.origin .vmic.on,.card .grp.dest .vmic.on,.card .grp.plate .vmic.on{background:#d92d20!important;color:#fff!important;box-shadow:0 2px 8px rgba(217,45,32,.35)!important;animation:micpulse 1.3s ease-out infinite!important}
 .card .vmic.on svg{filter:none;animation:micbreathe 1.3s ease-in-out infinite!important}
 .card .vmic.on::before,.card .vmic.on::after{content:none!important;display:none!important}
+/* ไอคอนหัวกล่องต้นทาง/ปลายทาง: แบบทึบ */
+.grp.origin .gh .ic path:nth-of-type(1){fill:currentColor}
+.grp.origin .gh .ic path:nth-of-type(2){stroke:color-mix(in srgb,var(--g-ink) 12%,#fbf0cf);stroke-width:5}
+.grp.dest .gh .ic path:nth-of-type(1){fill:currentColor;stroke-width:1.2}
+.grp.dest .gh .ic path:nth-of-type(2){stroke:color-mix(in srgb,var(--g-ink) 12%,#d9eaf7);stroke-width:2.4}
+@media (prefers-color-scheme:dark){
+  .grp.origin .gh .ic path:nth-of-type(2){stroke:color-mix(in srgb,var(--g-ink) 12%,#2b2510)}
+  .grp.dest .gh .ic path:nth-of-type(2){stroke:color-mix(in srgb,var(--g-ink) 12%,#122539)}
+}
 </style>
 </head>
 <body class="oncalc">
@@ -969,7 +978,7 @@ main{padding-top:12px}
         <div class="vf pl4"><input id="plate" type="hidden"><input class="pp" id="pl1" maxlength="4" aria-label="หมวดอักษรทะเบียน" autocomplete="off" autocapitalize="off" enterkeyhint="next"><input class="pp" id="pl2" maxlength="2" inputmode="numeric" aria-label="เลขหน้าทะเบียน" autocomplete="off" enterkeyhint="next"><i>-</i><input class="pp" id="pl3" maxlength="4" inputmode="numeric" aria-label="เลขทะเบียน" autocomplete="off" enterkeyhint="next"><i>/</i><input class="pp" id="pl4" maxlength="4" inputmode="numeric" aria-label="เลขทะเบียนพ่วง (ถ้ามี)" autocomplete="off" enterkeyhint="next"><button class="vmic" type="button" data-vf="plate" aria-label="พูดทะเบียนรถ"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div>
     </div>
     <div class="grp origin">
-      <div class="ghrow"><div class="gh"><svg class="ic" viewBox="0 0 24 24" role="img" aria-label="ต้นทาง"><path d="M3 10.5 12 4l9 6.5V20H3z"/><path d="M9 20v-6h6v6M3 10.5h18"/></svg></div>
+      <div class="ghrow"><div class="gh"><svg class="ic" viewBox="0 0 24 24" role="img" aria-label="ต้นทาง"><path d="M12 21s-7-5.8-7-11a7 7 0 0 1 14 0c0 5.2-7 11-7 11z"/><path d="M12 10h.01"/></svg></div>
         <div class="srcf"><div class="vf"><input id="source" placeholder="ท่าข้าว / แหล่งที่มา" aria-label="ท่าข้าว / แหล่งที่มา" autocomplete="off" enterkeyhint="next"><button class="vmic" type="button" data-vf="source" aria-label="พูดชื่อท่าข้าว"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div></div>
       <div class="row">
         <div class="fld"><label for="head"><span class="ln">ใบชั่งที่ 1</span></label>
@@ -980,7 +989,7 @@ main{padding-top:12px}
       <div class="total"><span>รวมต้นทาง</span><b id="originTotal">0<small>กก.</small></b></div>
     </div>
     <div class="grp dest">
-      <div class="ghrow dhead"><div class="gh"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20V11l6 3.5V11l6 3.5V8"/><path d="M3 20h18V8h-6"/><path d="M18 20V4h3v4M7 17h.01M11 17h.01M15 17h.01"/></svg><span class="gt"><b>ปลายทาง</b></span></div><div class="tolbox"><label for="tol">ขาดได้ไม่เกิน</label><span class="tolw"><input id="tol" class="tolin" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" value="100" aria-label="เกณฑ์น้ำหนักขาดที่ยอมรับได้ (กก.)"></span></div></div>
+      <div class="ghrow dhead"><div class="gh"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20V11l6 3.5V11l6 3.5V8h3V4h3v16z"/><path d="M7 17h.01M11.5 17h.01M16 17h.01"/></svg><span class="gt"><b>ปลายทาง</b></span></div><div class="tolbox"><label for="tol">ขาดได้ไม่เกิน</label><span class="tolw"><input id="tol" class="tolin" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" value="100" aria-label="เกณฑ์น้ำหนักขาดที่ยอมรับได้ (กก.)"></span></div></div>
       <div class="row destrow">
         <div class="fld">
           <span class="dl">น้ำหนักสุทธิ</span><div class="nf"><input id="dest" class="num" type="text" inputmode="none" readonly placeholder="0" aria-label="น้ำหนัก กก."><button class="vmic" type="button" data-vf="dest" aria-label="พูดตัวเลขปลายทาง"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div>
@@ -1566,11 +1575,33 @@ function micUI(on) {
 }
 function stopMic() { if (rec) { const r = rec; r.onresult = r.onerror = r.onend = r.onstart = null; /* กันเหตุการณ์ของรอบเก่ามาทับไมค์ใหม่ */ try { r.abort(); } catch (e) {} } rec = null; micUI(false); }
 function cleanPlate(t) {
-  const W = {'ศูนย์': 0, 'หนึ่ง': 1, 'สอง': 2, 'สาม': 3, 'สี่': 4, 'ห้า': 5, 'หก': 6, 'เจ็ด': 7, 'แปด': 8, 'เก้า': 9};
-  t = String(t || '').replace(/[๐-๙]/g, c => String(c.charCodeAt(0) - 0x0E50))
-    .replace(/ศูนย์|หนึ่ง|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า/g, w => W[w]).trim();
-  const m = t.match(/^(\d{1,2})\s*[- ]?\s*(\d{3,4})$/);
-  return m ? m[1] + '-' + m[2] : t.replace(/\s+/g, ' ');
+  // รูปแบบ: หมวด(ตัวอักษร) เลข 2 หลัก - เลข 4 หลัก / เลขพ่วง  เช่น "กข 12-3456/7890"
+  // พูดได้: "กอ ขอ หนึ่ง สอง สาม สี่ ห้า หก ทับ เจ็ด แปด เก้า ศูนย์"  (พูดเลขทีละตัว, "ทับ"/"พ่วง" = เครื่องหมาย /)
+  const W = {'ศูนย์': 0, 'ซีโร่': 0, 'โอ': 0, 'หนึ่ง': 1, 'เอ็ด': 1, 'สอง': 2, 'สาม': 3, 'สี่': 4, 'ห้า': 5, 'หก': 6, 'เจ็ด': 7, 'แปด': 8, 'เก้า': 9};
+  const orig = String(t || '');
+  t = orig.replace(/[๐-๙]/g, c => String(c.charCodeAt(0) - 0x0E50))
+    .replace(/ทะเบียน|หมายเลข|เลข|หมวด|รถ/g, ' ')
+    .replace(/ศูนย์|ซีโร่|หนึ่ง|เอ็ด|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า|โอ/g, w => ' ' + W[w] + ' ')
+    .replace(/ทับ|พ่วง|สแลช|slash|หาร|\//gi, ' / ')
+    .replace(/ขีด|ยัติภังค์|แดช|dash|-/gi, ' - ')
+    .replace(/\s+/g, ' ').trim();
+  // ชื่อพยัญชนะ เช่น "กอไก่" "ขอไข่" "กอ" -> ก ข
+  t = t.split(' ').map(w => /^[ก-ฮ]อ[^\s\d]{0,8}$/.test(w) ? w[0] : w).join(' ');
+  if (!/\d/.test(t) && (!/[ก-ฮ]/.test(t) || /[^ก-ฮ\s\/-]/.test(t))) return orig.replace(/\s+/g, ' ').trim();
+  const parts = t.split('/');
+  let head = parts[0], trail = (parts.slice(1).join('').match(/\d/g) || []).join('').slice(0, 4);
+  let pre = '';
+  const mp = head.match(/^\s*(\d)\s*([ก-ฮ](?:\s*[ก-ฮ]){0,2})/);   // เช่น 1กข
+  if (mp) { pre = mp[1] + mp[2].replace(/\s+/g, ''); head = head.slice(mp[0].length); }
+  else { pre = (head.match(/[ก-ฮ]/g) || []).join(''); head = head.replace(/[ก-ฮ]/g, ' '); }
+  let nums;
+  if (/\d\s*-\s*\d/.test(head)) {                  // ผู้ใช้พูด "ขีด" มาเอง
+    nums = head.replace(/[^\d-]/g, '').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  } else {
+    const D = (head.match(/\d/g) || []).join('');
+    nums = D.length >= 5 ? D.slice(0, 2) + '-' + D.slice(2, 6) : D;
+  }
+  return ((pre ? pre + (nums ? ' ' : '') : '') + nums + (trail ? '/' + trail : '')).trim();
 }
 function startMic(field, btn) {
   if (!field) return;
