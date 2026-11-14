@@ -924,6 +924,17 @@ main{padding-top:12px}
 .card .grp.origin .vmic,.card .grp.origin .vmic:active,.card .grp.origin .vmic.on,
 .card .grp.dest .vmic,.card .grp.dest .vmic:active,.card .grp.dest .vmic.on,
 .card .grp.plate .vmic,.card .grp.plate .vmic:active,.card .grp.plate .vmic.on{background:transparent!important;color:#d92d20!important;box-shadow:none!important}
+/* ไมค์ที่กำลังฟัง: ไอคอนทึบ + กะพริบ + จุดแดง (ไม่ใช้พื้นหลัง) */
+@keyframes micblink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(1.18)}}
+.card .pl4 .vmic{position:relative}
+.card .vmic.on{animation:none!important}
+.card .vmic.on svg{animation:micblink 1s ease-in-out infinite}
+.card .vmic svg rect{fill:currentColor}
+.card .vmic.on::after{content:"";position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:#d92d20;animation:micblink 1s ease-in-out infinite}
+/* ไมค์ที่กำลังฟัง: วงแหวนแดงขยายออกเป็นจังหวะ (ไม่มีพื้นหลัง) */
+@keyframes micring{0%{transform:scale(.55);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+.card .vmic.on svg{animation:none!important}
+.card .vmic.on::after{content:"";position:absolute;inset:0;top:0;right:0;width:auto;height:auto;border-radius:50%!important;border:2px solid #d92d20;background:transparent;pointer-events:none;animation:micring 1.2s ease-out infinite}
 </style>
 </head>
 <body class="oncalc">
