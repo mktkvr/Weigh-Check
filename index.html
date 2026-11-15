@@ -987,6 +987,268 @@ main{padding-top:12px}
   box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 35%,transparent)}
 /* ลดขนาดตัวเลขช่องใบชั่ง 1 / 2 ลงเล็กน้อย */
 .card .grp input#head,.card .grp input#tail,.fld .nf input#head.num,.fld .nf input#tail.num{font-size:1.3rem}
+/* ปุ่มไมค์ในแป้น: หน้าตาเหมือนไมค์ข้างนอก (วงกลม ขอบแดง ไอคอนแดง) */
+#pad .key.zero{grid-column:span 1}
+#pad .key.micKey{width:48px;height:48px;min-height:48px;justify-self:center;border-radius:50%!important;padding:0;
+  background:transparent;color:#d92d20;box-shadow:inset 0 0 0 1.5px rgba(217,45,32,.5);
+  transition:background .2s,color .2s,box-shadow .2s,transform .08s;-webkit-tap-highlight-color:transparent}
+#pad .key.micKey svg{width:21px;height:21px;stroke-width:2.2;pointer-events:none}
+#pad .key.micKey svg rect{fill:currentColor}
+#pad .key.micKey .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+#pad .key.micKey:active,#pad .key.micKey.pressed{background:rgba(217,45,32,.15);color:#d92d20;transform:scale(.92);
+  box-shadow:inset 0 0 0 1.5px rgba(217,45,32,.5)}
+#pad .key.micKey.on{background:#d92d20;color:#fff;box-shadow:0 2px 8px rgba(217,45,32,.35);animation:micpulse 1.3s ease-out infinite}
+#pad .key.micKey.on svg{animation:micbreathe 1.3s ease-in-out infinite}
+/* จัดตำแหน่งไมค์: ขนาด 34px เท่ากันทุกจุด และในแต่ละกล่องระยะห่างขวา = ระยะห่างบน/ล่าง */
+.card .grp .vmic,.card .grp .pl4 .vmic,.card .grp .srcf .vmic{width:34px;height:34px;flex:none}
+.card .grp .vmic svg{width:19px;height:19px}
+.card .grp .srcf .vmic{right:8px}
+.card .grp .pl4 .vmic{right:auto;margin:0 8px 0 3px}
+.card .grp input#pl1,.card .grp input#pl2,.card .grp input#pl3,.card .grp input#pl4,.card .grp input#source{height:50px;min-height:50px}
+.card .grp.origin .ghrow .gh{width:50px;height:50px}
+.card .grp .nf .vmic{right:11px}
+.card .grp.dest .nf .vmic{right:4px}
+.nf::after{right:51px}
+.dest .nf::after{right:44px}
+.fld .nf input.num{padding-left:2px;padding-right:76px}
+/* กรอบนอกของแถบเมนูล่าง (คำนวณ / ประวัติ): ไม่มีมุมโค้ง */
+header.top{border-radius:0}
+/* ไมค์ด่วน: ปุ่มติดขอบขวาของจอ พูดใบชั่ง 1 → 2 → ปลายทางต่อเนื่อง */
+:root{--qb:calc(var(--navh) + 98px);--qedge:max(0px,calc((100vw - 560px) / 2))}
+body.padopen{--qb:calc(var(--padh,230px) + 12px)}
+#quickMic{position:fixed;z-index:8;right:var(--qedge);bottom:var(--qb);display:none;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  width:58px;height:62px;padding:0 2px 0 8px;border:0;border-radius:31px 0 0 31px!important;background:#d92d20;color:#fff;font:inherit;font-size:.66rem;font-weight:700;line-height:1.1;
+  box-shadow:-4px 6px 16px -6px rgba(217,45,32,.6);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .2s,color .2s,transform .08s}
+body.oncalc #quickMic{display:flex}
+#quickMic svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+#quickMic svg rect{fill:currentColor}
+#quickMic.pressed{transform:scale(.94);transform-origin:right center}
+#quickMic.on{background:#fff;color:#d92d20;box-shadow:inset 0 0 0 2px #d92d20,-4px 6px 16px -6px rgba(217,45,32,.5);animation:micpulse 1.3s ease-out infinite}
+#qStatus{position:fixed;z-index:8;right:calc(var(--qedge) + 66px);bottom:calc(var(--qb) + 13px);max-width:min(240px,calc(100vw - 100px));padding:8px 12px;border-radius:12px;
+  background:#d92d20;color:#fff;font-size:.82rem;font-weight:600;line-height:1.25;box-shadow:0 6px 16px -8px rgba(217,45,32,.6)}
+#qStatus[hidden]{display:none}
+.card .grp.plate .vmic:not(.on),.card .grp.plate .vmic:not(.on):active{background:#fff!important}
+.grp.dest .fld label.dl,.card .grp.dest .fld label.dl{display:flex;flex-direction:row;align-items:center;gap:8px;flex:none;margin:0;line-height:1.25;font-size:.95rem;font-weight:700;color:#374151!important;opacity:1;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
+.grp.dest .fld label.dl::before{background:#374151}
+.fld.qlisten .nf::before{content:"";position:absolute;left:12px;top:50%;margin-top:-6px;width:12px;height:12px;border-radius:50%;background:#d92d20;z-index:2;pointer-events:none;animation:micblink 1s ease-in-out infinite}
+.fld.qlisten input.num{border-color:#d92d20!important;box-shadow:0 0 0 4px rgba(217,45,32,.18)!important}
+#qSkip{position:fixed;z-index:8;right:calc(var(--qedge) + 66px);bottom:calc(var(--qb) + 70px);padding:10px 14px;border-radius:12px;border:2px solid #d92d20;background:#fff;color:#d92d20;font:inherit;font-size:.88rem;font-weight:700;box-shadow:0 6px 16px -8px rgba(217,45,32,.5);cursor:pointer;-webkit-tap-highlight-color:transparent}
+#qSkip[hidden]{display:none}
+#qSkip:active{background:#fdecea}
+.dlg{overscroll-behavior:contain;touch-action:none}
+.dlg-box{touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+html.dlg-lock,html.dlg-lock body{overflow:hidden!important;overscroll-behavior:none}
+html.dlg-lock body{position:fixed;left:0;right:0;width:100%}
+.maxrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px}
+.maxrow label{margin:0;font-size:.92rem;font-weight:600;color:var(--ink);opacity:1}
+.maxrow input{width:110px;height:44px;text-align:right;font-weight:700;font-size:1.05rem;padding:0 12px;border-radius:10px}
+.maxhint{display:block;margin:4px 0 0;color:var(--muted);font-size:.78rem;text-align:right}
+
+/* ===== หน้าจัดการข้อมูล (จัดระเบียบเป็นหมวด) ===== */
+#mgDlg .dlg-box.mg{max-width:400px;padding:0;text-align:left;overflow-y:auto;border-radius:24px}
+#mgDlg .mg-hd{display:flex;align-items:center;gap:10px;padding:18px 18px 12px;position:sticky;top:0;z-index:2;background:var(--surface);border-bottom:1px solid var(--line)}
+#mgDlg .mg-hd h2{margin:0;font-size:1.15rem;font-weight:700;text-align:left}
+#mgDlg .manage{margin:0;padding:6px 18px 4px;background:transparent;border:0;display:block}
+#mgDlg .mg-sec{padding:14px 0;border-bottom:1px solid var(--line)}
+#mgDlg .mg-sec:last-child{border-bottom:0}
+#mgDlg .store{margin:0;background:var(--sunk);border-width:1px}
+#mgDlg .maxrow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0;padding:10px 12px;border-radius:14px;background:var(--sunk);border:1px solid color-mix(in srgb,var(--ink) 12%,var(--surface))}
+#mgDlg .mx-tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+#mgDlg .maxrow label{margin:0;font-size:.92rem;font-weight:600;color:var(--ink);opacity:1}
+#mgDlg .mx-in{display:flex;align-items:center;gap:6px;flex:none}
+#mgDlg .mx-in span{font-size:.82rem;font-weight:600;color:var(--muted)}
+#mgDlg .maxrow input{width:96px;height:44px;padding:0 10px;text-align:right;font-size:1.05rem;font-weight:700;border-radius:12px;background:var(--surface)}
+#mgDlg .btn.export{margin:0;width:100%;min-height:50px;border-radius:14px;gap:8px}
+#mgDlg .jrow{margin-top:10px}
+#mgDlg .jrow .btn{min-height:48px;border-radius:14px;gap:6px;background:var(--surface)}
+#mgDlg .btn .ic{width:19px;height:19px}
+#mgDlg .mg-danger{padding-bottom:6px}
+#mgDlg .link{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:46px;margin:0;border-radius:14px;font-size:.92rem;font-weight:600;color:var(--bad-ink);background:transparent;border:1.5px solid color-mix(in srgb,var(--bad) 35%,var(--surface))}
+#mgDlg .link:active{background:var(--bad-soft)}
+#mgDlg .store .st-tx span{display:none}
+#mgDlg .store .st-tx{display:flex;flex-direction:column;gap:1px}
+#mgDlg .store .st-tx b{font-size:.95rem}
+#mgDlg .jrow:has(#jsonBtn[hidden]){grid-template-columns:1fr}
+#mgDlg .jrow .btn[hidden]{display:none}
+/* จัดระเบียบรอบสุดท้าย: การ์ดทุกใบสูง/โค้ง/ขอบเท่ากัน ปุ่มทุกปุ่มสูงเท่ากัน */
+#mgDlg .manage{padding:2px 18px 0}
+#mgDlg .mg-sec{padding:16px 0}
+#mgDlg .store,#mgDlg .maxrow{box-sizing:border-box;min-height:68px;padding:10px 12px 10px 14px;border-radius:16px;border:1px solid var(--line);background:var(--sunk);margin:0}
+#mgDlg .st-ic{width:40px;height:40px;border-radius:12px}
+#mgDlg .st-ic svg{width:21px;height:21px}
+#mgDlg .st-btn{min-height:40px;padding:0 16px;border-radius:12px;font-size:.9rem}
+#mgDlg .maxrow input{height:44px;border:1.5px solid var(--line)}
+#mgDlg .btn.export,#mgDlg .jrow .btn,#mgDlg .link{min-height:50px;border-radius:16px}
+#mgDlg .jrow{gap:10px}
+#mgDlg .mx-in{display:flex;align-items:center;gap:6px;height:46px;padding:0 12px;border-radius:12px;background:var(--surface);border:1.5px solid var(--line);cursor:pointer}
+#mgDlg .mx-in.active{border-color:var(--acc);box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 18%,transparent)}
+#mgDlg .maxrow input{width:78px;height:40px;padding:0;border:0;background:transparent;box-shadow:none;text-align:right;cursor:pointer;caret-color:transparent}
+body.mgpad #pad{z-index:30}
+body.mgpad #pad .micKey{visibility:hidden}
+body.mgpad #mgDlg{padding-bottom:calc(var(--padh,300px) + 12px);align-items:end}
+body.mgpad #mgDlg .dlg-box.mg{max-height:calc(100vh - var(--padh,300px) - 24px)}
+#mgDlg .maxrow input{pointer-events:none}
+/* ===== กระชับ ===== */
+#mgDlg .dlg-box.mg{max-width:380px}
+#mgDlg .mg-hd{padding:14px 18px 10px}
+#mgDlg .mg-hd h2{font-size:1.05rem}
+#mgDlg .manage{padding:0 18px}
+#mgDlg .mg-sec{padding:6px 0;border:0}
+#mgDlg .mg-sec:first-child{padding-top:12px}
+#mgDlg .store,#mgDlg .maxrow{min-height:56px;padding:8px 10px 8px 12px;border-radius:14px}
+#mgDlg .st-ic{width:34px;height:34px;border-radius:10px}
+#mgDlg .st-ic svg{width:18px;height:18px}
+#mgDlg .st-btn{min-height:36px;padding:0 14px;border-radius:10px;font-size:.86rem}
+#mgDlg .maxrow label{font-size:.9rem}
+#mgDlg .mx-in{height:40px;border-radius:10px}
+#mgDlg .maxrow input{height:36px;font-size:1rem}
+#mgDlg .btn.export,#mgDlg .jrow .btn{min-height:46px;border-radius:14px;font-size:.92rem}
+#mgDlg .jrow{margin-top:8px}
+#mgDlg .mg-danger{padding:4px 0 2px}
+#mgDlg .link{min-height:38px;border:0;background:transparent;font-size:.86rem;font-weight:600;border-radius:10px}
+/* ===== จัดการข้อมูล: จำเป็นเด่น / รองลงมาเล็ก ===== */
+#mgDlg .maxrow label{cursor:pointer}
+#mgDlg .store{display:flex;align-items:center;gap:8px;min-height:0;margin:0;padding:0 2px;border:0;background:transparent}
+#mgDlg .store .st-tx{display:flex;flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:2px 8px;flex:1;min-width:0}
+#mgDlg .store .st-tx b{font-size:.8rem;font-weight:500;color:var(--muted)}
+#mgDlg .store .st-tx small{font-size:.74rem}
+#mgDlg .store .st-tx small:empty{display:none}
+#mgDlg .st-btn{min-height:32px;padding:0 10px;border-radius:8px;background:transparent;color:var(--acc);font-size:.84rem;font-weight:600}
+#mgDlg .mg-danger{padding:0 0 4px;text-align:center}
+#mgDlg .link{display:inline-block;width:auto;min-height:32px;margin:0;padding:4px 12px;border:0;background:transparent;font-size:.8rem;font-weight:500;color:var(--bad-ink);opacity:.85;text-decoration:underline;text-underline-offset:3px}
+/* ===== จัดการข้อมูล: ตกแต่งรอบสุดท้าย ===== */
+#mgDlg .dlg-box.mg{max-width:380px;border-radius:26px;box-shadow:0 28px 70px -24px rgba(0,0,0,.55)}
+#mgDlg .mg-hd{justify-content:space-between;padding:16px 14px 12px 20px;border-bottom:1px solid var(--line)}
+#mgDlg .mg-hd h2{flex:1;font-size:1.12rem;font-weight:700;letter-spacing:.01em}
+#mgDlg .mg-x{flex:none;width:38px;height:38px;padding:0;border:0;border-radius:50%!important;background:var(--sunk);color:var(--muted);display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .12s,color .12s,transform .08s}
+#mgDlg .mg-x svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+#mgDlg .mg-x:active{background:var(--line);color:var(--ink);transform:scale(.92)}
+#mgDlg .manage{padding:16px 16px 14px}
+#mgDlg .manage .mg-sec{padding:0;margin:0 0 14px;border:0}
+#mgDlg .manage .mg-sec:first-child{padding:0;background:var(--sunk);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+#mgDlg .manage .mg-sec:first-child .maxrow{min-height:60px;margin:0;padding:8px 10px 8px 16px;border:0;border-radius:0;background:transparent}
+#mgDlg .manage .mg-sec:first-child .maxrow+.maxrow{border-top:1px solid var(--line)}
+#mgDlg .maxrow label{font-size:.94rem;font-weight:600}
+#mgDlg .mx-in{height:42px;min-width:116px;justify-content:flex-end;padding:0 14px;border-radius:12px;background:var(--surface);border:1.5px solid var(--line);transition:border-color .12s,box-shadow .12s}
+#mgDlg .maxrow input{width:70px;font-size:1.05rem;font-weight:700}
+#mgDlg .btn.export{min-height:52px;border-radius:16px;font-size:.98rem;font-weight:600;box-shadow:0 8px 18px -10px color-mix(in srgb,var(--acc) 70%,transparent)}
+#mgDlg .jrow{margin-top:10px;gap:10px}
+#mgDlg .jrow .btn{min-height:48px;border-radius:16px;font-size:.92rem;font-weight:600;border:1.5px solid var(--line);background:var(--surface)}
+#mgDlg .manage .mg-sec:nth-child(3){margin:4px 0 6px;padding:10px 0 0;border-top:1px solid var(--line)}
+#mgDlg .store{padding:0 2px}
+#mgDlg .manage .mg-danger{margin:0;padding:0;text-align:center}
+/* ===== จัดการข้อมูล: ไอคอน ===== */
+#mgDlg .mg-hd{justify-content:flex-start;gap:12px}
+#mgDlg .mg-hic{flex:none;width:38px;height:38px;border-radius:12px;background:var(--ok-soft);color:var(--ok-ink);display:grid;place-items:center}
+#mgDlg .mg-hic svg,#mgDlg .rw-ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+#mgDlg .rw-l{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+#mgDlg .rw-ic{flex:none;width:36px;height:36px;border-radius:11px;background:var(--ok-soft);color:var(--ok-ink);display:grid;place-items:center}
+#mgDlg .rw-ic.warn{background:var(--warn-soft);color:var(--warn-ink)}
+#mgDlg .manage .mg-sec:first-child .maxrow{padding-left:12px}
+#mgDlg .maxrow label{line-height:1.25}
+#mgDlg .st-i{flex:none;display:grid;place-items:center;color:var(--muted)}
+#mgDlg .st-i svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#mgDlg .link{display:inline-flex;align-items:center;gap:6px}
+#mgDlg .link svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* ===== ที่เก็บข้อมูล: อ่านง่าย ครบทุกสถานะ ===== */
+#mgDlg .manage .mg-sec:nth-child(3){margin:0 0 14px;padding:0;border:0}
+#mgDlg .store{align-items:center;gap:12px;padding:10px 10px 10px 12px;border:1px solid var(--line);border-radius:18px;background:var(--sunk)}
+#mgDlg .store .st-i{width:36px;height:36px;border-radius:11px;background:var(--ok-soft);color:var(--ok-ink)}
+#mgDlg .store .st-i svg{width:19px;height:19px}
+#mgDlg .store.need .st-i{background:var(--warn-soft);color:var(--warn-ink)}
+#mgDlg .store .st-tx{display:flex;flex-direction:column;flex-wrap:nowrap;gap:2px;flex:1;min-width:0}
+#mgDlg .store .st-tx b{font-size:.9rem;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#mgDlg .store .st-tx small{display:block;font-size:.74rem;line-height:1.35;font-weight:400;color:var(--muted)}
+#mgDlg .store.need .st-tx small{color:var(--warn-ink);font-weight:500}
+#mgDlg .st-btn{flex:none;min-height:38px;padding:0 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font-size:.86rem;font-weight:600}
+#mgDlg .store.need .st-btn{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
+#mgDlg .st-btn[hidden]{display:none}
+/* ===== ไอคอนค่าตั้ง + หน่วย กก. ===== */
+#mgDlg .rw-ic{width:38px;height:38px;border-radius:12px}
+#mgDlg .rw-ic svg{width:21px;height:21px;stroke-width:2}
+#mgDlg .mx-in span{margin-left:2px;padding-left:9px;border-left:1.5px solid var(--line);font-size:.8rem;font-weight:600;line-height:1.2;color:var(--muted)}
+#mgDlg .mx-in.active span{border-left-color:var(--acc);color:var(--ink)}
+/* ===== การ์ดที่เก็บข้อมูล: จัดเรียงใหม่ให้เรียบร้อย ===== */
+#mgDlg .store{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"i t" "b b";column-gap:12px;row-gap:12px;align-items:center;padding:14px;border-radius:18px}
+#mgDlg .store .st-i{grid-area:i;align-self:start;width:40px;height:40px;border-radius:13px}
+#mgDlg .store .st-i svg{width:21px;height:21px}
+#mgDlg .store .st-tx{grid-area:t;gap:3px}
+#mgDlg .store .st-tx b{font-size:.95rem;line-height:1.3;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
+#mgDlg .store .st-tx small{font-size:.78rem;line-height:1.5}
+#mgDlg .st-btn{grid-area:b;width:100%;min-height:42px;padding:0 14px;border-radius:12px;font-size:.9rem;display:inline-flex;align-items:center;justify-content:center}
+#mgDlg .st-btn::before{content:"";width:17px;height:17px;margin-right:8px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z'/%3E%3Cpath d='M14 3v6h6'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z'/%3E%3Cpath d='M14 3v6h6'/%3E%3C/svg%3E") center/contain no-repeat}
+/* ===== แก้ข้อความล้น ===== */
+#mgDlg .dlg-box.mg,#mgDlg .manage{overflow-x:hidden}
+#mgDlg .store .st-tx small,#mgDlg .store .st-tx b{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;min-width:0}
+#mgDlg .store .st-tx{min-width:0}
+#mgDlg .rw-l{gap:10px}
+#mgDlg .rw-ic{width:34px;height:34px;border-radius:11px}
+#mgDlg .rw-ic svg{width:19px;height:19px}
+#mgDlg .maxrow label{font-size:.9rem;line-height:1.3}
+#mgDlg .mx-in{min-width:0;padding:0 10px;gap:4px}
+#mgDlg .maxrow input{width:58px}
+#mgDlg .mx-in span{padding-left:7px}
+/* ===== กระชับ ===== */
+#mgDlg .mg-hd{padding:12px 12px 10px 16px;gap:10px}
+#mgDlg .mg-hic{width:32px;height:32px;border-radius:10px}
+#mgDlg .mg-hic svg{width:18px;height:18px}
+#mgDlg .mg-hd h2{font-size:1.05rem}
+#mgDlg .mg-x{width:34px;height:34px}
+#mgDlg .mg-x svg{width:17px;height:17px}
+#mgDlg .manage{padding:12px 14px 8px}
+#mgDlg .manage .mg-sec{margin:0 0 10px}
+#mgDlg .manage .mg-sec:first-child .maxrow{min-height:50px;padding:6px 8px 6px 10px}
+#mgDlg .rw-ic{width:30px;height:30px;border-radius:9px}
+#mgDlg .rw-ic svg{width:17px;height:17px}
+#mgDlg .mx-in{height:38px;border-radius:10px}
+#mgDlg .maxrow input{height:34px}
+#mgDlg .btn.export{min-height:46px;border-radius:14px;font-size:.94rem}
+#mgDlg .jrow{margin-top:8px;gap:8px}
+#mgDlg .jrow .btn{min-height:42px;border-radius:14px;font-size:.88rem}
+#mgDlg .store{padding:10px 12px;row-gap:8px;column-gap:10px;border-radius:16px}
+#mgDlg .store .st-i{width:34px;height:34px;border-radius:11px}
+#mgDlg .store .st-i svg{width:18px;height:18px}
+#mgDlg .store .st-tx{gap:1px}
+#mgDlg .store .st-tx b{font-size:.9rem}
+#mgDlg .store .st-tx small{font-size:.74rem;line-height:1.4}
+#mgDlg .st-btn{min-height:36px;border-radius:10px;font-size:.86rem}
+#mgDlg .st-btn::before{width:15px;height:15px;margin-right:6px}
+#mgDlg .manage .mg-sec:nth-child(3){margin-bottom:4px}
+#mgDlg .link{min-height:28px;padding:2px 10px;font-size:.78rem}
+/* ===== หน้าต่างชิดขอบล่าง เว้นนิดหน่อย ===== */
+#mgDlg{align-items:end;padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px))}
+#mgDlg .dlg-box.mg{max-height:calc(100vh - 24px - env(safe-area-inset-bottom,0px));max-height:calc(100dvh - 24px - env(safe-area-inset-bottom,0px));animation:mgup .22s ease-out}
+@keyframes mgup{from{transform:translateY(28px);opacity:0}to{transform:none;opacity:1}}
+/* ===== ล้างประวัติ: ห่างจากโซนนิ้วโป้ง กันกดพลาด ===== */
+#mgDlg .manage .mg-sec:nth-child(3){margin-bottom:0}
+#mgDlg .manage .mg-danger{margin:16px 0 0;padding:12px 0 6px;border-top:1px solid var(--line);text-align:center}
+#mgDlg .link{min-height:0;padding:6px 12px;font-size:.76rem;font-weight:500;opacity:.8}
+/* ล้างประวัติ: ย้ายขึ้นบนสุด ไกลจากนิ้วโป้ง */
+#mgDlg .manage{display:flex;flex-direction:column}
+#mgDlg .manage .mg-danger{order:-1;margin:-4px 0 6px;padding:0;border:0;text-align:left}
+#mgDlg .manage .mg-danger .link{padding-left:2px}
+#mgDlg .manage .mg-danger[hidden]{display:none}
+#mgDlg .manage .mg-sec:nth-child(3){margin-bottom:4px}
+/* ===== หน้าเลือกที่เก็บข้อมูล: แบบเดียวกับจัดการข้อมูล ===== */
+#stDlg{align-items:end;padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px))}
+#stDlg .dlg-box.st{max-width:380px;padding:0;text-align:left;border-radius:26px;overflow:hidden;box-shadow:0 28px 70px -24px rgba(0,0,0,.55);animation:mgup .22s ease-out}
+#stDlg .mg-hd{display:flex;align-items:center;gap:10px;padding:12px 12px 10px 16px;border-bottom:1px solid var(--line);background:var(--surface)}
+#stDlg .mg-hic{flex:none;width:32px;height:32px;border-radius:10px;background:var(--ok-soft);color:var(--ok-ink);display:grid;place-items:center}
+#stDlg .mg-hic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+#stDlg .mg-hd h2{flex:1;margin:0;font-size:1.05rem;font-weight:700;text-align:left}
+#stDlg .mg-x{flex:none;width:34px;height:34px;padding:0;border:0;border-radius:50%!important;background:var(--sunk);color:var(--muted);display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .12s,color .12s,transform .08s}
+#stDlg .mg-x svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+#stDlg .mg-x:active{background:var(--line);color:var(--ink);transform:scale(.92)}
+#stDlg .st-body{padding:12px 14px 14px}
+#stDlg .st-body p{margin:0 0 10px;font-size:.8rem;line-height:1.45;color:var(--muted);text-align:left;white-space:normal}
+#stDlg .opt{gap:12px;margin:0 0 8px;padding:10px 12px;border:1px solid var(--line);border-radius:16px;background:var(--sunk);min-width:0}
+#stDlg .opt:last-child{margin-bottom:0}
+#stDlg .opt .oc{flex:none;width:36px;height:36px;border-radius:11px;background:var(--ok-soft);color:var(--ok-ink);display:grid;place-items:center}
+#stDlg .opt .oc.n{background:var(--surface);color:var(--muted);border:1px solid var(--line)}
+#stDlg .opt .oc svg{width:19px;height:19px;color:inherit;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#stDlg .opt .ot{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;line-height:1.3}
+#stDlg .opt b{font-size:.92rem;font-weight:600}
+#stDlg .opt small{font-size:.76rem;line-height:1.4;white-space:normal;overflow-wrap:anywhere}
 </style>
 </head>
 <body class="oncalc">
@@ -1017,10 +1279,10 @@ main{padding-top:12px}
       <div class="total"><span>รวมต้นทาง</span><b id="originTotal">0<small>กก.</small></b></div>
     </div>
     <div class="grp dest">
-      <div class="ghrow dhead"><div class="gh"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20V11l6 3.5V11l6 3.5V8h3V4h3v16z"/><path d="M7 17h.01M11.5 17h.01M16 17h.01"/></svg><span class="gt"><b>ปลายทาง</b></span></div><div class="tolbox"><label for="tol">ขาดได้ไม่เกิน</label><span class="tolw"><input id="tol" class="tolin" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" value="100" aria-label="เกณฑ์น้ำหนักขาดที่ยอมรับได้ (กก.)"></span></div></div>
+      <div class="ghrow dhead"><div class="gh"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20V11l6 3.5V11l6 3.5V8h3V4h3v16z"/><path d="M7 17h.01M11.5 17h.01M16 17h.01"/></svg><span class="gt"><b>ปลายทาง</b></span></div></div>
       <div class="row destrow">
         <div class="fld">
-          <span class="dl">น้ำหนักสุทธิ</span><div class="nf"><input id="dest" class="num" type="text" inputmode="none" readonly placeholder="0" aria-label="น้ำหนัก กก."><button class="vmic" type="button" data-vf="dest" aria-label="พูดตัวเลขปลายทาง"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div>
+          <label class="dl" for="dest">น้ำหนักสุทธิ</label><div class="nf"><input id="dest" class="num" type="text" inputmode="none" readonly placeholder="0" aria-label="น้ำหนัก กก."><button class="vmic" type="button" data-vf="dest" aria-label="พูดตัวเลขปลายทาง"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div>
       </div>
     </div>
   </section>
@@ -1058,38 +1320,57 @@ main{padding-top:12px}
 </div>
 </main>
 
+<button id="quickMic" type="button" aria-label="ไมค์ด่วน: พูดใบชั่ง 1, 2 และน้ำหนักปลายทางต่อเนื่อง"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="qTx">ไมค์ด่วน</span></button>
+<div id="qStatus" role="status" aria-live="polite" hidden></div>
+<button id="qSkip" type="button" hidden>ไม่มีใบชั่ง 2 · ข้าม ›</button>
 <div class="bar">
   <button class="btn ghost" id="reset"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>เริ่มใหม่</button>
   <button class="btn save" id="save"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>บันทึก</button>
 </div>
 <div id="pad" role="group" aria-label="แป้นตัวเลข">
   <div class="padinfo" id="padInfo" hidden><span id="padLbl"></span><span id="padTxt"></span></div>
-  <button class="mic" id="micBtn" type="button" aria-live="polite"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="micTx">พูดตัวเลข</span></button>
   <div class="keys">
     <button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button><button class="key fn" data-k="del" aria-label="ลบ"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5h11a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9l-6-7Z"/><path d="m12 9 5 5m0-5-5 5"/></svg></button>
     <button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button><button class="key go" id="goKey" data-k="next">ถัดไป ›</button>
     <button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button>
-    <button class="key fn" data-k="clr">ล้าง</button><button class="key zero" data-k="0">0</button>
+    <button class="key fn" data-k="clr">ล้าง</button><button class="key zero" data-k="0">0</button><button class="key micKey" id="micBtn" type="button" aria-label="พูดตัวเลข" aria-live="polite"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="micTx" class="sr">พูดตัวเลข</span></button>
   </div>
 </div>
 <div class="dlg" id="mgDlg" hidden>
   <div class="dlg-box sheet mg" role="dialog" aria-modal="true" aria-label="จัดการข้อมูล">
+    <header class="mg-hd">
+      <span class="mg-hic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></span><h2>จัดการข้อมูล</h2>
+      <button class="mg-x" id="mgClose" type="button" aria-label="ปิด"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </header>
     <section class="manage" id="manage">
-      <div class="mhd"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>จัดการข้อมูล</div>
-    <div class="store" id="store">
-      <div class="st-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></div>
-      <div class="st-tx"><span>ที่เก็บข้อมูล</span><b id="stName">ในเบราว์เซอร์</b><small id="stSub">บันทึกลงเครื่องอัตโนมัติ</small></div>
-      <button class="st-btn" id="stBtn">เลือกไฟล์</button>
-    </div>
-    <button class="btn export" id="exportBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 13h8M8 17h8"/></svg>ดาวน์โหลด Excel (CSV)</button>
-    <div class="jrow">
-      <button class="btn ghost" id="jsonBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>สำรอง JSON</button>
-      <button class="btn ghost" id="importBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m0 0L8 7m4-4 4 4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>นำเข้า JSON</button>
-      <input type="file" id="importFile" accept=".json,application/json" hidden>
-    </div>
-    <div style="text-align:right;margin-top:12px"><button class="link" id="clearAll">ล้างประวัติทั้งหมด</button></div>
+      <div class="mg-sec">
+        <div class="maxrow">
+          <div class="rw-l"><span class="rw-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="3"/><path d="M6.5 8a2 2 0 0 0-1.9 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.93-2.54L19.4 9.5A2 2 0 0 0 17.5 8Z"/></svg></span><label for="maxIn">น้ำหนักสูงสุดที่รับได้</label></div>
+          <div class="mx-in" id="maxBox"><input id="maxIn" type="text" inputmode="none" readonly tabindex="-1" placeholder="0" autocomplete="off" aria-label="น้ำหนักสูงสุดที่รับได้ (กก.)"><span>กก.</span></div>
+        </div>
+        <div class="maxrow">
+          <div class="rw-l"><span class="rw-ic warn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 17-8.5-8.5-5 5L2 7"/><path d="M16 17h6v-6"/></svg></span><label for="tol">ขาดได้ไม่เกิน</label></div>
+          <div class="mx-in" id="tolBox"><input id="tol" type="text" inputmode="none" readonly tabindex="-1" placeholder="0" value="100" autocomplete="off" aria-label="น้ำหนักขาดที่ยอมรับได้ (กก.)"><span>กก.</span></div>
+        </div>
+      </div>
+      <div class="mg-sec">
+        <button class="btn export" id="exportBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 13h8M8 17h8"/></svg>ดาวน์โหลด Excel (CSV)</button>
+        <div class="jrow">
+          <button class="btn ghost" id="jsonBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>สำรอง JSON</button>
+          <button class="btn ghost" id="importBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m0 0L8 7m4-4 4 4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>นำเข้า JSON</button>
+          <input type="file" id="importFile" accept=".json,application/json" hidden>
+        </div>
+      </div>
+      <div class="mg-sec">
+        <div class="store" id="store">
+          <span class="st-i"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></span><div class="st-tx"><b id="stName">เก็บในเบราว์เซอร์ของเครื่องนี้</b><small id="stSub">ล้างข้อมูลเบราว์เซอร์แล้วจะหาย</small></div>
+          <button class="st-btn" id="stBtn">เก็บลงไฟล์</button>
+        </div>
+      </div>
+      <div class="mg-sec mg-danger">
+        <button class="link" id="clearAll"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>ล้างประวัติทั้งหมด</button>
+      </div>
     </section>
-    <button class="btn" id="mgClose" type="button" style="width:100%;margin-top:10px">ปิด</button>
   </div>
 </div>
 <div class="dlg" id="dlg" hidden>
@@ -1104,13 +1385,18 @@ main{padding-top:12px}
   </div>
 </div>
 <div class="dlg" id="stDlg" hidden>
-  <div class="dlg-box sheet" role="dialog" aria-modal="true" aria-labelledby="stDlgT">
-    <h2 id="stDlgT">เลือกที่เก็บข้อมูล</h2>
-    <p id="stDlgP">ข้อมูลจะบันทึกลงไฟล์ JSON ที่คุณเลือกทุกครั้งที่บันทึกหรือลบรายการ</p>
-    <button class="opt" id="optNew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M12 12v6M9 15h6"/></svg><span><b>สร้างไฟล์ JSON ใหม่</b><small>ตั้งชื่อและเลือกตำแหน่งที่จะเก็บ</small></span></button>
-    <button class="opt" id="optOpen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg><span><b>เปิดไฟล์ JSON เดิม</b><small>ดึงข้อมูลจากไฟล์ แล้วบันทึกต่อในไฟล์นั้น</small></span></button>
-    <button class="opt" id="optLocal"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg><span><b>เก็บในเบราว์เซอร์</b><small>เลิกเชื่อมไฟล์ (ไฟล์เดิมยังอยู่ ไม่ถูกลบ)</small></span></button>
-    <button class="btn" id="stDlgNo" style="width:100%;margin-top:6px">ปิด</button>
+  <div class="dlg-box sheet st" role="dialog" aria-modal="true" aria-labelledby="stDlgT">
+    <header class="mg-hd">
+      <span class="mg-hic"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></span>
+      <h2 id="stDlgT">เลือกที่เก็บข้อมูล</h2>
+      <button class="mg-x" id="stDlgNo" type="button" aria-label="ปิด"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </header>
+    <div class="st-body">
+      <p id="stDlgP">ข้อมูลจะบันทึกลงไฟล์ JSON ที่คุณเลือกทุกครั้งที่บันทึกหรือลบรายการ</p>
+      <button class="opt" id="optNew"><span class="oc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M12 12v6M9 15h6"/></svg></span><span class="ot"><b>สร้างไฟล์ JSON ใหม่</b><small>ตั้งชื่อและเลือกตำแหน่งที่จะเก็บ</small></span></button>
+      <button class="opt" id="optOpen"><span class="oc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg></span><span class="ot"><b>เปิดไฟล์ JSON เดิม</b><small>ดึงข้อมูลจากไฟล์ แล้วบันทึกต่อในไฟล์นั้น</small></span></button>
+      <button class="opt" id="optLocal"><span class="oc n"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></span><span class="ot"><b>เก็บในเบราว์เซอร์</b><small>เลิกเชื่อมไฟล์ (ไฟล์เดิมยังอยู่ ไม่ถูกลบ)</small></span></button>
+    </div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -1121,7 +1407,10 @@ const ICO={"save": "<path d=\"M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2
 ICO.scale='<path d="M12 3v18M8 21h8M4 7h16"/><path d="m4 7-3 7a3.5 3.5 0 0 0 6 0Z"/><path d="m20 7-3 7a3.5 3.5 0 0 0 6 0Z"/>';
 ICO.trash='<path d="M4 7h16M10 11v6m4-6v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>';
 const ic = n => '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + ICO[n] + '</svg>';
-const MAX = 70000; // สูงสุด 70 ตัน
+const MAXKEY = 'wc-max-weight', MAX_DEFAULT = 70000, MAX_CAP = 99999;
+let MAX = MAX_DEFAULT; // น้ำหนักสูงสุดที่รับได้ (กก.) ตั้งค่าได้ใน จัดการข้อมูล
+try { const m = parseInt(localStorage.getItem(MAXKEY), 10); if (m >= 1 && m <= MAX_CAP) MAX = m; } catch (e) {}
+const fmtMax = () => { const t = MAX / 1000; return (Number.isInteger(t) ? t : +t.toFixed(2)) + ' ตัน (' + MAX.toLocaleString('en-US') + ' กก.)'; };
 const DIFFMAX = 10000; // ส่วนต่างตั้งแต่ 10,000 กก. ถือว่าผิดปกติ ไม่ให้บันทึก
 const KEY = 'paddyRecords', TOLKEY = 'paddyTolerance';
 const nf = new Intl.NumberFormat('th-TH', {maximumFractionDigits: 2});
@@ -1178,7 +1467,7 @@ function calc() {
   if (origin > MAX) {
     box.className = 'result bad';
     $('diff').innerHTML = ic('scale'); $('pct').textContent = '';
-    $('msg').innerHTML = ic('bad') + 'ต้นทางรวมเกิน 70 ตัน ตรวจสอบตัวเลขอีกครั้ง';
+    $('msg').innerHTML = ic('bad') + 'ต้นทางรวมเกิน ' + fmtMax() + ' ตรวจสอบตัวเลขอีกครั้ง';
     return null;
   }
   if (!origin || !dest) {
@@ -1210,7 +1499,7 @@ function calc() {
 function save() {
   const r = calc();
   if (!r) { const o = val('head') + val('tail'), d = val('dest');
-    toast(o > MAX ? 'ต้นทางรวมเกิน 70 ตัน บันทึกไม่ได้'
+    toast(o > MAX ? 'ต้นทางรวมเกิน ' + fmtMax() + ' บันทึกไม่ได้'
       : (o && d && Math.abs(d - o) >= DIFFMAX) ? 'ส่วนต่างหลักหมื่น กก. บันทึกไม่ได้ ตรวจสอบตัวเลข'
       : 'กรอกน้ำหนักต้นทางและปลายทางให้ครบก่อน', true); return; }
   const now = new Date();
@@ -1373,7 +1662,7 @@ function exportJSON() {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   toast('บันทึกไฟล์ JSON ลงเครื่องแล้ว');
 }
-function buildData() { return {app: 'Weigh-Check', version: 1, exported: new Date().toISOString(), tol: $('tol').value, records, memory: mem}; }
+function buildData() { return {app: 'Weigh-Check', version: 1, exported: new Date().toISOString(), tol: String(val('tol')), maxWeight: MAX, records, memory: mem}; }
 function mergeRecords(d) {
   const arr = Array.isArray(d) ? d : d && d.records;
   if (!Array.isArray(arr)) throw new Error('bad');
@@ -1409,14 +1698,18 @@ const idbSet = (k, v) => idbDo('readwrite', s => s.put(v, k));
 const idbDel = k => idbDo('readwrite', s => s.delete(k));
 
 function setStore() {
-  const box = $('store');
-  box.classList.toggle('need', fstate === 'need' || fstate === 'err');
+  const box = $('store'), need = fstate === 'need' || fstate === 'err';
+  box.classList.toggle('need', !!fh && need);
+  $('stBtn').hidden = !hasFS;
   if (!fh || fstate === 'local') {
-    $('stName').textContent = 'ในเบราว์เซอร์ (เครื่องนี้)'; $('stSub').textContent = 'บันทึกลงเครื่องอัตโนมัติ'; $('stBtn').textContent = 'เลือกไฟล์';
+    $('stName').textContent = 'เก็บในเบราว์เซอร์ของเครื่องนี้';
+    $('stSub').textContent = hasFS ? 'ล้างข้อมูลเบราว์เซอร์แล้วจะหาย'
+                                   : 'ล้างเบราว์เซอร์แล้วจะหาย ควรสำรอง JSON';
+    $('stBtn').textContent = 'เก็บลงไฟล์';
   } else {
     $('stName').textContent = fh.name;
-    $('stSub').textContent = fstate === 'ok' ? 'บันทึกลงไฟล์นี้อัตโนมัติ' : 'แตะ “เชื่อมต่อ” เพื่ออนุญาตเขียนไฟล์อีกครั้ง';
-    $('stBtn').textContent = fstate === 'ok' ? 'เปลี่ยน' : 'เชื่อมต่อ';
+    $('stSub').textContent = need ? 'ต้องอนุญาตให้เขียนไฟล์อีกครั้ง' : 'บันทึกลงไฟล์นี้อัตโนมัติ';
+    $('stBtn').textContent = need ? 'เชื่อมต่อ' : 'เปลี่ยน';
   }
 }
 function buildFileText() { return JSON.stringify(buildData(), null, 2); }
@@ -1432,7 +1725,8 @@ async function readHandle(h) {
   if (!t.trim()) return 0;
   const d = JSON.parse(t);
   const n = mergeRecords(d);
-  if (d && !Array.isArray(d) && d.tol !== undefined && /^\d{1,5}$/.test(String(d.tol))) { $('tol').value = String(d.tol); calc(); }
+  if (d && !Array.isArray(d) && d.tol !== undefined && /^\d{1,5}$/.test(String(d.tol).replace(/,/g, ''))) { $('tol').value = String(d.tol).replace(/,/g, ''); calc(); }
+  if (d && !Array.isArray(d) && /^\d{1,5}$/.test(String(d.maxWeight)) && +d.maxWeight >= 1) { MAX = +d.maxWeight; try { localStorage.setItem(MAXKEY, String(MAX)); } catch (e) {} calc(); }
   return n;
 }
 async function useHandle(h) {
@@ -1488,14 +1782,24 @@ $('stBtn').onclick = async () => {
 };
 $('optNew').onclick = pickNew; $('optOpen').onclick = pickOpen; $('optLocal').onclick = pickLocal;
 $('stDlgNo').onclick = closeStDlg;
-$('mgBtn').onclick = () => { $('mgDlg').hidden = false; };
-const closeMg = () => { $('mgDlg').hidden = true; };
+function showMax() { $('maxIn').value = MAX.toLocaleString('en-US'); }
+function showTol() { const t = val('tol'); $('tol').value = t ? t.toLocaleString('en-US') : '0'; }
+$('mgBtn').onclick = () => { showMax(); showTol(); $('mgDlg').hidden = false; };
+function setMax(v) {
+  MAX = Math.min(v, MAX_CAP);
+  try { localStorage.setItem(MAXKEY, String(MAX)); } catch (e) {}
+  calc();
+}
+$('maxBox').addEventListener('click', e => { e.stopPropagation(); if (cur !== 'maxIn') openMaxPad('maxIn'); });
+$('tolBox').addEventListener('click', e => { e.stopPropagation(); if (cur !== 'tol') openMaxPad('tol'); });
+document.querySelectorAll('.maxrow label').forEach(l => l.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); const id = l.getAttribute('for'); if (cur !== id) openMaxPad(id); }));
+const closeMg = () => { closePad(); $('mgDlg').hidden = true; };
 $('mgClose').onclick = closeMg;
-$('mgDlg').addEventListener('click', e => { if (e.target === $('mgDlg')) closeMg(); });
+// แตะพื้นมืดรอบกล่องไม่ปิดแล้ว ต้องกดปุ่มปิดเท่านั้น (กันเผลอแตะ)
 
-$('stDlg').addEventListener('click', e => { if (e.target === $('stDlg')) closeStDlg(); });
+
 async function initStore() {
-  if (!hasFS) return;
+  if (!hasFS) { setStore(); return; }
   try {
     const h = await idbGet('h'); if (!h) return;
     fh = h;
@@ -1517,7 +1821,7 @@ function toast(msg, err, ms) {
 // รับเฉพาะตัวเลข สูงสุด 5 หลัก
 ['tol'].forEach(i => $(i).addEventListener('input', e => {
   let c = e.target.value.replace(/\D/g, '').slice(0, 5);
-  if (c && +c > MAX) { c = String(MAX); toast('สูงสุดไม่เกิน 70 ตัน (70,000 กก.)', true); }
+  if (c && +c > MAX) { c = String(MAX); toast('สูงสุดไม่เกิน ' + fmtMax(), true); }
   if (c !== e.target.value) e.target.value = c;
 }));
 ['head','tail','dest','tol'].forEach(i => $(i).addEventListener('input', calc));
@@ -1640,6 +1944,7 @@ function parsePlate(t) {
 }
 function startMic(field, btn) {
   if (!field) return;
+  quickStop();
   if (!SR) { toast('เบราว์เซอร์นี้ยังไม่รองรับการพูด ลองใช้ Chrome (Android) หรือ Safari (iPhone)', true); return; }
   if (listening) { const same = micActive === btn; stopMic(); if (same) return; }
   const isNum = padFields.includes(field);
@@ -1667,7 +1972,7 @@ function startMic(field, btn) {
     let v = 0;
     for (const t of alts) { v = parseThaiNumber(t); if (v > 0) break; }
     if (!v) { if (fin) toast('ได้ยินว่า “' + (alts[0] || '') + '” ไม่ใช่ตัวเลข ลองพูดใหม่ เช่น “หนึ่งหมื่นสองพัน”', true, 4000); return; }
-    if (v > MAX) { if (fin) toast('เกิน 70 ตัน (70,000 กก.) ลองพูดใหม่', true); return; }
+    if (v > MAX) { if (fin) toast('เกิน ' + fmtMax() + ' ลองพูดใหม่', true); return; }
     $(field).value = Number(v).toLocaleString('en-US');   // ขึ้นทันทีระหว่างพูด
     if (cur === field) { calc(); syncPad(); } else calc();
     if (fin) toast('ได้ยิน ' + Number(v).toLocaleString('en-US') + ' กก.');
@@ -1688,7 +1993,96 @@ document.querySelectorAll('.vmic').forEach(b => b.addEventListener('click', e =>
 }));
 function closePadKeepMic() { cur = null; padFields.forEach(f => $(f).classList.remove('active')); document.body.classList.remove('padopen'); }
 
+// ไมค์ด่วน: กดครั้งเดียว พูดต่อเนื่อง ใบชั่ง 1 → ใบชั่ง 2 (พูด “ไม่มี” เพื่อข้าม) → น้ำหนักสุทธิปลายทาง
+let quick = null, qrec = null;
+const QSTEPS = ['head', 'tail', 'dest'];
+let qSkipFn = null;
+$('qSkip').addEventListener('click', e => { e.stopPropagation(); if (qSkipFn) qSkipFn(); });
+const QSKIP_MS = 2500;   // ใบชั่ง 2: เงียบนานเท่านี้ถือว่าไม่มี หรือแตะปุ่ม “ข้าม” เพื่อข้ามทันที
+function quickUI(on, msg) {
+  $('quickMic').classList.toggle('on', on);
+  $('qTx').textContent = on ? 'หยุด' : 'ไมค์ด่วน';
+  const st = $('qStatus'); st.hidden = !on; if (msg) st.textContent = msg;
+}
+function qMark(f) {
+  padFields.forEach(x => {
+    const on = x === f, fld = $(x).closest('.fld'), mic = fld && fld.querySelector('.vmic');
+    if (fld) fld.classList.toggle('qlisten', on);
+    if (mic) mic.classList.toggle('on', on);
+  });
+}
+function quickStop() {
+  qSkipFn = null; $('qSkip').hidden = true;
+  if (quick) qMark(null);
+  quick = null;
+  if (qrec) { const r = qrec; qrec = null; try { r.onresult = r.onerror = r.onend = null; r.abort(); } catch (e) {} }
+  padFields.forEach(f => $(f).classList.remove('active'));
+  quickUI(false);
+}
+function quickListen(field) {
+  return new Promise(resolve => {
+    let done = false, heard = false;
+    const r = new SR(); qrec = r;
+    r.lang = 'th-TH'; r.interimResults = true; r.continuous = false; r.maxAlternatives = 5;
+    let tm = null;
+    const fin = v => { if (done) return; done = true; clearTimeout(tm); if (qrec === r) qrec = null; try { r.onresult = r.onerror = r.onend = null; r.abort(); } catch (e) {} resolve(v); };
+    r.onresult = ev => {
+      clearTimeout(tm);   // เริ่มพูดแล้ว ยกเลิกการข้ามเมื่อเงียบ
+      const res = ev.results[ev.results.length - 1], final = res.isFinal;
+      const alts = Array.from(res).map(a => a.transcript);
+      if (field === 'tail' && alts.some(a => /ไม่มี|ข้าม|ไม่ต้อง|ผ่าน/.test(a))) return fin('skip');
+      let v = 0;
+      for (const t of alts) { v = parseThaiNumber(t); if (v > 0) break; }
+      if (v > MAX) { if (final) { toast('เกิน ' + fmtMax() + ' ลองพูดใหม่', true); fin('bad'); } return; }
+      if (v > 0) { heard = true; $(field).value = Number(v).toLocaleString('en-US'); calc(); if (final) fin('ok'); return; }
+      if (final) { toast('ได้ยินว่า “' + (alts[0] || '') + '” ไม่ใช่ตัวเลข ลองพูดใหม่', true, 2500); fin('bad'); }
+    };
+    r.onerror = ev => {
+      if (ev.error === 'aborted') return;
+      if (ev.error === 'no-speech') return fin('silent');
+      const blocked = location.protocol === 'file:' ? ' (เปิดไฟล์จากเครื่องใช้ไมค์ไม่ได้ ต้องเปิดผ่านลิงก์ https)' : '';
+      const m = {'not-allowed': 'ไม่ได้รับอนุญาตใช้ไมโครโฟน ให้อนุญาตในเบราว์เซอร์' + blocked, 'service-not-allowed': 'เบราว์เซอร์นี้ไม่อนุญาตให้ใช้การพูด' + blocked, 'audio-capture': 'ไม่พบไมโครโฟน', 'network': 'ต้องใช้อินเทอร์เน็ตสำหรับการพูด', 'language-not-supported': 'เครื่องนี้ยังไม่รองรับภาษาไทย'};
+      toast((m[ev.error] || 'ใช้การพูดไม่ได้ในตอนนี้') + ' [' + ev.error + ']', true, 5000);
+      fin('error');
+    };
+    r.onend = () => fin(heard ? 'ok' : 'silent');
+    qSkipFn = field === 'tail' ? () => fin('skip') : null;
+    $('qSkip').hidden = field !== 'tail';
+    try { r.start(); if (field === 'tail') tm = setTimeout(() => fin('silent'), QSKIP_MS); } catch (e) { fin('error'); }
+  });
+}
+async function quickRun() {
+  if (!SR) { toast('เบราว์เซอร์นี้ยังไม่รองรับการพูด ลองใช้ Chrome (Android) หรือ Safari (iPhone)', true); return; }
+  stopMic(); closePadKeepMic();
+  const me = quick = {};
+  for (const f of QSTEPS) {
+    let tries = 0;
+    for (;;) {
+      if (quick !== me) return;
+      padFields.forEach(x => $(x).classList.toggle('active', x === f));
+      if (f !== 'tail') $('qSkip').hidden = true;
+      qMark(f);
+      $(f).closest('.fld').scrollIntoView({block: 'center', behavior: 'smooth'});
+      quickUI(true, 'กำลังฟัง: ' + PADNAME[f] + (f === 'tail' ? ' (ไม่มี = แตะ “ข้าม” / พูดว่า “ไม่มี” / เงียบ 2.5 วินาที)' : ''));
+      const r = await quickListen(f);
+      if (quick !== me) return;
+      if (r === 'ok') break;
+      if (r === 'skip') { $('tail').value = ''; calc(); break; }
+      if (r === 'silent' && f === 'tail') break;                       // เงียบ = ไม่มีใบชั่ง 2
+      if (r === 'error' || ++tries >= (r === 'bad' ? 3 : 2)) { if (r !== 'error') toast('ไม่ได้ยินตัวเลข หยุดไมค์ด่วน แตะเพื่อเริ่มใหม่', true, 3500); quickStop(); return; }
+      await new Promise(res => setTimeout(res, 300));
+    }
+    await new Promise(res => setTimeout(res, 250));
+  }
+  quickStop();
+  toast('เสร็จแล้ว ตรวจตัวเลขก่อนกดบันทึก', false, 3000);
+  $('result').scrollIntoView({block: 'center', behavior: 'smooth'});
+}
+$('quickMic').addEventListener('click', () => { if (quick) quickStop(); else quickRun(); });
+if (window.ResizeObserver) new ResizeObserver(() => document.documentElement.style.setProperty('--padh', $('pad').offsetHeight + 'px')).observe($('pad'));
+
 function openPad(id) {
+  quickStop();
   if (cur !== id) stopMic();
   cur = id;
   padFields.forEach(f => $(f).classList.toggle('active', f === id));
@@ -1699,12 +2093,27 @@ function openPad(id) {
 }
 function closePad() {
   stopMic();
+  const was = cur;
   cur = null;
   padFields.forEach(f => $(f).classList.remove('active'));
-  document.body.classList.remove('padopen');
+  document.body.classList.remove('padopen', 'mgpad');
+  $('maxBox').classList.remove('active'); $('tolBox').classList.remove('active');
+  if (was === 'maxIn' && !($('maxIn').value.replace(/\D/g, '') >= 1)) showMax();   // เว้นว่างไว้ = ใช้ค่าเดิม
+  if (was === 'tol') showTol();   // เว้นว่างไว้ = 0
 }
-const PADNAME = {head: 'ใบชั่งที่ 1', tail: 'ใบชั่งที่ 2', dest: 'ปลายทาง'};
+function openMaxPad(id) {
+  quickStop(); stopMic();
+  cur = id;
+  padFields.forEach(f => $(f).classList.remove('active'));
+  $('maxBox').classList.toggle('active', id === 'maxIn'); $('tolBox').classList.toggle('active', id === 'tol');
+  document.body.classList.add('padopen', 'mgpad');
+  $('goKey').innerHTML = ic('check') + 'เสร็จ';
+  syncPad();
+  setTimeout(() => $(id === 'tol' ? 'tolBox' : 'maxBox').scrollIntoView({block: 'center', behavior: 'smooth'}), 80);
+}
+const PADNAME = {head: 'ใบชั่งที่ 1', tail: 'ใบชั่งที่ 2', dest: 'ปลายทาง', maxIn: 'น้ำหนักสูงสุด', tol: 'ขาดได้ไม่เกิน'};
 function syncPad() {
+  if (cur === 'maxIn' || cur === 'tol') { $('padInfo').className = 'padinfo'; $('padLbl').textContent = PADNAME[cur] + ': ' + ($(cur).value || '0') + ' กก.'; $('padTxt').textContent = ''; return; }
   const box = $('result'), d = $('diff').textContent;
   $('padInfo').className = 'padinfo ' + box.className.replace('result', '').trim();
   $('padLbl').textContent = (PADNAME[cur] || '') + ': ' + ($(cur).value || '0') + ' กก.';
@@ -1712,21 +2121,73 @@ function syncPad() {
 }
 function press(k) {
   if (!cur) return;
+  if (cur === 'maxIn') {
+    if (k === 'next') { closePad(); return; }
+    let m = $('maxIn').value.replace(/\D/g, '');
+    m = k === 'clr' ? '' : k === 'del' ? m.slice(0, -1) : m + k;
+    m = m.replace(/^0+(?=\d)/, ''); if (/^0+$/.test(m)) m = '';
+    if (m.length > 5) return;
+    $('maxIn').value = m ? Number(m).toLocaleString('en-US') : '';
+    if (+m >= 1) setMax(+m);
+    syncPad(); return;
+  }
+  if (cur === 'tol') {
+    if (k === 'next') { closePad(); return; }
+    let m = $('tol').value.replace(/\D/g, '');
+    m = k === 'clr' ? '' : k === 'del' ? m.slice(0, -1) : m + k;
+    m = m.replace(/^0+(?=\d)/, ''); if (/^0+$/.test(m)) m = '';
+    if (m.length > 5) return;
+    if (+m > MAX) { m = String(MAX); toast('สูงสุดไม่เกิน ' + fmtMax(), true); }
+    $('tol').value = m ? Number(m).toLocaleString('en-US') : '';
+    calc(); syncPad(); return;
+  }
   if (k === 'next') { const i = padFields.indexOf(cur); i < padFields.length - 1 ? openPad(padFields[i + 1]) : closePad(); return; }
   let d = $(cur).value.replace(/\D/g, '');
   d = k === 'clr' ? '' : k === 'del' ? d.slice(0, -1) : d + k;
   d = d.replace(/^0+(?=\d)/, ''); if (/^0+$/.test(d)) d = '';
   if (d.length > 5) return;
-  if (+d > MAX) { d = String(MAX); toast('สูงสุดไม่เกิน 70 ตัน (70,000 กก.)', true); }
+  if (+d > MAX) { d = String(MAX); toast('สูงสุดไม่เกิน ' + fmtMax(), true); }
   $(cur).value = d ? Number(d).toLocaleString('en-US') : '';
   calc(); syncPad();
 }
 padFields.forEach(f => { $(f).addEventListener('focus', () => openPad(f)); $(f).addEventListener('click', () => openPad(f)); });
-['plate', 'source', 'tol'].forEach(f => $(f).addEventListener('focus', closePad));
+['plate', 'source'].forEach(f => $(f).addEventListener('focus', closePad));
+document.querySelectorAll('.fld label, .fld .dl').forEach(l => { l.style.cursor = 'pointer'; l.addEventListener('click', e => { e.preventDefault(); const id = l.getAttribute('for'); if (id && padFields.includes(id)) openPad(id); }); });
 $('pad').addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (b) press(b.dataset.k); });
+// ตัวเลขในช่องน้ำหนักแสดงให้เห็นครบ: ถ้าช่องแคบ จะลดขนาดตัวอักษรลงอัตโนมัติ
+(function () {
+  const ids = ['head', 'tail', 'dest'];
+  const desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+  const cv = document.createElement('canvas').getContext('2d');
+  function fit(el) {
+    el.style.fontSize = '';
+    const cs = getComputedStyle(el), txt = el.value || '';
+    if (!txt || !el.clientWidth) return;
+    const avail = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    let fs = parseFloat(cs.fontSize);
+    const MIN = 10;
+    for (;;) {
+      cv.font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + fs + 'px ' + cs.fontFamily;
+      if (cv.measureText(txt).width <= avail || fs <= MIN) break;
+      fs -= 0.5;
+    }
+    el.style.fontSize = fs + 'px';
+  }
+  const fitAll = () => ids.forEach(id => { const el = document.getElementById(id); if (el) fit(el); });
+  ids.forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    Object.defineProperty(el, 'value', { configurable: true,
+      get() { return desc.get.call(this); },
+      set(v) { desc.set.call(this, v); fit(this); } });
+    el.addEventListener('input', () => fit(el));
+  });
+  window.addEventListener('resize', fitAll);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
+  fitAll();
+})();
 // เอฟเฟกต์ตอนกดปุ่ม (แป้นตัวเลข, เริ่มใหม่, บันทึก) ค้างไว้อย่างน้อย 140 มิลลิวินาที จะได้เห็นชัดแม้แตะเร็ว
 (function () {
-  const SEL = '#pad .key, .bar .btn', held = new Map();
+  const SEL = '#pad .key, .bar .btn, #quickMic', held = new Map();
   const on = e => {
     const b = e.target.closest(SEL); if (!b) return;
     clearTimeout(held.get(b)); b.classList.add('pressed'); b._t = Date.now();
@@ -1742,7 +2203,7 @@ $('pad').addEventListener('click', e => { const b = e.target.closest('[data-k]')
   ['pointerup', 'pointercancel'].forEach(t => document.addEventListener(t, off));
   $('pad').addEventListener('contextmenu', e => e.preventDefault());
 })();
-document.addEventListener('click', e => { if (cur && !e.target.closest('#pad, .num, .toast')) closePad(); });
+document.addEventListener('click', e => { if (cur && !e.target.closest('#pad, .num, .toast, .fld label, .fld .dl, .maxrow')) closePad(); });
 
 const PAGES = {calc: 'pCalc', hist: 'pHist'};
 function show() {
@@ -1819,6 +2280,30 @@ fitNums();
     });
     inp.parentNode.addEventListener('focusout', () => setTimeout(hide, 120));
   });
+})();
+
+// เปิดหน้าต่างจัดการข้อมูล/ยืนยัน: ล็อกไม่ให้หน้าหลังเลื่อน (รวมพื้นที่ข้างๆ กล่อง) เลื่อนได้เฉพาะในกล่อง
+(function () {
+  const dlgs = [...document.querySelectorAll('.dlg')];
+  let locked = false, y = 0;
+  function sync() {
+    const open = dlgs.some(d => !d.hidden);
+    if (open === locked) return;
+    locked = open;
+    const root = document.documentElement;
+    if (open) {
+      y = window.scrollY || root.scrollTop || 0;
+      document.body.style.top = -y + 'px';
+      root.classList.add('dlg-lock');
+    } else {
+      root.classList.remove('dlg-lock');
+      document.body.style.top = '';
+      window.scrollTo(0, y);
+    }
+  }
+  const mo = new MutationObserver(sync);
+  dlgs.forEach(d => mo.observe(d, {attributes: true, attributeFilter: ['hidden']}));
+  sync();
 })();
 </script>
 </body>
