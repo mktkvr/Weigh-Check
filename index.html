@@ -9,9 +9,9 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="เช็กข้าว">
+<meta name="apple-mobile-web-app-title" content="Weigh-Check">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>เช็กน้ำหนักต้นทางปลายทาง</title>
+<title>Weigh-Check</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&family=Sarabun:wght@400;600" rel="stylesheet">
@@ -985,6 +985,8 @@ main{padding-top:12px}
 .bar .btn.ghost.pressed .ic{transform:rotate(-200deg)}
 .bar .btn.save.pressed{background:var(--acc);color:var(--on-acc);filter:brightness(.8);transform:scale(.95);
   box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 35%,transparent)}
+/* ลดขนาดตัวเลขช่องใบชั่ง 1 / 2 ลงเล็กน้อย */
+.card .grp input#head,.card .grp input#tail,.fld .nf input#head.num,.fld .nf input#tail.num{font-size:1.3rem}
 </style>
 </head>
 <body class="oncalc">
@@ -1357,7 +1359,7 @@ function exportCSV() {
   const csv = '\uFEFF' + rows.map(r => r.map(q).join(',')).join('\r\n');
   const url = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8;'}));
   const a = document.createElement('a');
-  a.href = url; a.download = 'เช็กน้ำหนักข้าว_' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.href = url; a.download = 'Weigh-Check_' + new Date().toISOString().slice(0, 10) + '.csv';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
@@ -1366,12 +1368,12 @@ function exportJSON() {
   const data = buildData();
   const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}));
   const a = document.createElement('a');
-  a.href = url; a.download = 'เช็กน้ำหนักข้าว_' + new Date().toISOString().slice(0, 10) + '.json';
+  a.href = url; a.download = 'Weigh-Check_' + new Date().toISOString().slice(0, 10) + '.json';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   toast('บันทึกไฟล์ JSON ลงเครื่องแล้ว');
 }
-function buildData() { return {app: 'check-rice', version: 1, exported: new Date().toISOString(), tol: $('tol').value, records, memory: mem}; }
+function buildData() { return {app: 'Weigh-Check', version: 1, exported: new Date().toISOString(), tol: $('tol').value, records, memory: mem}; }
 function mergeRecords(d) {
   const arr = Array.isArray(d) ? d : d && d.records;
   if (!Array.isArray(arr)) throw new Error('bad');
@@ -1448,7 +1450,7 @@ async function pickNew() {
   closeStDlg();
   if (!hasFS) { exportJSON(); return; }
   try {
-    const h = await window.showSaveFilePicker({suggestedName: 'เช็กน้ำหนักข้าว.json', types: JSON_TYPES});
+    const h = await window.showSaveFilePicker({suggestedName: 'Weigh-Check.json', types: JSON_TYPES});
     await useHandle(h);
   } catch (e) { if (e instanceof SyntaxError || (e && e.message === 'bad')) toast('ไฟล์ที่เลือกไม่ใช่ข้อมูลของแอปนี้', true); else fallbackErr(e, exportJSON); }
 }
