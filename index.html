@@ -1249,6 +1249,10 @@ body.mgpad #mgDlg .dlg-box.mg{max-height:calc(100vh - var(--padh,300px) - 24px)}
 #stDlg .opt .ot{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;line-height:1.3}
 #stDlg .opt b{font-size:.92rem;font-weight:600}
 #stDlg .opt small{font-size:.76rem;line-height:1.4;white-space:normal;overflow-wrap:anywhere}
+/* จุดแดงตอนฟัง: ย้ายไปมุมซ้ายบน ไม่ทับตัวเลข */
+.fld.qlisten .nf::before{left:9px;top:7px;margin-top:0;width:8px;height:8px}
+.grp.dest .fld.qlisten .nf::before{display:none}
+.grp.dest .fld.qlisten label.dl::before{background:#d92d20;animation:micblink 1s ease-in-out infinite}
 </style>
 </head>
 <body class="oncalc">
