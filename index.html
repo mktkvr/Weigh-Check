@@ -9,7 +9,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Weigh-Check">
+<meta name="apple-mobile-web-app-title" content="เช็กข้าว">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>เช็กน้ำหนักต้นทางปลายทาง</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -971,6 +971,20 @@ main{padding-top:12px}
 .dlg-box.mg{max-height:88vh;overflow-y:auto}
 .dlg-box.mg .manage{margin-top:0;padding:0;background:transparent;border:0}
 .dlg-box.mg .manage .mhd{font-size:1.1rem;color:var(--ink);margin-bottom:12px}
+/* ให้รู้ว่ากดปุ่มแป้นตัวเลขแล้ว */
+#pad .key{transition:background .12s,color .12s,transform .08s,box-shadow .12s;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+#pad .key.pressed{background:var(--acc);color:var(--on-acc);transform:scale(.92);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 35%,transparent)}
+#pad .key.fn.pressed{background:color-mix(in srgb,var(--acc) 22%,var(--sunk));color:var(--ink)}
+#pad .key[data-k=clr].pressed{background:var(--bad);color:var(--on-st);box-shadow:0 0 0 3px color-mix(in srgb,var(--bad) 35%,transparent)}
+#pad .key.go.pressed{background:var(--acc);color:var(--on-acc);filter:brightness(.8);transform:scale(.95)}
+/* ให้รู้ว่ากดปุ่มเริ่มใหม่ / บันทึกแล้ว */
+.bar .btn{transition:background .12s,color .12s,transform .08s,box-shadow .12s,filter .12s;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.bar .btn.ghost.pressed{background:var(--bad-soft);color:var(--bad-ink);border-color:var(--bad);transform:scale(.94);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--bad) 30%,transparent)}
+.bar .btn.ghost.pressed .ic{transform:rotate(-200deg)}
+.bar .btn.save.pressed{background:var(--acc);color:var(--on-acc);filter:brightness(.8);transform:scale(.95);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 35%,transparent)}
 </style>
 </head>
 <body class="oncalc">
@@ -1708,6 +1722,24 @@ function press(k) {
 padFields.forEach(f => { $(f).addEventListener('focus', () => openPad(f)); $(f).addEventListener('click', () => openPad(f)); });
 ['plate', 'source', 'tol'].forEach(f => $(f).addEventListener('focus', closePad));
 $('pad').addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (b) press(b.dataset.k); });
+// เอฟเฟกต์ตอนกดปุ่ม (แป้นตัวเลข, เริ่มใหม่, บันทึก) ค้างไว้อย่างน้อย 140 มิลลิวินาที จะได้เห็นชัดแม้แตะเร็ว
+(function () {
+  const SEL = '#pad .key, .bar .btn', held = new Map();
+  const on = e => {
+    const b = e.target.closest(SEL); if (!b) return;
+    clearTimeout(held.get(b)); b.classList.add('pressed'); b._t = Date.now();
+    if (navigator.vibrate) { try { navigator.vibrate(8); } catch (_) {} }
+  };
+  const off = () => {
+    document.querySelectorAll('.pressed').forEach(b => {
+      clearTimeout(held.get(b));
+      held.set(b, setTimeout(() => b.classList.remove('pressed'), Math.max(0, 140 - (Date.now() - (b._t || 0)))));
+    });
+  };
+  document.addEventListener('pointerdown', on);
+  ['pointerup', 'pointercancel'].forEach(t => document.addEventListener(t, off));
+  $('pad').addEventListener('contextmenu', e => e.preventDefault());
+})();
 document.addEventListener('click', e => { if (cur && !e.target.closest('#pad, .num, .toast')) closePad(); });
 
 const PAGES = {calc: 'pCalc', hist: 'pHist'};
