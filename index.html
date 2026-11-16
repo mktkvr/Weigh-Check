@@ -1509,6 +1509,218 @@ body.mgpad #mgDlg .dlg-box.mg{max-height:calc(100vh - var(--padh,300px) - 24px)}
   #list .rc-l .del{margin:-4px -4px -4px auto;order:9}
   #list .rc-rt{padding-left:0;border-left:0;border-top:1px solid color-mix(in srgb,var(--ink) 16%,var(--surface));padding-top:8px}
 }
+/* ท่าข้าวอยู่กล่องเดียวกับทะเบียน · รวมต้นทาง: ไอคอน | ป้ายอยู่นอกกล่อง | กล่องตัวเลข (เหมือนปลายทาง) */
+#pCalc .grp.plate .srcf{margin-top:8px}
+#pCalc .grp.plate .srcf label{display:block;margin:0 0 4px;font-size:.78rem!important;font-weight:600!important;color:#374151!important}
+#pCalc .grp.plate .srcf .vf{position:relative}
+#pCalc .grp.plate .srcf input{width:100%;padding-right:48px}
+.card .grp.origin .ghrow.otot{display:flex;align-items:center;gap:8px;margin-top:2px}
+.card .grp.origin .ghrow.otot .gh{flex:none;width:50px;height:50px}
+.grp.origin .dtitle{flex:none;display:flex;flex-direction:column;line-height:1.15;min-width:5.4rem}
+.grp.origin .dtitle b{font-size:1.15rem;font-weight:700;color:var(--g-ink)}
+.grp.dest .dtitle{min-width:5.4rem}
+.card .grp.origin .ghrow.otot .total{flex:1 1 0;min-width:0;justify-content:flex-end;margin:0;padding:6px 14px}
+.card .grp.origin .ghrow.otot .total b{font-size:2rem!important}
+@media (max-width:350px){.grp.origin .dtitle b{font-size:1rem}.grp.origin .dtitle,.grp.dest .dtitle{min-width:4.6rem}.card .grp.origin .ghrow.otot .gh{width:40px;height:40px}.card .grp.origin .ghrow.otot .total b{font-size:1.6rem!important}}
+@media (max-width:350px){
+  .card .grp.origin .ghrow.otot{gap:6px}
+  .card .grp.origin .ghrow.otot .gh{width:36px;height:36px}
+  .card .grp.origin .ghrow.otot .gh .ic{width:34px;height:34px;padding:6px}
+  .grp.origin .dtitle,.grp.dest .dtitle{min-width:4.2rem}
+  .card .grp.origin .ghrow.otot .total{padding:6px 10px}
+  .card .grp.origin .ghrow.otot .total b{font-size:1.45rem!important;gap:3px}
+}
+.grp.origin .dtitle span{font-size:.8rem;font-weight:600;color:var(--g-sub)}
+@media (max-width:350px){.grp.origin .dtitle span{font-size:.72rem}}
+/* กล่องทะเบียน + ท่าข้าว: เรียบ กระชับ */
+#pCalc .card .grp.plate{padding:8px 10px 10px!important;background:#e8ebf0!important;border:0!important;border-radius:18px;box-shadow:inset 0 0 0 1px rgba(55,65,81,.10)}
+#pCalc .card .grp.plate label{display:block;margin:0 0 3px 2px!important;font-size:.74rem!important;font-weight:700!important;letter-spacing:.01em;color:#5b6472!important}
+#pCalc .card .grp.plate input:not([type=hidden]){height:44px;min-height:44px;border:1px solid #c9d0d9!important;border-radius:12px!important;background:#fff!important;box-shadow:0 1px 0 rgba(255,255,255,.7)}
+#pCalc .card .grp.plate input.pp{font-size:1.1rem}
+#pCalc .card .grp.plate input:not([type=hidden]):focus{border-color:#374151!important;box-shadow:0 0 0 3px rgba(55,65,81,.14)!important}
+#pCalc .card .grp.plate .pl4{gap:4px}
+#pCalc .card .grp.plate .pl4 i{color:#8a93a0}
+#pCalc .card .grp.plate .srcf{margin-top:7px;padding-top:7px;border-top:1px dashed rgba(55,65,81,.22)}
+#pCalc .card .grp.plate .srcf input{font-size:1rem;font-weight:500;padding-left:12px}
+#pCalc .card .grp.plate .vmic{width:34px;height:34px}
+/* ช่องตัวเลข เหลือง/น้ำเงิน: ตัวเลข "กก." ไมค์ ขนาดและตำแหน่งเท่ากันทุกช่อง */
+#pCalc .card .grp .nf{position:relative}
+#pCalc .card .grp.origin .nf input.num{font-size:1.4rem!important;font-weight:700!important;letter-spacing:-.02em;padding-left:8px!important;padding-right:73px!important;height:56px;min-height:56px}
+#pCalc .card .grp.dest .fld .nf input#dest{font-size:1.4rem!important;font-weight:700!important;letter-spacing:-.02em;padding-left:8px;padding-right:70px;color:var(--g-ink)!important}
+#pCalc .card .grp.origin .nf::after{right:50px;top:.1rem;bottom:-.1rem;font-size:.8rem;font-weight:700}
+#pCalc .card .grp.dest .fld .nf::after{right:47px;top:.1rem;bottom:-.1rem;font-size:.8rem;font-weight:700}
+#pCalc .card .grp.origin .nf .vmic{right:10px;width:34px;height:34px}
+#pCalc .card .grp.dest .fld .nf .vmic{right:7px;width:34px;height:34px}
+#pCalc .card .grp .nf::after{color:var(--g-sub)}
+/* จอแคบ: ใบชั่ง 1/2 และปลายทางเรียงเต็มความกว้าง เห็นตัวเลขครบ ไม่ย่อจนเล็ก */
+@media (max-width:380px){
+  #pCalc .card .grp.origin .row{grid-template-columns:minmax(0,1fr);gap:8px}
+  #pCalc .card .grp.dest .ghrow.dfield{flex-wrap:wrap;row-gap:8px}
+  #pCalc .card .grp.dest .ghrow.dfield .fld{flex:1 1 100%}
+}
+#pCalc .card .grp.origin .ghrow.otot .total{overflow:hidden}
+#pCalc .card .grp.origin .ghrow.otot .total b{font-size:clamp(1.3rem,6.4vw,2rem)!important;white-space:nowrap}
+@media (max-width:340px){#pCalc .card .grp.plate input.pp{font-size:.95rem;padding-left:0;padding-right:0;letter-spacing:0}#pCalc .card .grp.plate .pl4{gap:3px}#pCalc .card .grp.plate .pl4 .vmic{margin:0 0 0 2px}}
+/* ป้าย "ท่าข้าว / แหล่งที่มา" อยู่ในช่อง · เมื่อกดหรือมีข้อความ ลอยขึ้นไปทับเส้นกรอบ */
+#pCalc .card .grp.plate .srcf{position:relative;margin-top:7px;padding-top:8px}
+#pCalc .card .grp.plate .srcf label{position:absolute;left:13px;top:30px;transform:translateY(-50%);z-index:3;margin:0!important;padding:0 4px;max-width:calc(100% - 66px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:1rem!important;font-weight:500!important;line-height:1.2;color:#8a93a0!important;background:transparent;pointer-events:none;transition:top .16s ease,font-size .16s ease,color .16s ease,background-color .16s ease,left .16s ease}
+#pCalc .card .grp.plate .srcf:has(input:focus) label,#pCalc .card .grp.plate .srcf:has(input:not(:placeholder-shown)) label{top:8px;left:10px;font-size:.72rem!important;font-weight:700!important;color:#374151!important;background:linear-gradient(to bottom,#e8ebf0 50%,#fff 50%)}
+#pCalc .card .grp.plate .srcf:has(input:focus) label{color:#1f2937!important}
+@media (prefers-reduced-motion:reduce){#pCalc .card .grp.plate .srcf label{transition:none}}
+#pCalc .card .grp.plate .srcf{border-top:0!important;margin-top:6px;padding-top:10px}
+#pCalc .card .grp.plate .srcf label{top:32px}
+#pCalc .card .grp.plate .srcf:has(input:focus) label,#pCalc .card .grp.plate .srcf:has(input:not(:placeholder-shown)) label{top:10px}
+/* ป้ายท่าข้าวบนเส้นกรอบ: เม็ดยา (pill) สีเข้ม ตัวขาว มีเงาบาง */
+#pCalc .card .grp.plate .srcf:has(input:focus) label,#pCalc .card .grp.plate .srcf:has(input:not(:placeholder-shown)) label{top:10px;left:12px;padding:0 10px;border-radius:99px;font-size:.7rem!important;font-weight:700!important;letter-spacing:.01em;line-height:1.55;color:#fff!important;background:#6b7380;box-shadow:0 1px 3px rgba(31,41,55,.25),0 0 0 2px #e8ebf0}
+#pCalc .card .grp.plate .srcf:has(input:focus) label{background:#374151;color:#fff!important}
+#pCalc .card .grp.plate .srcf:has(input:focus) input{border-color:#374151!important;box-shadow:0 0 0 3px rgba(55,65,81,.14)!important}
+#pCalc .card .grp.plate .srcf:has(input:not(:placeholder-shown)) input{padding-top:3px}
+/* ใบชั่ง 1 / 2: ป้ายอยู่ในช่อง · กดหรือมีตัวเลขแล้ว ลอยขึ้นทับเส้นกรอบ */
+#pCalc .card .grp.origin .fld{position:relative}
+#pCalc .card .grp.origin .fld>label{position:absolute;left:14px;top:28px;transform:translateY(-50%);z-index:3;margin:0!important;padding:0 4px;max-width:calc(100% - 28px);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;pointer-events:none;color:var(--g-sub)!important;background:transparent;transition:top .16s ease,left .16s ease,color .16s ease,background-color .16s ease}
+#pCalc .card .grp.origin .fld>label .ln{display:inline;font-size:.98rem!important;font-weight:600!important;color:inherit!important;transition:font-size .16s ease}
+#pCalc .card .grp.origin .fld>label small,#pCalc .card .grp.origin .fld>label .ln small{display:inline;font-size:.8rem!important;font-weight:600!important;margin-left:3px;color:inherit!important}
+#pCalc .card .grp.origin .fld:has(input.num.active)>label,#pCalc .card .grp.origin .fld:has(input.num:not(:placeholder-shown))>label,#pCalc .card .grp.origin .fld.qlisten>label{top:1.5px;left:12px;color:var(--g-ink)!important;background:linear-gradient(to bottom,#fbf0cf 50%,#fff 50%)}
+#pCalc .card .grp.origin .fld:has(input.num.active)>label .ln,#pCalc .card .grp.origin .fld:has(input.num:not(:placeholder-shown))>label .ln,#pCalc .card .grp.origin .fld.qlisten>label .ln{font-size:.74rem!important;font-weight:700!important}
+#pCalc .card .grp.origin .fld:has(input.num.active)>label small,#pCalc .card .grp.origin .fld:has(input.num:not(:placeholder-shown))>label small,#pCalc .card .grp.origin .fld.qlisten>label small{font-size:.68rem!important}
+#pCalc .card .grp.origin .row{padding-top:6px}
+/* ตอนช่องว่างและยังไม่กด: ซ่อน 0 กับ กก. ให้ป้ายมีที่ */
+#pCalc .card .grp.origin input.num:placeholder-shown:not(.active)::placeholder{color:transparent!important}
+#pCalc .card .grp.origin .fld:has(input.num:placeholder-shown:not(.active)):not(.qlisten) .nf::after{opacity:0}
+#pCalc .card .grp.origin .fld>label .ln{font-size:.92rem!important}
+#pCalc .card .grp.origin .fld>label{left:12px}
+#pCalc .card .grp.origin .fld:not(:has(input.num.active)):not(:has(input.num:not(:placeholder-shown))):not(.qlisten)>label small{display:none}
+@media (max-width:380px){
+  #pCalc .card .grp.origin .fld:not(:has(input.num.active)):not(:has(input.num:not(:placeholder-shown))):not(.qlisten)>label small{display:inline}
+  #pCalc .card .grp.origin .fld>label .ln{font-size:1rem!important}
+}
+@media (max-width:380px){#pCalc .card .grp.origin .row{gap:14px}}
+#pCalc .card .grp.origin .row{padding-top:8px}
+/* ท่าข้าว: ไม่ใช้พื้นสีทึบรองป้าย — ตัดเส้นกรอบเป็นช่องว่างให้ป้ายแทน (โปร่งใส) */
+#pCalc .card .grp.plate .srcf .vf{position:relative}
+#pCalc .card .grp.plate .srcf input#source{border-color:transparent!important}
+#pCalc .card .grp.plate .srcf .vf::before{content:"";position:absolute;inset:0;border:1px solid #c9d0d9;border-radius:12px;pointer-events:none;z-index:2;--gs:0px;--ge:0px;
+  -webkit-mask-image:linear-gradient(to right,#000 var(--gs),transparent var(--gs),transparent var(--ge),#000 var(--ge)),linear-gradient(#000,#000);
+  mask-image:linear-gradient(to right,#000 var(--gs),transparent var(--gs),transparent var(--ge),#000 var(--ge)),linear-gradient(#000,#000);
+  -webkit-mask-size:100% 3px,100% calc(100% - 3px);mask-size:100% 3px,100% calc(100% - 3px);
+  -webkit-mask-position:top,bottom;mask-position:top,bottom;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+#pCalc .card .grp.plate .srcf .vf:focus-within::before{border-color:#374151}
+#pCalc .card .grp.plate .srcf:has(input:focus) .vf::before,#pCalc .card .grp.plate .srcf:has(input:not(:placeholder-shown)) .vf::before{--gs:8px;--ge:calc(10px + var(--lw,110px) + 2px)}
+#pCalc .card .grp.plate .srcf:has(input:focus) label,#pCalc .card .grp.plate .srcf:has(input:not(:placeholder-shown)) label{background:none!important}
+.srcf .lbl-m{position:absolute;left:-9999px;top:0;visibility:hidden;white-space:nowrap;font-size:.72rem;font-weight:700;padding:0 4px}
+/* ท่าข้าว / แหล่งที่มา: ป้ายแบบเดียวกับใบชั่งที่ 1 — อยู่ในช่อง กดหรือมีข้อความแล้วลอยขึ้นทับเส้นกรอบ (แผ่นพื้นสองสี ไม่ใช่เม็ดยา) */
+#pCalc .card .grp.plate .srcf .vf::before{display:none!important}
+#pCalc .card .grp.plate .srcf input#source{border-color:#c9d0d9!important}
+#pCalc .card .grp.plate .srcf:has(input:focus) input#source{border-color:#374151!important}
+#pCalc .card .grp.plate .srcf label{left:12px;padding:0 4px;font-size:.92rem!important;font-weight:600!important;color:#5b6472!important;border-radius:0;box-shadow:none}
+#pCalc .card .grp.plate .srcf:has(input:focus) label,#pCalc .card .grp.plate .srcf:has(input:not(:placeholder-shown)) label{top:10px;left:12px;padding:0 4px;border-radius:0;box-shadow:none;font-size:.74rem!important;font-weight:700!important;line-height:1.2;letter-spacing:0;color:#374151!important;background:linear-gradient(to bottom,#e8ebf0 50%,#fff 50%)!important}
+/* ประวัติ: ส่วนต่างเด่นกว่าต้นทาง/ปลายทาง — ตัวใหญ่ขึ้น พื้นสีตามสถานะ */
+#list .rc-rt .rc-r.x{margin-top:8px;padding:6px 8px 4px;border-top:0;border-radius:12px;background:color-mix(in srgb,var(--ink) 7%,var(--surface))}
+#list .rc.ok .rc-rt .rc-r.x{background:color-mix(in srgb,var(--ok-ink) 13%,var(--surface))}
+#list .rc.warn .rc-rt .rc-r.x{background:color-mix(in srgb,var(--warn-ink) 15%,var(--surface))}
+#list .rc.bad .rc-rt .rc-r.x{background:color-mix(in srgb,var(--bad-ink) 14%,var(--surface))}
+#list .rc-rt .rc-r.x .k{font-size:1rem;font-weight:800}
+#list .rc-rt .rc-r.x .v{font-size:clamp(1.75rem,8vw,2.2rem);font-weight:800;line-height:1.1;letter-spacing:-.02em}
+#list .rc-rt .rc-sub.x{font-size:.82rem;font-weight:700;margin-top:3px}
+/* ประวัติ: รายการล่าสุดใช้สีม่วงอินดิโก ต่างจากเขียว/เหลือง/แดงของผลตรวจ — เห็นชัดทันที */
+#list .hc.rc.latest{--lt:#5b3df5;margin:10px 0 0;padding:12px 12px 12px 14px;background:color-mix(in srgb,var(--lt) 11%,var(--surface));border:2px solid var(--lt);border-radius:16px;box-shadow:0 0 0 4px color-mix(in srgb,var(--lt) 16%,transparent),0 10px 22px -12px color-mix(in srgb,var(--lt) 75%,transparent)}
+#list .hc.rc.latest .new{background:var(--lt);color:#fff;font-weight:800;letter-spacing:.01em;box-shadow:0 2px 6px -1px color-mix(in srgb,var(--lt) 60%,transparent)}
+#list .hc.rc.latest .rc-l .pn{color:var(--lt)}
+#list .hc.rc.latest .rc-rt{border-left-color:color-mix(in srgb,var(--lt) 40%,var(--surface))}
+@media (max-width:380px){#list .hc.rc.latest .rc-rt{border-top-color:color-mix(in srgb,var(--lt) 40%,var(--surface))}}
+/* ประวัติ: จัดสีใหม่ให้อ่านง่าย — การ์ดขาวสะอาด ตัวเลขสีเข้มเดียว มีสีเฉพาะ "ส่วนต่าง" ตามผล */
+#list .hc.rc,#list .hc.rc:last-child{--lt:#4f46e5;margin:10px 0 0;padding:12px 12px 12px 14px;background:#fff;border:1px solid #dde3e0;border-radius:16px;box-shadow:0 1px 2px rgba(15,30,25,.06)}
+#list .hc.rc.ok{--st:#0b6a49;--stbg:#e3f6ec}
+#list .hc.rc.warn{--st:#8a4b00;--stbg:#fff0cf}
+#list .hc.rc.bad{--st:#b3261e;--stbg:#fde8e6}
+#list .hc.rc .rc-l .pn{color:#111827}
+#list .hc.rc .rc-l .src{color:#374151;font-weight:600}
+#list .hc.rc .rc-l .dt{color:#6b7280}
+#list .hc.rc .rc-rt{border-left:1px solid #e5e9e7}
+#list .hc.rc .rc-r.o,#list .hc.rc .rc-r.o .k,#list .hc.rc .rc-r.o .v,#list .hc.rc .rc-r.d,#list .hc.rc .rc-r.d .k,#list .hc.rc .rc-r.d .v{color:#111827}
+#list .hc.rc .rc-r.o .k,#list .hc.rc .rc-r.d .k{color:#4b5563;font-weight:600}
+#list .hc.rc .rc-r.o .k i{color:#6b7280}
+#list .hc.rc .rc-rt .rc-r.x,#list .hc.rc.ok .rc-rt .rc-r.x,#list .hc.rc.warn .rc-rt .rc-r.x,#list .hc.rc.bad .rc-rt .rc-r.x{background:var(--stbg);border-radius:12px}
+#list .hc.rc .rc-rt .rc-r.x .k,#list .hc.rc .rc-rt .rc-r.x .v,#list .hc.rc.ok .rc-r.x .v,#list .hc.rc.warn .rc-r.x .v,#list .hc.rc.bad .rc-r.x .v{color:var(--st)!important}
+#list .hc.rc .rc-sub.x,#list .hc.rc.ok .rc-sub.x,#list .hc.rc.warn .rc-sub.x,#list .hc.rc.bad .rc-sub.x{color:var(--st)}
+/* ล่าสุด: ขอบม่วงคราม พื้นขาว ไม่มีพื้นสีทึบ/เงาฟุ้ง */
+#list .hc.rc.latest,#list .hc.rc.latest:last-child{background:#fff;border:2px solid var(--lt);box-shadow:0 6px 16px -10px rgba(79,70,229,.55)}
+#list .hc.rc.latest .new{background:var(--lt);color:#fff;box-shadow:none}
+#list .hc.rc.latest .rc-l .pn{color:#111827}
+#list .hc.rc.latest .rc-rt{border-left-color:#d9dbf7}
+@media (max-width:380px){#list .hc.rc .rc-rt{border-top-color:#e5e9e7}}
+/* ประวัติ: สีต้นทาง / ปลายทาง / ส่วนต่าง เหมือนหน้าคำนวณ (เหลือง · ฟ้า · พื้นสีตามผลตัวหนังสือขาว) */
+#list .hc.rc .rc-rt .rc-r.o,#list .hc.rc .rc-rt .rc-r.d,#list .hc.rc .rc-rt .rc-r.x{padding:4px 10px;border-radius:12px}
+#list .hc.rc .rc-rt .rc-r.o{background:#fbf0cf}
+#list .hc.rc .rc-r.o,#list .hc.rc .rc-r.o .k,#list .hc.rc .rc-r.o .v,#list .hc.rc .rc-r.o .k i{color:#5e3d00}
+#list .hc.rc .rc-rt .rc-r.d{background:#d9eaf7}
+#list .hc.rc .rc-r.d,#list .hc.rc .rc-r.d .k,#list .hc.rc .rc-r.d .v{color:#093b61}
+#list .hc.rc .rc-rt .rc-r+.rc-r{margin-top:5px}
+#list .hc.rc.ok{--st:#0d7a55;--stbg:#0d7a55}
+#list .hc.rc.warn{--st:#b86e00;--stbg:#b86e00}
+#list .hc.rc.bad{--st:#c93a2f;--stbg:#c93a2f}
+#list .hc.rc .rc-rt .rc-r.x .k,#list .hc.rc .rc-rt .rc-r.x .v,#list .hc.rc.ok .rc-r.x .v,#list .hc.rc.warn .rc-r.x .v,#list .hc.rc.bad .rc-r.x .v{color:#fff!important}
+#list .hc.rc .rc-rt .rc-r.x{margin-top:7px;box-shadow:0 8px 16px -12px var(--st)}
+#list .hc.rc .rc-sub.x,#list .hc.rc.ok .rc-sub.x,#list .hc.rc.warn .rc-sub.x,#list .hc.rc.bad .rc-sub.x{color:var(--st);margin-top:4px}
+/* ประวัติ: ตัวเลขต้นทาง/ปลายทาง/ส่วนต่าง ขนาดเท่ากัน + ต่อท้ายด้วย กก. */
+#list .hc.rc .rc-rt .rc-r.o .v,#list .hc.rc .rc-rt .rc-r.d .v,#list .hc.rc .rc-rt .rc-r.x .v{font-size:1.4rem;font-weight:800;line-height:1.2;letter-spacing:-.01em;min-width:0}
+#list .hc.rc .rc-rt .rc-r.o .v::after,#list .hc.rc .rc-rt .rc-r.d .v::after,#list .hc.rc .rc-rt .rc-r.x .v::after{content:" กก.";font-size:.55em;font-weight:700;letter-spacing:0;margin-left:2px}
+#list .hc.rc .rc-rt .rc-r.x .v .sg{width:.5em;height:.5em;margin-right:.06em;vertical-align:.18em}
+@media (max-width:350px){#list .hc.rc .rc-rt .rc-r.o .v,#list .hc.rc .rc-rt .rc-r.d .v,#list .hc.rc .rc-rt .rc-r.x .v{font-size:1.2rem}}
+/* ประวัติ: ฝั่งซ้าย (ข้อมูลรถ) จัดให้เรียบร้อย — ป้ายทะเบียนเป็นกรอบ ท่าข้าวอ่านง่าย วันที่เวลาเป็นสีจาง ปุ่มลบเป็นวงกลมเล็ก */
+#list .hc.rc .rc-l{gap:0;align-items:flex-start}
+#list .hc.rc .rc-l .new{margin:0 0 7px;padding:2px 11px;font-size:.74rem;line-height:1.4}
+#list .hc.rc .rc-l .pn{display:inline-block;max-width:100%;padding:3px 9px;border:1.5px solid #1f2937;border-radius:8px;background:#fff;color:#111827;font-size:1.02rem;font-weight:800;line-height:1.3;letter-spacing:.01em;box-shadow:0 1px 0 rgba(17,24,39,.08)}
+#list .hc.rc .rc-l .pn.nop{border:1.5px dashed #b6bcc6;background:#f4f6f8;color:#7b8494;font-size:.88rem;font-weight:600;box-shadow:none}
+#list .hc.rc .rc-l .src{margin-top:7px;font-size:.88rem;font-weight:700;line-height:1.3;color:#1f2937}
+#list .hc.rc .rc-l .dt{font-size:.78rem;font-weight:500;line-height:1.35;color:#7b8494}
+#list .hc.rc .rc-l .src+.dt,#list .hc.rc .rc-l .pn+.dt{margin-top:7px}
+#list .hc.rc .rc-l .del{width:30px;height:30px;margin:10px 0 0;padding:6px;border-radius:50%!important;background:#f3f4f6;color:#8a93a0}
+#list .hc.rc .rc-l .del:active{background:#fde8e6;color:#c93a2f}
+#list .hc.rc .rc-l .del .ic{width:16px;height:16px}
+@media (max-width:350px){#list .hc.rc .rc-l .pn{font-size:.95rem}}
+#list .hc.rc .rc-l .pn{white-space:nowrap;overflow-wrap:normal;word-break:keep-all;font-size:.9rem;padding:3px 7px}
+#list .hc.rc .rc-l .pn.nop{white-space:normal;font-size:.78rem;padding:2px 7px;line-height:1.25}
+@media (max-width:350px){#list .hc.rc .rc-l .pn{font-size:.82rem;padding:3px 5px}}
+/* ป้าย "ล่าสุด": วางทับเส้นกรอบด้านบนของการ์ด */
+#list .hc.rc.latest{position:relative;overflow:visible;margin-top:18px}
+#list .hc.rc.latest .rc-l .new{position:absolute;top:0;left:14px;transform:translateY(-50%);margin:0;padding:2px 12px;z-index:2;font-size:.74rem;font-weight:800;line-height:1.45;color:#fff;background:var(--lt);box-shadow:0 0 0 3px #fff}
+#list .hc.rc.latest,#list .hc.rc.latest:last-child{padding-top:17px}
+/* % และผล (ขาด/ปกติ) ย้ายเข้าไปอยู่ในกล่องส่วนต่าง ใต้คำว่า "ส่วนต่าง" */
+#list .hc.rc .rc-rt .rc-r.x{align-items:center;padding:6px 10px}
+#list .hc.rc .rc-rt .rc-r.x .k{display:flex;flex-direction:column;gap:1px;line-height:1.15}
+#list .hc.rc .rc-rt .rc-r.x .k .pc{display:block;font-style:normal;font-size:.72rem;font-weight:700;color:rgba(255,255,255,.92);white-space:nowrap;letter-spacing:0}
+#list .hc.rc .rc-rt .rc-r.x .k .pc .sg{width:.7em;height:.7em;margin-right:.06em;vertical-align:.05em;stroke-width:3.4}
+#list .hc.rc .rc-rt .rc-r.x .k{flex:1 1 0;min-width:0}
+#list .hc.rc .rc-rt .rc-r.x .k .pc{white-space:normal;line-height:1.2}
+/* ส่วนต่างสูง 2 บรรทัดแล้ว: ตัวเลขใหญ่ขึ้นได้อีก */
+#list .hc.rc .rc-rt .rc-r.x .v{font-size:clamp(1.55rem,7.6vw,1.95rem);line-height:1.1}
+#list .hc.rc .rc-rt .rc-r.x .v::after{font-size:.46em}
+#list .hc.rc .rc-rt .rc-r.x{padding:7px 10px;gap:6px}
+@media (max-width:350px){#list .hc.rc .rc-rt .rc-r.x .v{font-size:1.5rem}}
+#list .hc.rc .rc-rt .rc-r.x .v{font-size:clamp(1.4rem,6.6vw,1.7rem)}
+#list .hc.rc .rc-rt .rc-r.x .k .pc{font-size:.7rem}
+/* จอแคบ (≤350px): ข้อมูลรถอยู่แถวบน ตัวเลขเต็มความกว้างแถวล่าง */
+@media (max-width:350px){
+  #list .hc.rc .rc-l{flex-direction:row;flex-wrap:wrap;align-items:center;gap:4px 8px}
+  #list .hc.rc .rc-l .pn{flex:0 1 auto;max-width:100%}
+  #list .hc.rc .rc-l .pn.nop{flex:0 1 auto}
+  #list .hc.rc .rc-l .src{flex:1 0 100%;margin-top:2px}
+  #list .hc.rc .rc-l .src+.dt,#list .hc.rc .rc-l .pn+.dt{margin-top:0}
+  #list .hc.rc .rc-l .dt{flex:none}
+  #list .hc.rc .rc-l .dt+.dt::before{content:"· "}
+  #list .hc.rc .rc-l .del{margin:0 0 0 auto;order:9}
+  #list .hc.rc .rc-rt{border-left:0!important;border-top:1px solid #e5e9e7;padding:10px 0 0}
+  #list .hc.rc.latest .rc-rt{border-top-color:#d9dbf7}
+}
+/* ห้ามเลือก/ลากคลุมตัวอักษร (กดค้าง · ดับเบิลแตะ · เลือกทั้งหมด) — ยกเว้นช่องที่พิมพ์ได้จริง */
+html,body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+body *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input:not([readonly]):not([type=hidden]),textarea:not([readonly]){-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+input[readonly]{-webkit-user-select:none;user-select:none}
+::selection{background:transparent}
+input:not([readonly])::selection,textarea::selection{background:rgba(55,65,81,.22)}
+img,svg{-webkit-user-drag:none;user-drag:none}
 </style>
 </head>
 <body class="oncalc">
@@ -1524,19 +1736,17 @@ body.mgpad #mgDlg .dlg-box.mg{max-height:calc(100vh - var(--padh,300px) - 24px)}
 <div class="page" id="pCalc">
   <section class="card form">
     <div class="row plate1 grp plate">
-      <div><label for="pl1">ทะเบียนรถ</label>
-        <div class="vf pl4"><input id="plate" type="hidden"><input class="pp" id="pl1" maxlength="3" placeholder="กข" aria-label="หมวดอักษรทะเบียน" autocomplete="off" autocapitalize="off" enterkeyhint="next"><input class="pp" id="pl2" maxlength="2" placeholder="12" inputmode="numeric" aria-label="เลขหน้าทะเบียน" autocomplete="off" enterkeyhint="next"><i>-</i><input class="pp" id="pl3" maxlength="4" placeholder="3456" inputmode="numeric" aria-label="เลขทะเบียน" autocomplete="off" enterkeyhint="next"><i>/</i><input class="pp" id="pl4" maxlength="4" placeholder="7890" inputmode="numeric" aria-label="เลขทะเบียนพ่วง (ถ้ามี)" autocomplete="off" enterkeyhint="next"><button class="vmic" type="button" data-vf="plate" aria-label="พูดทะเบียนรถ"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div>
+      <div>
+        <div class="vf pl4"><input id="plate" type="hidden"><input class="pp" id="pl1" maxlength="3" placeholder="กข" aria-label="หมวดอักษรทะเบียน" autocomplete="off" autocapitalize="off" enterkeyhint="next"><input class="pp" id="pl2" maxlength="2" placeholder="12" inputmode="numeric" aria-label="เลขหน้าทะเบียน" autocomplete="off" enterkeyhint="next"><i>-</i><input class="pp" id="pl3" maxlength="4" placeholder="3456" inputmode="numeric" aria-label="เลขทะเบียน" autocomplete="off" enterkeyhint="next"><i>/</i><input class="pp" id="pl4" maxlength="4" placeholder="7890" inputmode="numeric" aria-label="เลขทะเบียนพ่วง (ถ้ามี)" autocomplete="off" enterkeyhint="next"><button class="vmic" type="button" data-vf="plate" aria-label="พูดทะเบียนรถ"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div><div class="srcf"><label for="source">ท่าข้าว / แหล่งที่มา</label><div class="vf"><input id="source" placeholder=" " aria-label="ท่าข้าว / แหล่งที่มา" autocomplete="off" enterkeyhint="next"><button class="vmic" type="button" data-vf="source" aria-label="พูดชื่อท่าข้าว"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div></div>
     </div>
     <div class="grp origin">
-      <div class="ghrow"><div class="gh"><svg class="ic" viewBox="0 0 24 24" role="img" aria-label="ต้นทาง"><path d="M12 21s-7-5.8-7-11a7 7 0 0 1 14 0c0 5.2-7 11-7 11z"/><path d="M12 10h.01"/></svg></div>
-        <div class="srcf"><div class="vf"><input id="source" placeholder="ท่าข้าว / แหล่งที่มา" aria-label="ท่าข้าว / แหล่งที่มา" autocomplete="off" enterkeyhint="next"><button class="vmic" type="button" data-vf="source" aria-label="พูดชื่อท่าข้าว"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div></div>
       <div class="row">
         <div class="fld"><label for="head"><span class="ln">ใบชั่งที่ 1</span></label>
           <div class="nf"><input id="head" class="num" type="text" inputmode="none" readonly placeholder="0" aria-label="ใบชั่งที่ 1 น้ำหนักสุทธิ กก."><button class="vmic" type="button" data-vf="head" aria-label="พูดตัวเลขใบชั่งที่ 1"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div>
         <div class="fld"><label for="tail"><span class="ln">ใบชั่งที่ 2 <small>(ถ้ามี)</small></span></label>
           <div class="nf"><input id="tail" class="num" type="text" inputmode="none" readonly placeholder="0" aria-label="ใบชั่งที่ 2 น้ำหนักสุทธิ กก."><button class="vmic" type="button" data-vf="tail" aria-label="พูดตัวเลขใบชั่งที่ 2"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div>
       </div>
-      <div class="total"><span>รวมต้นทาง</span><b id="originTotal">0<small>กก.</small></b></div>
+      <div class="ghrow otot"><div class="gh"><svg class="ic" viewBox="0 0 24 24" role="img" aria-label="ต้นทาง"><path d="M12 21s-7-5.8-7-11a7 7 0 0 1 14 0c0 5.2-7 11-7 11z"/><path d="M12 10h.01"/></svg></div><div class="dtitle"><b>รวมต้นทาง</b><span>น้ำหนักสุทธิ</span></div><div class="total"><b id="originTotal">0<small>กก.</small></b></div></div>
     </div>
     <div class="grp dest">
       <div class="ghrow dfield"><div class="gh"><svg class="ic" viewBox="0 0 24 24" role="img" aria-label="ปลายทาง"><path d="M3 20V11l6 3.5V11l6 3.5V8h3V4h3v16z"/><path d="M7 17h.01M11.5 17h.01M16 17h.01"/></svg></div><div class="dtitle"><b>ปลายทาง</b><span>น้ำหนักสุทธิ</span></div><div class="fld"><label class="dl" for="dest">น้ำหนักสุทธิ</label><div class="nf"><input id="dest" class="num" type="text" inputmode="none" readonly placeholder="0" aria-label="น้ำหนักปลายทาง กก."><button class="vmic" type="button" data-vf="dest" aria-label="พูดตัวเลขปลายทาง"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div></div>
@@ -1549,7 +1759,7 @@ body.mgpad #mgDlg .dlg-box.mg{max-height:calc(100vh - var(--padh,300px) - 24px)}
     <div class="eq" id="eq"></div>
     <div class="msg" id="msg">กรอกน้ำหนักต้นทางและปลายทาง</div>
   </section>
-  <div class="ver" id="appVer">v1.0</div>
+  <div class="ver" id="appVer">v1.2</div>
 </div>
 
 <div class="page" id="pHist" hidden>
@@ -1884,7 +2094,7 @@ function render() {
     <div class="hc rc ${r.st}${r.id === latestId ? ' latest' : ''}">
       <div class="rc-l">
         ${r.id === latestId ? '<span class="new">ล่าสุด</span>' : ''}
-        <div class="pn">${esc(r.plate)}</div>
+        <div class="pn${r.plate === 'ไม่ระบุทะเบียน' ? ' nop' : ''}">${esc(r.plate)}</div>
         ${r.source && r.source !== '-' ? '<div class="src">' + esc(r.source) + '</div>' : ''}
         <div class="dt">${esc(String(r.time).split(' ')[0])}</div>
         <div class="dt">${esc(String(r.time).split(' ').pop())} น.</div>
@@ -1893,8 +2103,7 @@ function render() {
       <div class="rc-rt">
         <div class="rc-r o"><span class="k">ต้นทาง${r.head && r.tail ? ' <i>(' + fmt(r.head) + '+' + fmt(r.tail) + ')</i>' : ''}</span><span class="v">${fmt(r.origin)}</span></div>
         <div class="rc-r d"><span class="k">ปลายทาง</span><span class="v">${fmt(r.dest)}</span></div>
-        <div class="rc-r x"><span class="k">ส่วนต่าง</span><span class="v">${sgn(r.diff)}</span></div>
-        <div class="rc-sub x">${sgn(pc, 2)}% · ${r.st === 'bad' ? 'ขาด' : r.st === 'warn' ? 'ขาดเล็กน้อย' : r.diff > 0 ? 'เพิ่ม' : 'ปกติ'}</div>
+        <div class="rc-r x"><span class="k">ส่วนต่าง<em class="pc">${sgn(pc, 2)}% · ${r.st === 'bad' ? 'ขาด' : r.st === 'warn' ? 'ขาดเล็กน้อย' : r.diff > 0 ? 'เพิ่ม' : 'ปกติ'}</em></span><span class="v">${sgn(r.diff)}</span></div>
       </div>
     </div>`; }).join('');
 }
@@ -2184,6 +2393,19 @@ function micUI(on) {
   $('micTx').textContent = on && micActive === $('micBtn') ? 'กำลังฟัง… แตะเพื่อหยุด' : 'พูดตัวเลข';
 }
 function stopMic() { if (rec) { const r = rec; r.onresult = r.onerror = r.onend = r.onstart = null; /* กันเหตุการณ์ของรอบเก่ามาทับไมค์ใหม่ */ try { r.abort(); } catch (e) {} } rec = null; micUI(false); }
+// คำสั่งเสียง: “เอาใหม่ / เอ้ย บ่แมน / ไม่ใช่” = ลบเฉพาะช่องนั้นแล้วพูดใหม่ · “เริ่มใหม่ / รีเซ็ต” = ล้างทั้งหมดทุกช่อง
+const CMD_FIELD = /เอาใหม่|(บ่|ไม่|บอ)(แม[่้]?น|ใช่)/, CMD_ALL = /เริ่มใหม่|ใหม่หมด|รีเซ[็]?ต/;
+function resetAll() { $('source').value = ''; fillPlate({}); resetForm(true, false, true); }
+function voiceCmd(alts) {
+  const ts = (alts || []).map(a => String(a || '').replace(/\s+/g, ''));
+  if (ts.some(t => CMD_ALL.test(t))) return 'all';
+  if (ts.some(t => CMD_FIELD.test(t))) return 'field';
+  return null;
+}
+function clearField(f) {
+  if (f === 'plate') fillPlate({});
+  else { $(f).value = ''; if (padFields.includes(f)) { calc(); if (cur === f) syncPad(); } else $(f).dispatchEvent(new Event('input')); }
+}
 function parsePlate(t) {
   // แยกเสียงพูดเป็น 4 ช่อง เรียงจากซ้าย: หมวด | เลข 2 หลัก | เลข 4 หลัก | เลขพ่วง 4 หลัก
   // พูด: "กอ ขอ หนึ่ง สอง สาม สี่ ห้า หก ทับ เจ็ด แปด เก้า ศูนย์"  (เลขทีละตัว, "ทับ"/"พ่วง" = เครื่องหมาย /)
@@ -2216,9 +2438,18 @@ function startMic(field, btn) {
   micActive = btn;
   rec = new SR();
   rec.lang = 'th-TH'; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 5;
+  let redoing = false, stNum = null;
   rec.onresult = ev => {
+    clearTimeout(stNum);
     const res = ev.results[ev.results.length - 1], fin = res.isFinal;
     const alts = Array.from(res).map(a => a.transcript);
+    if (voiceCmd(alts)) {                         // เอ้ย บ่แมน / เอาใหม่ → ลบช่องนี้ แล้วฟังใหม่ทันที
+      if (redoing) return; redoing = true;
+      if (voiceCmd(alts) === 'all') { resetAll(); stopMic(); toast('รีเซ็ตทั้งหมดแล้ว', false, 2000); return; }
+      clearField(field); stopMic(); toast('ลบแล้ว พูดใหม่ได้เลย', false, 1800);
+      setTimeout(() => startMic(field, btn), 120);
+      return;
+    }
     if (!isNum) {
       if (field === 'plate') {
         let best = null, sc = -1;                // เลือกผลที่ได้ตัวอักษร/ตัวเลขมากที่สุด
@@ -2226,12 +2457,14 @@ function startMic(field, btn) {
         if (!best) { if (fin) toast('ฟังทะเบียนไม่ออก ลองพูดใหม่ เช่น “กอ ขอ หนึ่ง สอง สาม สี่ ห้า หก”', true, 4000); return; }
         fillPlate(best);                         // ขึ้นทีละช่องเรียงจากซ้ายระหว่างพูด
         if (fin) { $('plate').dispatchEvent(new Event('change')); toast('ได้ยิน ' + $('plate').value, false, 3000); }
+        else stNum = setTimeout(() => { if (rec) { stopMic(); $('plate').dispatchEvent(new Event('change')); toast('ได้ยิน ' + $('plate').value, false, 3000); } }, QSTABLE_TXT_MS);   // นิ่งแล้วจบเลย
         return;
       }
       const t = String(alts[0] || '').replace(/\s+/g, ' ').trim();
       if (!t) { if (fin) toast('ฟังไม่ออก ลองพูดใหม่', true); return; }
       $(field).value = t;                       // ขึ้นทันทีระหว่างพูด
       if (fin) { $(field).dispatchEvent(new Event('change')); toast('ได้ยิน “' + t + '”', false, 3000); }
+      else stNum = setTimeout(() => { if (rec) { stopMic(); $(field).dispatchEvent(new Event('change')); toast('ได้ยิน “' + t + '”', false, 3000); } }, QSTABLE_TXT_MS);
       return;
     }
     let v = 0;
@@ -2241,6 +2474,7 @@ function startMic(field, btn) {
     $(field).value = Number(v).toLocaleString('en-US');   // ขึ้นทันทีระหว่างพูด
     if (cur === field) { calc(); syncPad(); } else calc();
     if (fin) toast('ได้ยิน ' + Number(v).toLocaleString('en-US') + ' กก.');
+    else stNum = setTimeout(() => { if (rec) { stopMic(); toast('ได้ยิน ' + Number(v).toLocaleString('en-US') + ' กก.'); } }, QSTABLE_MS);   // นิ่งแล้วจบเลย ไม่รอผลสุดท้าย
   };
   rec.onerror = ev => {
     if (ev.error === 'aborted') return;
@@ -2263,7 +2497,8 @@ let quick = null, qrec = null;
 const QSTEPS = ['head', 'tail', 'dest'];
 let qSkipFn = null;
 $('qSkip').addEventListener('click', e => { e.stopPropagation(); if (qSkipFn) qSkipFn(); });
-const QSKIP_MS = 2500;   // ใบชั่ง 2: เงียบนานเท่านี้ถือว่าไม่มี หรือแตะปุ่ม “ข้าม” เพื่อข้ามทันที
+const QSTABLE_MS = 300, QSTABLE_TXT_MS = 450;   // ตัวเลขนิ่งเท่านี้ (ไม่มีคำใหม่เข้ามา) ถือว่าพูดจบ ไม่รอผลสุดท้ายจากเบราว์เซอร์
+const QSKIP_MS = 1800;   // ใบชั่ง 2: เงียบนานเท่านี้ถือว่าไม่มี หรือแตะปุ่ม “ข้าม” เพื่อข้ามทันที
 function quickUI(on, msg) {
   $('quickMic').classList.toggle('on', on);
   $('qTx').textContent = on ? 'หยุด' : 'ไมค์ด่วน';
@@ -2289,17 +2524,19 @@ function quickListen(field) {
     let done = false, heard = false;
     const r = new SR(); qrec = r;
     r.lang = 'th-TH'; r.interimResults = true; r.continuous = false; r.maxAlternatives = 5;
-    let tm = null;
-    const fin = v => { if (done) return; done = true; clearTimeout(tm); if (qrec === r) qrec = null; try { r.onresult = r.onerror = r.onend = null; r.abort(); } catch (e) {} resolve(v); };
+    let tm = null, stT = null;
+    const fin = v => { if (done) return; done = true; clearTimeout(tm); clearTimeout(stT); if (qrec === r) qrec = null; try { r.onresult = r.onerror = r.onend = null; r.abort(); } catch (e) {} resolve(v); };
     r.onresult = ev => {
       clearTimeout(tm);   // เริ่มพูดแล้ว ยกเลิกการข้ามเมื่อเงียบ
       const res = ev.results[ev.results.length - 1], final = res.isFinal;
       const alts = Array.from(res).map(a => a.transcript);
+      const cmd = voiceCmd(alts);
+      if (cmd) return fin(cmd === 'all' ? 'restart' : 'redo');   // เอาใหม่ = เริ่มใหม่ทั้งหมด · เอ้ย บ่แมน = ช่องนี้ใหม่
       if (field === 'tail' && alts.some(a => /ไม่มี|ข้าม|ไม่ต้อง|ผ่าน/.test(a))) return fin('skip');
       let v = 0;
       for (const t of alts) { v = parseThaiNumber(t); if (v > 0) break; }
       if (v > MAX) { if (final) { toast('เกิน ' + fmtMax() + ' ลองพูดใหม่', true); fin('bad'); } return; }
-      if (v > 0) { heard = true; $(field).value = Number(v).toLocaleString('en-US'); calc(); if (final) fin('ok'); return; }
+      if (v > 0) { heard = true; $(field).value = Number(v).toLocaleString('en-US'); calc(); clearTimeout(stT); if (final) fin('ok'); else stT = setTimeout(() => fin('ok'), QSTABLE_MS); return; }
       if (final) { toast('ได้ยินว่า “' + (alts[0] || '') + '” ไม่ใช่ตัวเลข ลองพูดใหม่', true, 2500); fin('bad'); }
     };
     r.onerror = ev => {
@@ -2320,7 +2557,8 @@ async function quickRun() {
   if (!SR) { toast('เบราว์เซอร์นี้ยังไม่รองรับการพูด ลองใช้ Chrome (Android) หรือ Safari (iPhone)', true); return; }
   stopMic(); closePadKeepMic();
   const me = quick = {};
-  for (const f of QSTEPS) {
+  for (let idx = 0; idx < QSTEPS.length; idx++) {
+    const f = QSTEPS[idx];
     let tries = 0;
     for (;;) {
       if (quick !== me) return;
@@ -2328,16 +2566,18 @@ async function quickRun() {
       if (f !== 'tail') $('qSkip').hidden = true;
       qMark(f);
       $(f).closest('.fld').scrollIntoView({block: 'center', behavior: 'smooth'});
-      quickUI(true, 'กำลังฟัง: ' + PADNAME[f] + (f === 'tail' ? ' (ไม่มี = แตะ “ข้าม” / พูดว่า “ไม่มี” / เงียบ 2.5 วินาที)' : ''));
+      quickUI(true, 'กำลังฟัง: ' + PADNAME[f] + (f === 'tail' ? ' (ไม่มี = แตะ “ข้าม” / พูดว่า “ไม่มี” / เงียบ 1.8 วินาที)' : '') + ' · “เอาใหม่” = ลบช่องนี้ · “เริ่มใหม่” = รีเซ็ตทั้งหมด');
       const r = await quickListen(f);
       if (quick !== me) return;
       if (r === 'ok') break;
+      if (r === 'redo') { clearField(f); toast('ลบ' + PADNAME[f] + ' พูดใหม่ได้เลย', false, 1800); tries = 0; await new Promise(res => setTimeout(res, 120)); continue; }
+      if (r === 'restart') { resetAll(); toast('รีเซ็ตทั้งหมด เริ่มใหม่ตั้งแต่ใบชั่งที่ 1', false, 2000); idx = -1; await new Promise(res => setTimeout(res, 120)); break; }
       if (r === 'skip') { $('tail').value = ''; calc(); break; }
       if (r === 'silent' && f === 'tail') break;                       // เงียบ = ไม่มีใบชั่ง 2
       if (r === 'error' || ++tries >= (r === 'bad' ? 3 : 2)) { if (r !== 'error') toast('ไม่ได้ยินตัวเลข หยุดไมค์ด่วน แตะเพื่อเริ่มใหม่', true, 3500); quickStop(); return; }
-      await new Promise(res => setTimeout(res, 300));
+      await new Promise(res => setTimeout(res, 120));
     }
-    await new Promise(res => setTimeout(res, 250));
+    if (idx >= 0) await new Promise(res => setTimeout(res, 80));
   }
   quickStop();
   toast('เสร็จแล้ว ตรวจตัวเลขก่อนกดบันทึก', false, 3000);
@@ -2569,6 +2809,26 @@ fitNums();
   const mo = new MutationObserver(sync);
   dlgs.forEach(d => mo.observe(d, {attributes: true, attributeFilter: ['hidden']}));
   sync();
+})();
+</script>
+<script>
+(function(){const lb=document.querySelector('.srcf label'),w=document.querySelector('.srcf');if(!lb||!w)return;
+const m=document.createElement('span');m.className='lbl-m';m.textContent=lb.textContent;w.appendChild(m);
+function sync(){w.style.setProperty('--lw',m.offsetWidth+'px');}
+sync();window.addEventListener('resize',sync);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(sync);})();
+
+// กันการเลือกตัวอักษร: กดค้าง / ดับเบิลแตะ / Ctrl+A / ลากคลุม — ยกเว้นในช่องที่พิมพ์ได้
+(function () {
+  const editable = t => t && t.closest && t.closest('input:not([readonly]):not([type=hidden]), textarea:not([readonly])');
+  document.addEventListener('selectstart', e => { if (!editable(e.target)) e.preventDefault(); });
+  document.addEventListener('contextmenu', e => { if (!editable(e.target)) e.preventDefault(); });
+  document.addEventListener('dblclick', e => { if (!editable(e.target)) { e.preventDefault(); const sel = window.getSelection && getSelection(); if (sel) sel.removeAllRanges(); } });
+  document.addEventListener('dragstart', e => { if (!editable(e.target)) e.preventDefault(); });
+  document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A') && !editable(e.target)) e.preventDefault(); });
+  document.addEventListener('selectionchange', () => {   // เผื่อเบราว์เซอร์เลือกค้างอยู่ ให้ล้างทันที
+    const sel = window.getSelection && getSelection(), a = sel && sel.anchorNode;
+    if (sel && !sel.isCollapsed && !editable(document.activeElement) && a) sel.removeAllRanges();
+  });
 })();
 </script>
 </body>
