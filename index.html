@@ -1880,6 +1880,16 @@ html.noshadow .bar{box-shadow:0 -1px 0 var(--line)!important}
 #list .hc.rc.latest,#list .hc.rc.latest:last-child{overflow:visible!important;margin-top:24px!important;padding-top:20px!important}
 #list .hc.rc.latest .rc-l .new{position:absolute;top:0;left:14px;transform:translateY(-50%);z-index:5;margin:0;white-space:nowrap;display:inline-block;width:auto;max-width:calc(100% - 28px)}
 #list .dgrp+.hc.rc.latest{margin-top:20px!important}
+/* หน้าคำนวณ: ระยะห่างของกรอบให้สมดุล — ขอบในทุกด้านและช่องว่างระหว่างกรอบเท่ากัน 12px */
+#pCalc .grp.origin,#pCalc .grp.dest{padding:12px;gap:12px}
+#pCalc section .grp.origin > .row{padding:0!important;gap:12px!important;margin:0!important}
+#pCalc .grp.origin .ghrow{margin-top:0}
+#pCalc > section:first-of-type{gap:12px}
+#pCalc > section:first-of-type > .grp{margin-top:0;margin-bottom:0}
+/* กรอบทะเบียนรถ และ ปลายทาง: ขอบในและช่องว่างระหว่างช่อง 12px เท่ากับกรอบอื่น */
+#pCalc .card .grp.plate{padding:12px!important}
+#pCalc .card .grp.plate .srcf{margin-top:2px!important;padding-top:10px!important}
+#pCalc section .grp.dest .dfield{row-gap:12px!important}
 </style>
 <script>
 /* สีธีมเว็บ: คำนวณชุดสีจากสีหลักสีเดียว แล้วทับตัวแปร CSS (สีเขียวเดิม = ไม่ทับอะไร) */
