@@ -2647,8 +2647,10 @@ const padFields = ['head', 'tail', 'dest'];
 let cur = null;
 function parseThaiNumber(t) {
   t = String(t || '').replace(/[๐-๙]/g, c => String(c.charCodeAt(0) - 0x0E50));
-  t = t.replace(/กิโลกรัม|กิโล|กก\.?|kg|เคจี/gi, '').replace(/[,\s]/g, '');
-  if (/\d/.test(t)) {
+  t = t.replace(/กิโลกรัม|กิโล|กก\.?|kg|เคจี/gi, '');
+  t = t.replace(/(\d)[,\s]+(?=\d)/g, '$1').replace(/[,\s]/g, '');
+  t = t.replace(/หมืน|หมีน|หมิ่น/g, 'หมื่น').replace(/ห?น(ึ่ง|ึง)/g, 'หนึ่ง');
+  if (!/[ก-๙]/.test(t)) {                       // ตัวเลขล้วน เช่น 12000
     const d = t.replace(/\D/g, '');
     return d ? parseInt(d, 10) : 0;
   }
@@ -2657,21 +2659,37 @@ function parseThaiNumber(t) {
   const words = Object.keys(DIG).concat(Object.keys(UNI)).sort((a, b) => b.length - a.length);
   const toks = []; let i = 0;
   while (i < t.length) {
+    const m = /^\d+/.exec(t.slice(i));          // ตัวเลขอารบิกปนคำ เช่น "1 หมื่น 2 พัน"
+    if (m) { toks.push({n: parseInt(m[0], 10)}); i += m[0].length; continue; }
     const w = words.find(x => t.startsWith(x, i));
     if (w) { toks.push(w); i += w.length; } else i++;
   }
   if (!toks.length) return 0;
-  if (!toks.some(x => x in UNI)) return parseInt(toks.map(x => DIG[x]).join(''), 10) || 0;
-  let total = 0, sec = 0, cur = null;
+  const isNum = x => typeof x === 'object' || (x in DIG);
+  const val = x => typeof x === 'object' ? x.n : DIG[x];
+  if (!toks.some(x => !isNum(x))) return parseInt(toks.map(val).join(''), 10) || 0;   // ไม่มีหน่วย: อ่านทีละหลัก
+  let total = 0, sec = 0, cur = null, lastU = 0, eet = false;
   toks.forEach(x => {
-    if (x in DIG) { cur = DIG[x]; return; }
+    if (isNum(x)) { cur = val(x); eet = (x === 'เอ็ด'); return; }
     const u = UNI[x];
     if (u <= 100) { sec += (cur === null ? 1 : cur) * u; }
-    else if (u < 1000000) { total += (sec + (cur === null ? (sec ? 0 : 1) : cur)) * u; sec = 0; }
-    else { total = (total + sec + (cur === null ? (total + sec ? 0 : 1) : cur)) * u; sec = 0; }
-    cur = null;
+    else if (u < 1000000) { total += (sec + (cur === null ? (sec ? 0 : 1) : cur)) * u; sec = 0; lastU = u; }
+    else { total = (total + sec + (cur === null ? (total + sec ? 0 : 1) : cur)) * u; sec = 0; lastU = u; }
+    cur = null; eet = false;
   });
+  // พูดย่อ: "หมื่นสอง" = 12,000 · "สองหมื่นห้า" = 25,000 · "สามพันห้า" = 3,500
+  if (cur !== null && !sec && !eet && lastU >= 1000 && lastU < 1000000 && cur >= 1 && cur <= 9) return total + cur * lastU / 10;
   return total + sec + (cur === null ? 0 : cur);
+}
+// พูดคำบอกหน่วยค้างอยู่ (หมื่น/พัน/ร้อย…) แปลว่าอาจยังพูดต่อ ให้รอนานขึ้น ไม่งั้นตัดที่ 10,000 ก่อนได้พูดต่อ
+function stableWait(alts, base) {
+  const s = String((alts && alts[0]) || '').replace(/\s+/g, '');
+  if (/(หมื่น|หมืน|แสน|พัน|ร้อย|สิบ)$/.test(s)) return Math.max(base, 1400);
+  if (/(หมื่น|หมืน|แสน|พัน|ร้อย)/.test(s)) return Math.max(base, 900);
+  // พูดทีละตัว (หนึ่ง สอง ศูนย์ …) ยังไม่ครบ 5 หลัก อาจยังพูดต่อ ให้รอนานขึ้น
+  const n = (s.replace(/[๐-๙]/g, '0').match(/\d|ศูนย์|หนึ่ง|นึง|เอ็ด|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า/g) || []).length;
+  if (n >= 1 && n < 5) return Math.max(base, 1000);
+  return base;
 }
 
 /* พูด (Web Speech API): ตัวเลขน้ำหนัก / ทะเบียนรถ / ท่าข้าว */
@@ -2765,7 +2783,7 @@ function startMic(field, btn) {
     $(field).value = Number(v).toLocaleString('en-US');   // ขึ้นทันทีระหว่างพูด
     if (cur === field) { calc(); syncPad(); } else calc();
     if (fin) toast('ได้ยิน ' + Number(v).toLocaleString('en-US') + ' กก.');
-    else stNum = setTimeout(() => { if (rec) { stopMic(); toast('ได้ยิน ' + Number(v).toLocaleString('en-US') + ' กก.'); } }, QSTABLE_MS);   // นิ่งแล้วจบเลย ไม่รอผลสุดท้าย
+    else stNum = setTimeout(() => { if (rec) { stopMic(); toast('ได้ยิน ' + Number(v).toLocaleString('en-US') + ' กก.'); } }, stableWait(alts, QSTABLE_MS));   // นิ่งแล้วจบเลย ไม่รอผลสุดท้าย
   };
   rec.onerror = ev => {
     if (ev.error === 'aborted') return;
@@ -2827,7 +2845,7 @@ function quickListen(field) {
       let v = 0;
       for (const t of alts) { v = parseThaiNumber(t); if (v > 0) break; }
       if (v > MAX) { if (final) { toast('เกิน ' + fmtMax() + ' ลองพูดใหม่', true); fin('bad'); } return; }
-      if (v > 0) { heard = true; $(field).value = Number(v).toLocaleString('en-US'); calc(); clearTimeout(stT); if (final) fin('ok'); else stT = setTimeout(() => fin('ok'), QSTABLE_MS); return; }
+      if (v > 0) { heard = true; $(field).value = Number(v).toLocaleString('en-US'); calc(); clearTimeout(stT); if (final) fin('ok'); else stT = setTimeout(() => fin('ok'), stableWait(alts, QSTABLE_MS)); return; }
       if (final) { toast('ได้ยินว่า “' + (alts[0] || '') + '” ไม่ใช่ตัวเลข ลองพูดใหม่', true, 2500); fin('bad'); }
     };
     r.onerror = ev => {
