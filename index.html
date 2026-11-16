@@ -1876,6 +1876,10 @@ html.noshadow .bar{box-shadow:0 -1px 0 var(--line)!important}
 #mgDlg .store .st-tx small{font-size:.68rem}
 #mgDlg .st-btn{font-size:.8rem}
 #mgDlg .link{font-size:.72rem}
+/* ป้าย "ล่าสุด" ไม่ให้โดนตัด/บัง: การ์ดต้องไม่ซ่อนส่วนที่ล้น และเว้นที่ด้านบนให้ป้ายครึ่งหนึ่งที่ยื่นออกมา */
+#list .hc.rc.latest,#list .hc.rc.latest:last-child{overflow:visible!important;margin-top:24px!important;padding-top:20px!important}
+#list .hc.rc.latest .rc-l .new{position:absolute;top:0;left:14px;transform:translateY(-50%);z-index:5;margin:0;white-space:nowrap;display:inline-block;width:auto;max-width:calc(100% - 28px)}
+#list .dgrp+.hc.rc.latest{margin-top:20px!important}
 </style>
 <script>
 /* สีธีมเว็บ: คำนวณชุดสีจากสีหลักสีเดียว แล้วทับตัวแปร CSS (สีเขียวเดิม = ไม่ทับอะไร) */
