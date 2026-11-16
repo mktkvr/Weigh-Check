@@ -1745,12 +1745,14 @@ img,svg{-webkit-user-drag:none;user-drag:none}
 #mgDlg .thm-h b{font-size:.94rem;font-weight:600;color:var(--ink);line-height:1.25}
 #mgDlg .thm-reset{flex:none;border:0;background:transparent;color:var(--muted);font:inherit;font-size:.82rem;font-weight:600;padding:6px 8px;margin:-6px -6px -6px 0;border-radius:8px;cursor:pointer}
 #mgDlg .thm-reset:active{background:var(--line)}
-#mgDlg .thm-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
-#mgDlg .sw{position:relative;flex:none;width:34px;height:34px;min-height:0;padding:0;margin:0;border:3px solid var(--surface);border-radius:50%;background:var(--c,#999);box-shadow:0 0 0 1.5px var(--line);cursor:pointer;display:block}
-#mgDlg .sw.on{box-shadow:0 0 0 3px var(--c)}
-#mgDlg .sw.on::after{content:"";position:absolute;left:10px;top:5px;width:6px;height:12px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg);filter:drop-shadow(0 0 1px rgba(0,0,0,.45))}
+#mgDlg .thm-row{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px 0;justify-items:center;margin-top:12px}
+#mgDlg .sw{position:relative;display:block;width:100%;max-width:30px;aspect-ratio:1/1;height:auto;min-height:0;padding:0;margin:0;border:0;border-radius:50%;background:var(--c,#999);box-shadow:inset 0 0 0 1px rgba(0,0,0,.14);cursor:pointer;transition:box-shadow .15s,transform .1s}
+#mgDlg .sw:active{transform:scale(.94)}
+#mgDlg .sw.on{box-shadow:inset 0 0 0 1px rgba(0,0,0,.14),0 0 0 2.5px var(--surface),0 0 0 4.5px var(--c)}
+#mgDlg .sw.on::after{content:"";position:absolute;left:50%;top:50%;width:26%;height:50%;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:translate(-50%,-62%) rotate(45deg);filter:drop-shadow(0 0 1px rgba(0,0,0,.45))}
 #mgDlg .sw.custom{background:conic-gradient(#e53935,#fdd835,#43a047,#00acc1,#1e88e5,#8e24aa,#e53935);overflow:visible}
 #mgDlg .sw.custom.on{background:var(--c)}
+/* แถวสี: อยู่แถวเดียว ปุ่มสีหดตามความกว้าง */
 #mgDlg .sw.custom input{position:absolute;inset:0;width:100%;height:100%;min-height:0;padding:0;margin:0;border:0;opacity:0;cursor:pointer;box-shadow:none!important}
 /* หน้าคำนวณ = หน้าประวัติ: เนื้อหาในการ์ดชิดขอบเดียวกัน และความกว้างไม่เปลี่ยนตอนสลับหน้า */
 html{scrollbar-gutter:stable}
@@ -1759,21 +1761,126 @@ html{scrollbar-gutter:stable}
 /* ปิดเงา: การ์ด แถบ และปุ่มหลักไม่มีเงา (ไม่แตะวงโฟกัสของช่องกรอก) */
 html.noshadow :is(.card,.result,.bar .btn,.hc,.dlg-box,#pad,.top){box-shadow:none!important}
 html.noshadow .bar{box-shadow:0 -1px 0 var(--line)!important}
-#mgDlg .bgsw.on{box-shadow:0 0 0 3px var(--acc)}
+#mgDlg .bgsw.on{box-shadow:inset 0 0 0 1px rgba(0,0,0,.14),0 0 0 2.5px var(--surface),0 0 0 4.5px var(--acc)}
 #mgDlg .bgsw.on::after,#mgDlg .sw.custom.bgsw.on::after{border-color:var(--ink);filter:none}
 #mgDlg .bgsw[data-c=""]{--c:var(--sunk)}
 #mgDlg .grayrow .thm-h{min-height:38px}
+#mgDlg .rw-t{display:flex;flex-direction:column;min-width:0;line-height:1.2}
+#mgDlg .rw-t small{font-size:.76rem;font-weight:500;color:var(--muted);min-height:1em}
+#mgDlg .thm-h{gap:8px;flex-wrap:wrap}
+#mgDlg .thm-h .rw-l{flex:1 1 90px}
+#mgDlg .thm-h .sw.custom,#mgDlg .thm-h .sw.custom.bgsw{height:32px;padding:0 10px 0 4px;gap:5px}
+#mgDlg .thm-h .sw.custom .cdot{width:22px;height:22px}
+#mgDlg .thm-h .sw.custom .cdot::after{inset:6px}
+#mgDlg .thm-h .sw.custom .ct{font-size:.78rem}
+@media (max-width:350px){
+  #mgDlg .maxrow{flex-wrap:wrap;row-gap:8px}
+  #mgDlg .maxrow .rw-l{flex:1 1 100%}
+  #mgDlg .maxrow .mx-step{margin-left:auto}
+}
+#mgDlg .thm-reset{width:34px;padding:0;justify-content:center;flex:none}
+#mgDlg .thm-reset svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+#mgDlg .thm-h .sw.custom{margin-left:auto}
+#mgDlg .thm-reset{border:1.5px solid var(--line);border-radius:99px;margin:0;padding:0 11px;height:34px;display:inline-flex;align-items:center;background:var(--surface);color:var(--muted);font-size:.8rem;white-space:nowrap}
+/* ปุ่มสีกำหนดเอง: แคปซูลมีจุดไล่สีรุ้ง */
+#mgDlg .sw.custom,#mgDlg .sw.custom.bgsw{display:inline-flex;align-items:center;gap:7px;flex:none;width:auto;max-width:none;height:34px;aspect-ratio:auto;padding:0 13px 0 5px;border:1.5px solid var(--line);border-radius:99px;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.06);transition:border-color .15s,box-shadow .15s,transform .1s}
+#mgDlg .sw.custom:active{transform:scale(.97)}
+#mgDlg .sw.custom .cdot{flex:none;position:relative;width:24px;height:24px;border-radius:50%;background:conic-gradient(from 200deg,#ff5f6d,#ffc371,#9be15d,#32d6b8,#4facfe,#a770ef,#ff5f6d);box-shadow:inset 0 0 0 2px rgba(255,255,255,.85),0 1px 3px rgba(0,0,0,.25)}
+#mgDlg .sw.custom .cdot::after{content:"";position:absolute;inset:7px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+#mgDlg .sw.custom .ct{font-size:.82rem;font-weight:600;line-height:1;color:var(--ink);white-space:nowrap}
+#mgDlg .sw.custom.on,#mgDlg .sw.custom.bgsw.on{background:var(--surface);border-color:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 25%,transparent)}
+#mgDlg .sw.custom.on .cdot,#mgDlg .sw.custom.bgsw.on .cdot{background:var(--c);box-shadow:inset 0 0 0 2px #fff,0 0 0 1.5px var(--line)}
+#mgDlg .sw.custom.on .cdot::after{display:none}
+#mgDlg .sw.custom.on::after,#mgDlg .sw.custom.bgsw.on::after{display:none}
+/* ปุ่ม + − ข้างช่องตัวเลข */
+#mgDlg .mx-step{display:flex;align-items:center;gap:6px;flex:none}
+#mgDlg .stp{flex:none;width:38px;height:38px;min-height:0;padding:0;margin:0;border:1.5px solid var(--line);border-radius:50%;background:var(--surface);color:var(--acc);display:grid;place-items:center;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none;transition:background .1s,transform .1s}
+#mgDlg .stp:active{background:var(--sunk);transform:scale(.92)}
+#mgDlg .stp svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+#mgDlg .mx-step{gap:4px}
+#mgDlg .mx-step .mx-in,#mgDlg .maxrow label{cursor:default;pointer-events:none;-webkit-user-select:none;user-select:none}
+#mgDlg .stp{width:34px;height:34px}
+#mgDlg .stp svg{width:16px;height:16px}
+#mgDlg .mx-step .mx-in{min-width:0;width:98px;padding:0 6px 0 4px;gap:3px}
+#mgDlg .mx-step .mx-in input{font-size:1rem;min-width:0;width:100%;padding:0 2px;text-align:right}
+#mgDlg .mx-step .mx-in span{padding-left:5px;margin-left:0;font-size:.74rem}
+#mgDlg .maxrow .rw-l{gap:8px}
+#mgDlg .maxrow .rw-ic{width:30px;height:30px;border-radius:9px}
+#mgDlg .maxrow .rw-ic svg{width:17px;height:17px}
+#mgDlg .maxrow label{font-size:.86rem;line-height:1.25}
+#mgDlg .maxrow .rw-l{gap:6px}
+#mgDlg .maxrow .rw-ic{width:28px;height:28px}
+/* ปุ่มส่งออก/นำเข้า: แถวเดียว ไอคอนบน ชื่อล่าง */
+#mgDlg .jrow{display:flex;gap:8px;margin:0}
+#mgDlg .jrow .btn,#mgDlg .jrow .btn.export{flex:1 1 0;min-width:0;flex-direction:column;gap:5px;min-height:62px;padding:8px 4px;border-radius:14px;font-size:.8rem;font-weight:600;line-height:1.2;text-align:center;white-space:nowrap}
+#mgDlg .jrow .btn .ic{width:21px;height:21px;margin:0}
+#mgDlg .jrow .btn.export{box-shadow:none;background:var(--acc);color:var(--on-acc);border-color:var(--acc)}
+#mgDlg .jrow .btn.export .ic{stroke:currentColor}
 #mgDlg .sw-tg{position:relative;flex:none;width:50px;height:30px;min-height:0;padding:0;margin:0;border:0;border-radius:99px;background:var(--line);cursor:pointer;transition:background .15s}
 #mgDlg .sw-tg::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .15s}
 #mgDlg .sw-tg[aria-checked="true"]{background:var(--acc)}
 #mgDlg .sw-tg[aria-checked="true"]::after{transform:translateX(20px)}
 /* เวอร์ชันอยู่กลางแถบล่าง ลอยทับ ไม่ดันและไม่รับการแตะ จึงไม่กระทบปุ่ม */
 .top .ver-nav{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 4px);transform:translateX(-50%);margin:0;padding:0;line-height:1;pointer-events:none;z-index:1;white-space:nowrap}
+
+/* กันตัวเลข/ตัวหนังสือล้นแถว: การ์ดประวัติ + กล่องสรุป (ย่อตามความกว้างจอ) */
+#list .hc.rc,#list .hc.rc.latest{grid-template-columns:minmax(0,.62fr) minmax(0,1.38fr);gap:0 8px;padding:10px;margin:10px 0 0;overflow:hidden}
+#list .rc-l .pn{font-size:1rem}
+#list .rc-l .src{font-size:.8rem;white-space:normal;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+#list .rc-l .dt{font-size:.74rem}
+#list .rc-rt{padding-left:8px}
+#list .rc-rt .rc-r{gap:4px}
+#list .rc-rt .rc-r .k{font-size:.8rem;min-width:0}
+#list .rc-rt .rc-r.o .k i{font-size:.6rem}
+#list .rc-rt .rc-r .v small{font-size:.62rem;margin-left:2px}
+#list .rc-rt .rc-r.o .v,#list .rc-rt .rc-r.d .v{font-size:clamp(.95rem,4.8vw,1.15rem);white-space:nowrap}
+#list .rc-rt .rc-r.x .v{font-size:clamp(1.1rem,5.6vw,1.3rem);white-space:nowrap}
+#list .rc-rt .rc-r.x .k{font-size:.8rem}
+#list .rc-rt .rc-r.x .k i,#list .rc-rt .rc-r.x .k em{white-space:normal}
+#sum .stats{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.3fr);gap:5px}
+#sum .stats .stat,#sum .stats .stat.x{padding:7px 8px 8px;min-width:0;overflow:hidden}
+#sum .stats .stat span,#sum .stats .stat.x .xl{font-size:.64rem;white-space:normal}
+#sum .stats .stat b,#sum .stats .stat.x b{font-size:clamp(.9rem,4.3vw,1.1rem);white-space:nowrap}
+#sum .stats .stat small{font-size:.62rem}
+#sum .stats .stat.x .xp{white-space:normal;font-size:.62rem;flex-wrap:wrap}
+/* ===== แก้ตัวเลข/ตัวหนังสือล้นแถวในจัดการข้อมูล ===== */
+#mgDlg .maxrow{flex-wrap:wrap;row-gap:6px;min-width:0;height:auto}
+#mgDlg .maxrow .rw-l{flex:1 1 120px;min-width:0}
+#mgDlg .maxrow label{min-width:0;overflow-wrap:anywhere;white-space:normal}
+#mgDlg .maxrow .mx-step{flex:0 1 auto;min-width:0;max-width:100%;margin-left:auto}
+#mgDlg .mx-step .mx-in{flex:0 1 auto;width:auto;min-width:84px;max-width:100%;box-sizing:border-box}
+#mgDlg .mx-step .mx-in input{flex:0 1 auto;width:var(--mxw,6ch);min-width:3ch;max-width:100%;box-sizing:content-box;overflow:visible;text-overflow:clip}
+#mgDlg .mx-step .mx-in span{flex:none}
+#mgDlg .thm-h .rw-l,#mgDlg .rw-t,#mgDlg .rw-t b,#mgDlg .rw-t small{min-width:0;overflow-wrap:anywhere}
+#mgDlg .store .st-tx,#mgDlg .st-btn,#mgDlg .jrow .btn{min-width:0}
+#mgDlg .jrow .btn{white-space:normal;overflow-wrap:anywhere}
+/* ===== ลดขนาดตัวอักษรในจัดการข้อมูล ===== */
+#mgDlg .mg-hd h2{font-size:.98rem}
+#mgDlg .maxrow label{font-size:.78rem;line-height:1.25}
+#mgDlg .maxrow{padding:6px 8px 6px 10px}
+#mgDlg .maxrow .rw-l{flex:1 1 130px;gap:6px}
+#mgDlg .maxrow .rw-ic{width:26px;height:26px;border-radius:8px}
+#mgDlg .maxrow .rw-ic svg{width:15px;height:15px}
+#mgDlg .maxrow .mx-step{gap:3px}
+#mgDlg .stp{width:30px;height:30px}
+#mgDlg .stp svg{width:14px;height:14px}
+#mgDlg .mx-step .mx-in{height:34px;min-width:70px;padding:0 6px 0 4px}
+#mgDlg .mx-step .mx-in input{font-size:.9rem;height:30px}
+#mgDlg .mx-step .mx-in span{font-size:.68rem;padding-left:4px}
+#mgDlg .thm-h b{font-size:.82rem}
+#mgDlg .rw-t small{font-size:.68rem}
+#mgDlg #shLbl{font-size:.82rem}
+#mgDlg .sw.custom .ct,#mgDlg .thm-reset{font-size:.72rem}
+#mgDlg .jrow .btn,#mgDlg .jrow .btn.export{font-size:.74rem;min-height:54px}
+#mgDlg .store .st-tx b{font-size:.82rem}
+#mgDlg .store .st-tx small{font-size:.68rem}
+#mgDlg .st-btn{font-size:.8rem}
+#mgDlg .link{font-size:.72rem}
 </style>
 <script>
 /* สีธีมเว็บ: คำนวณชุดสีจากสีหลักสีเดียว แล้วทับตัวแปร CSS (สีเขียวเดิม = ไม่ทับอะไร) */
 (function(){
-  var KEY='wc_theme',DEF='#0d7a55';
+  var KEY='wc_theme',BASE='#0d7a55',DEF='#1d6fd6';
   function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
   function h2r(h){h=h.replace('#','');if(h.length===3)h=h.replace(/./g,'$&$&');return[parseInt(h.substr(0,2),16),parseInt(h.substr(2,2),16),parseInt(h.substr(4,2),16)]}
   function r2hsl(r,g,b){r/=255;g/=255;b/=255;var mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,h=0,s=0,d=mx-mn;
@@ -1800,7 +1907,7 @@ html.noshadow .bar{box-shadow:0 -1px 0 var(--line)!important}
   function apply(hex){
     var st=document.getElementById('themeStyle'),m=document.querySelector('meta[name="theme-color"]');
     hex=valid(hex)?hex.toLowerCase():DEF;
-    if(hex===DEF){if(st)st.parentNode.removeChild(st);if(m)m.setAttribute('content',DEF);return}
+    if(hex===BASE){if(st)st.parentNode.removeChild(st);if(m)m.setAttribute('content',BASE);return}
     if(!st){st=document.createElement('style');st.id='themeStyle';document.head.appendChild(st)}
     st.textContent=build(hex);
     if(m){var a=hsl2r(r2hsl.apply(null,h2r(hex))[0],r2hsl.apply(null,h2r(hex))[1],clamp(r2hsl.apply(null,h2r(hex))[2],.22,.46));m.setAttribute('content','#'+a.map(function(v){return('0'+v.toString(16)).slice(-2)}).join(''))}
@@ -1928,24 +2035,26 @@ html.noshadow .bar{box-shadow:0 -1px 0 var(--line)!important}
       <div class="mg-sec">
         <div class="maxrow">
           <div class="rw-l"><span class="rw-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="3"/><path d="M6.5 8a2 2 0 0 0-1.9 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.93-2.54L19.4 9.5A2 2 0 0 0 17.5 8Z"/></svg></span><label for="maxIn">น้ำหนักสูงสุดที่รับได้</label></div>
-          <div class="mx-in" id="maxBox"><input id="maxIn" type="text" inputmode="none" readonly tabindex="-1" placeholder="0" autocomplete="off" aria-label="น้ำหนักสูงสุดที่รับได้ (กก.)"><span>กก.</span></div>
+          <div class="mx-step"><button class="stp" type="button" data-t="maxIn" data-d="-1" aria-label="ลด 10,000"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button><div class="mx-in" id="maxBox"><input id="maxIn" type="text" inputmode="none" readonly tabindex="-1" placeholder="0" autocomplete="off" aria-label="น้ำหนักสูงสุดที่รับได้ (กก.)"><span>กก.</span></div><button class="stp" type="button" data-t="maxIn" data-d="1" aria-label="เพิ่ม 10,000"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button></div>
         </div>
         <div class="maxrow">
           <div class="rw-l"><span class="rw-ic warn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 17-8.5-8.5-5 5L2 7"/><path d="M16 17h6v-6"/></svg></span><label for="tol">ขาดได้ไม่เกิน</label></div>
-          <div class="mx-in" id="tolBox"><input id="tol" type="text" inputmode="none" readonly tabindex="-1" placeholder="0" value="100" autocomplete="off" aria-label="น้ำหนักขาดที่ยอมรับได้ (กก.)"><span>กก.</span></div>
+          <div class="mx-step"><button class="stp" type="button" data-t="tol" data-d="-1" aria-label="ลด 10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button><div class="mx-in" id="tolBox"><input id="tol" type="text" inputmode="none" readonly tabindex="-1" placeholder="0" value="100" autocomplete="off" aria-label="น้ำหนักขาดที่ยอมรับได้ (กก.)"><span>กก.</span></div><button class="stp" type="button" data-t="tol" data-d="1" aria-label="เพิ่ม 10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button></div>
         </div>
         <div class="thmrow" id="thmRow">
           <div class="thm-h">
-            <div class="rw-l"><span class="rw-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4c0-4.4-4-8.1-9-8.1Z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10.5" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/></svg></span><b>สีธีม</b></div>
-            <button class="thm-reset" id="thmReset" type="button">ค่าเริ่มต้น</button>
+            <div class="rw-l"><span class="rw-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4c0-4.4-4-8.1-9-8.1Z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10.5" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/></svg></span><div class="rw-t"><b>สีธีม</b><small id="thmName"></small></div></div>
+            <button class="thm-reset" id="thmReset" type="button" aria-label="ค่าเริ่มต้น" title="ค่าเริ่มต้น"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
+            <label class="sw custom" id="thmCustom" aria-label="เลือกสีเอง"><span class="cdot"></span><span class="ct">กำหนดเอง</span><input type="color" id="thmPick" value="#0d7a55"></label>
           </div>
-          <div class="thm-row" role="radiogroup" aria-label="สีธีม"><button type="button" class="sw" data-c="#0d7a55" style="--c:#0d7a55" role="radio" aria-checked="false" aria-label="เขียว"></button><button type="button" class="sw" data-c="#1d6fd6" style="--c:#1d6fd6" role="radio" aria-checked="false" aria-label="น้ำเงิน"></button><button type="button" class="sw" data-c="#0a8a9a" style="--c:#0a8a9a" role="radio" aria-checked="false" aria-label="เขียวน้ำทะเล"></button><button type="button" class="sw" data-c="#6d4ad8" style="--c:#6d4ad8" role="radio" aria-checked="false" aria-label="ม่วง"></button><button type="button" class="sw" data-c="#c2377a" style="--c:#c2377a" role="radio" aria-checked="false" aria-label="ชมพู"></button><button type="button" class="sw" data-c="#d9640a" style="--c:#d9640a" role="radio" aria-checked="false" aria-label="ส้ม"></button><button type="button" class="sw" data-c="#8a5a3b" style="--c:#8a5a3b" role="radio" aria-checked="false" aria-label="น้ำตาล"></button><button type="button" class="sw" data-c="#4b5563" style="--c:#4b5563" role="radio" aria-checked="false" aria-label="เทา"></button><label class="sw custom" id="thmCustom" aria-label="เลือกสีเอง"><input type="color" id="thmPick" value="#0d7a55"></label></div>
+          <div class="thm-row" role="radiogroup" aria-label="สีธีม"><button type="button" class="sw" data-c="#1d6fd6" style="--c:#1d6fd6" role="radio" aria-checked="false" aria-label="น้ำเงิน"></button><button type="button" class="sw" data-c="#0d7a55" style="--c:#0d7a55" role="radio" aria-checked="false" aria-label="เขียว"></button><button type="button" class="sw" data-c="#0a8a9a" style="--c:#0a8a9a" role="radio" aria-checked="false" aria-label="เขียวน้ำทะเล"></button><button type="button" class="sw" data-c="#6d4ad8" style="--c:#6d4ad8" role="radio" aria-checked="false" aria-label="ม่วง"></button><button type="button" class="sw" data-c="#c2377a" style="--c:#c2377a" role="radio" aria-checked="false" aria-label="ชมพู"></button><button type="button" class="sw" data-c="#d9640a" style="--c:#d9640a" role="radio" aria-checked="false" aria-label="ส้ม"></button><button type="button" class="sw" data-c="#8a5a3b" style="--c:#8a5a3b" role="radio" aria-checked="false" aria-label="น้ำตาล"></button><button type="button" class="sw" data-c="#4b5563" style="--c:#4b5563" role="radio" aria-checked="false" aria-label="เทา"></button></div>
         </div>
         <div class="thmrow grayrow" id="bgRow">
           <div class="thm-h">
-            <div class="rw-l"><span class="rw-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18"/></svg></span><b>สีพื้นหลัง</b></div>
+            <div class="rw-l"><span class="rw-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18"/></svg></span><div class="rw-t"><b>สีพื้นหลัง</b><small id="bgName"></small></div></div>
+            <label class="sw custom bgsw" id="bgCustom" aria-label="เลือกสีเอง"><span class="cdot"></span><span class="ct">กำหนดเอง</span><input type="color" id="bgPick" value="#eef3ef"></label>
           </div>
-          <div class="thm-row" role="radiogroup" aria-label="สีพื้นหลัง"><button type="button" class="sw bgsw" data-c="" style="--c:var(--sunk)" role="radio" aria-checked="false" aria-label="ตามธีม"></button><button type="button" class="sw bgsw" data-c="#ffffff" style="--c:#ffffff" role="radio" aria-checked="false" aria-label="ขาว"></button><button type="button" class="sw bgsw" data-c="#fbf6ea" style="--c:#fbf6ea" role="radio" aria-checked="false" aria-label="ครีม"></button><button type="button" class="sw bgsw" data-c="#eaf2fb" style="--c:#eaf2fb" role="radio" aria-checked="false" aria-label="ฟ้าอ่อน"></button><button type="button" class="sw bgsw" data-c="#fbeef2" style="--c:#fbeef2" role="radio" aria-checked="false" aria-label="ชมพูอ่อน"></button><button type="button" class="sw bgsw" data-c="#f0f1f3" style="--c:#f0f1f3" role="radio" aria-checked="false" aria-label="เทาอ่อน"></button><label class="sw custom bgsw" id="bgCustom" aria-label="เลือกสีเอง"><input type="color" id="bgPick" value="#eef3ef"></label></div>
+          <div class="thm-row" role="radiogroup" aria-label="สีพื้นหลัง"><button type="button" class="sw bgsw" data-c="" style="--c:var(--sunk)" role="radio" aria-checked="false" aria-label="ตามธีม"></button><button type="button" class="sw bgsw" data-c="#ffffff" style="--c:#ffffff" role="radio" aria-checked="false" aria-label="ขาว"></button><button type="button" class="sw bgsw" data-c="#fbf6ea" style="--c:#fbf6ea" role="radio" aria-checked="false" aria-label="ครีม"></button><button type="button" class="sw bgsw" data-c="#eaf2fb" style="--c:#eaf2fb" role="radio" aria-checked="false" aria-label="ฟ้าอ่อน"></button><button type="button" class="sw bgsw" data-c="#fbeef2" style="--c:#fbeef2" role="radio" aria-checked="false" aria-label="ชมพูอ่อน"></button><button type="button" class="sw bgsw" data-c="#f0f1f3" style="--c:#f0f1f3" role="radio" aria-checked="false" aria-label="เทาอ่อน"></button></div>
         </div>
         <div class="thmrow grayrow">
           <div class="thm-h">
@@ -1955,8 +2064,8 @@ html.noshadow .bar{box-shadow:0 -1px 0 var(--line)!important}
         </div>
       </div>
       <div class="mg-sec">
-        <button class="btn export" id="exportBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 13h8M8 17h8"/></svg>ดาวน์โหลด Excel (CSV)</button>
         <div class="jrow">
+          <button class="btn export" id="exportBtn" title="ดาวน์โหลด Excel (CSV)" aria-label="ดาวน์โหลด Excel (CSV)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 13h8M8 17h8"/></svg>Excel</button>
           <button class="btn ghost" id="jsonBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>สำรอง JSON</button>
           <button class="btn ghost" id="importBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m0 0L8 7m4-4 4 4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>นำเข้า JSON</button>
           <input type="file" id="importFile" accept=".json,application/json" hidden>
@@ -2398,9 +2507,43 @@ function setMax(v) {
   try { localStorage.setItem(MAXKEY, String(MAX)); } catch (e) {}
   calc();
 }
-$('maxBox').addEventListener('click', e => { e.stopPropagation(); if (cur !== 'maxIn') openMaxPad('maxIn'); });
-$('tolBox').addEventListener('click', e => { e.stopPropagation(); if (cur !== 'tol') openMaxPad('tol'); });
-document.querySelectorAll('.maxrow label').forEach(l => l.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); const id = l.getAttribute('for'); if (cur !== id) openMaxPad(id); }));
+document.querySelectorAll('.maxrow label').forEach(l => l.addEventListener('click', e => e.preventDefault()));   // ปรับได้ด้วยปุ่ม + − เท่านั้น
+
+/* ปุ่ม + − : น้ำหนักสูงสุด ทีละ 10,000 / ขาดได้ไม่เกิน ทีละ 10 (กดค้างเพื่อเพิ่ม/ลดต่อเนื่อง) */
+function stepField(id, dir) {
+  if (id === 'maxIn') {
+    const cur0 = MAX;
+    let n = (cur0 === MAX_CAP && dir < 0) ? 90000 : cur0 + dir * 10000;
+    if (n > MAX_CAP) { n = MAX_CAP; if (cur0 === MAX_CAP) toast('สูงสุดไม่เกิน ' + MAX_CAP.toLocaleString('en-US'), true); }
+    if (n < 10000) { n = Math.min(cur0, 10000); if (cur0 <= 10000) toast('ต่ำสุด 10,000', true); }
+    $('maxIn').value = n.toLocaleString('en-US');
+    setMax(n);
+  } else {
+    const t = val('tol'), top = Math.min(MAX, MAX_CAP);
+    let n = t + dir * 10;
+    if (n < 0) n = 0;
+    if (n > top) { n = top; toast('สูงสุดไม่เกิน ' + top.toLocaleString('en-US'), true); }
+    $('tol').value = n ? n.toLocaleString('en-US') : '0';
+    calc();
+  }
+  if (cur === id) syncPad();
+}
+(function () {
+  let hold, rep;
+  const stop = () => { clearTimeout(hold); clearInterval(rep); };
+  document.querySelectorAll('#mgDlg .stp').forEach(b => {
+    const id = b.dataset.t, dir = +b.dataset.d;
+    b.addEventListener('pointerdown', e => {
+      if (e.button) return;
+      e.preventDefault(); stop();
+      stepField(id, dir);
+      hold = setTimeout(() => { rep = setInterval(() => stepField(id, dir), 110); }, 450);
+    });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => b.addEventListener(ev, stop));
+    b.addEventListener('click', e => { if (e.detail === 0) stepField(id, dir); });   // คีย์บอร์ด (Enter/Space)
+    b.addEventListener('contextmenu', e => e.preventDefault());
+  });
+})();
 const closeMg = () => { closePad(); $('mgDlg').hidden = true; };
 $('mgClose').onclick = closeMg;
 // แตะพื้นมืดรอบกล่องไม่ปิดแล้ว ต้องกดปุ่มปิดเท่านั้น (กันเผลอแตะ)
@@ -3014,6 +3157,9 @@ sync();window.addEventListener('resize',sync);if(document.fonts&&document.fonts.
     var hit=false;
     sws.forEach(function(b){var on=b.getAttribute('data-c').toLowerCase()===hex;b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false');if(on)hit=true});
     cust.classList.toggle('on',!hit);cust.style.setProperty('--c',hex);pick.value=hex;
+    var nm=document.getElementById('thmName'),rs=document.getElementById('thmReset'),lb=row.querySelector('button.sw.on');
+    if(nm)nm.textContent=hit&&lb?lb.getAttribute('aria-label'):'กำหนดเอง '+hex.toUpperCase();
+    if(rs)rs.hidden=(hex===T.DEF);
   }
   sws.forEach(function(b){b.addEventListener('click',function(){var c=b.getAttribute('data-c');T.set(c);mark(c.toLowerCase())})});
   pick.addEventListener('input',function(){T.set(pick.value);mark(pick.value.toLowerCase())});
@@ -3030,6 +3176,8 @@ sync();window.addEventListener('resize',sync);if(document.fonts&&document.fonts.
     var hit=false;
     sws.forEach(function(b){var on=b.getAttribute('data-c').toLowerCase()===hex;b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false');if(on)hit=true});
     cust.classList.toggle('on',!hit);if(!hit){cust.style.setProperty('--c',hex);pick.value=hex}
+    var nm=document.getElementById('bgName'),lb=row.querySelector('button.sw.on');
+    if(nm)nm.textContent=hit&&lb?lb.getAttribute('aria-label'):'กำหนดเอง '+hex.toUpperCase();
   }
   sws.forEach(function(b){b.addEventListener('click',function(){var c=b.getAttribute('data-c');B.set(c);mark(c.toLowerCase())})});
   pick.addEventListener('input',function(){B.set(pick.value);mark(pick.value.toLowerCase())});
@@ -3037,6 +3185,18 @@ sync();window.addEventListener('resize',sync);if(document.fonts&&document.fonts.
   function markSh(){tg.setAttribute('aria-checked',S.get()?'true':'false')}
   tg.addEventListener('click',function(){S.set(!S.get());markSh()});
   markSh();
+})();
+</script>
+<script>
+/* ปรับความกว้างช่องตัวเลขตามจำนวนหลัก (ทั้งตอนสคริปต์ตั้งค่าและตอนกดปุ่ม +/-) */
+(function(){
+  var proto=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
+  function fit(el){var n=(el.value||'').length||1;el.style.setProperty('--mxw',(n+0.6).toFixed(2)+'ch');}
+  ['maxIn','tol'].forEach(function(id){
+    var el=document.getElementById(id); if(!el) return;
+    Object.defineProperty(el,'value',{configurable:true,get:function(){return proto.get.call(this);},set:function(v){proto.set.call(this,v);fit(this);}});
+    fit(el);
+  });
 })();
 </script>
 </body>
