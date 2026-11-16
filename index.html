@@ -1283,7 +1283,7 @@ body.mgpad #mgDlg .dlg-box.mg{max-height:calc(100vh - var(--padh,300px) - 24px)}
 #pCalc .card .grp.dest .fld.qlisten .nf::before{display:block;content:"";position:absolute;left:9px;top:7px;margin:0;width:8px;height:8px;border-radius:50%;background:#d92d20;z-index:2;pointer-events:none;animation:micblink 1s ease-in-out infinite}
 @media (max-width:350px){.grp.dest .dtitle b{font-size:1rem}.grp.dest .dtitle span{font-size:.72rem}}
 /* ไมค์ด่วน: เคอร์เซอร์แดงกะพริบข้างหน้าตัวเลข (ทุกช่อง) */
-#pCalc .card .fld.qlisten .nf::before,#pCalc .card .grp.dest .fld.qlisten .nf::before{display:block;content:"";position:absolute;left:9px;top:50%;margin:0;width:3px;height:55%;transform:translateY(-50%);border-radius:2px;background:#d92d20;z-index:2;pointer-events:none;animation:curblink 1s steps(1) infinite}
+#pCalc .card .fld.qlisten .nf::before,#pCalc .card .grp.dest .fld.qlisten .nf::before{display:block;content:"";position:absolute;left:9px;top:50%;margin:0;width:3px;height:28px;transform:translateY(-50%);border-radius:2px;background:#d92d20;z-index:2;pointer-events:none;animation:curblink 1s steps(1) infinite}
 @keyframes curblink{0%,100%{opacity:1}50%{opacity:0}}
 #pCalc .card .fld.qlisten input.num,#pCalc .card .grp.dest .fld.qlisten input#dest{padding-left:18px}
 /* แป้นตัวเลขเรียง 1 2 3 / 4 5 6 / 7 8 9 / ล้าง 0 ไมค์ */
@@ -1723,9 +1723,9 @@ input:not([readonly])::selection,textarea::selection{background:rgba(55,65,81,.2
 img,svg{-webkit-user-drag:none;user-drag:none}
 
 /* เคอร์เซอร์กะพริบในช่องตัวเลขที่เลือกอยู่ (ช่องที่ใช้แป้นตัวเลขของแอป) */
-.fcaret{display:none;position:absolute;left:9px;top:50%;width:3px;height:55%;transform:translateY(-50%);border-radius:2px;background:var(--fc,var(--acc,#374151));pointer-events:none;z-index:2;animation:curblink 1s steps(1) infinite}
+.fcaret{display:none;position:absolute;left:9px;top:50%;width:3px;height:28px;transform:translateY(-50%);border-radius:2px;background:var(--fc,var(--acc,#374151));pointer-events:none;z-index:2;animation:curblink 1s steps(1) infinite}
 .fld:has(input.num.active):not(.qlisten) .fcaret{display:block}
-#mgDlg .mx-in .fcaret{position:static;left:auto;width:2px;transform:none;margin:0 0 0 -1px;height:60%;flex:none;background:var(--acc,#374151)}
+#mgDlg .mx-in .fcaret{position:static;left:auto;width:2px;transform:none;margin:0 0 0 -1px;height:28px;flex:none;background:var(--acc,#374151)}
 #mgDlg .mx-in.active .fcaret{display:block}
 @keyframes fcblink{0%,55%{opacity:1}56%,100%{opacity:0}}
 /* เคอร์เซอร์ช่องทะเบียนและท่าข้าว: แถบกะพริบชิดซ้ายเหมือนช่องตัวเลข */
@@ -2986,8 +2986,8 @@ sync();window.addEventListener('resize',sync);if(document.fonts&&document.fonts.
     function place(){
       var h=inp.offsetHeight;
       c.style.left=(inp.offsetLeft+dx)+'px';
-      c.style.top=(inp.offsetTop+h*0.225)+'px';
-      c.style.height=(h*0.55)+'px';
+      c.style.top=(inp.offsetTop+(h-28)/2)+'px';
+      c.style.height='28px';
     }
     var btn=document.querySelector('.vmic[data-vf="'+(id==='source'?'source':(id==='pl1'?'plate':'none'))+'"]');
     function upd(){
