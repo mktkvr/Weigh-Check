@@ -1950,6 +1950,22 @@ html.noshadow .bar{box-shadow:0 -1px 0 var(--line)!important}
 #sum .stats .stat.x .xp{background:rgba(255,255,255,.22)}
 /* แป้นตัวเลข: กดรัวได้ ไม่รอ (ไม่โดนหน่วงจาก double-tap) */
 #pad,#pad .key,.bar .btn,#quickMic{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+/* ปุ่มไมค์ทุกปุ่ม: ตอนฟังอยู่ ให้แสงขอบกระพริบแรงๆ (ใช้ filter/outline เพราะ box-shadow ของปุ่มถูกล็อกไว้) */
+@keyframes micglowF{
+  0%,100%{filter:drop-shadow(0 0 3px rgba(255,64,40,.95)) drop-shadow(0 0 8px rgba(255,64,40,.75));outline-color:rgba(255,64,40,.95);outline-offset:1px}
+  50%{filter:drop-shadow(0 0 8px rgba(255,64,40,1)) drop-shadow(0 0 20px rgba(255,64,40,.95)) drop-shadow(0 0 36px rgba(255,64,40,.7));outline-color:rgba(255,64,40,0);outline-offset:10px}
+}
+@keyframes micglowB{
+  0%,100%{box-shadow:0 0 0 2px rgba(255,64,40,.95),0 0 10px 3px rgba(255,64,40,.8),0 0 0 0 rgba(255,64,40,.6)}
+  50%{box-shadow:0 0 0 3px rgba(255,64,40,1),0 0 22px 8px rgba(255,64,40,.95),0 0 0 16px rgba(255,64,40,0)}
+}
+#pCalc .card .vmic.on,#pCalc .card .grp .vmic.on,#pCalc .card .grp.origin .vmic.on,#pCalc .card .grp.dest .vmic.on,#pCalc .card .grp.plate .vmic.on,.card .vmic.on{
+  outline:2.5px solid rgba(255,64,40,.95);overflow:visible;z-index:2;
+  animation:micglowF .85s ease-in-out infinite!important}
+#pad .key.micKey.on,#quickMic.on,.mic.on{animation:micglowB .85s ease-in-out infinite!important}
+@media (prefers-reduced-motion:reduce){
+  #pCalc .card .vmic.on,.card .vmic.on,#pad .key.micKey.on,#quickMic.on,.mic.on{animation-duration:1.8s!important}
+}
 </style>
 <script>
 /* สีธีมเว็บ: คำนวณชุดสีจากสีหลักสีเดียว แล้วทับตัวแปร CSS (สีเขียวเดิม = ไม่ทับอะไร) */
@@ -2504,7 +2520,7 @@ function writeFile() {
   if (!fh || fstate !== 'ok') return;
   wq = wq.then(async () => {
     try { const w = await fh.createWritable(); await w.write(buildFileText()); await w.close(); }
-    catch (e) { fstate = 'err'; setStore(); toast('เขียนไฟล์ไม่ได้ แตะ “เชื่อมต่อ” ที่ที่เก็บข้อมูล', true); }
+    catch (e) { fstate = 'need'; setStore(); armReconnect(); toast('เขียนไฟล์ไม่ได้ ข้อมูลยังเก็บในเครื่องอยู่ แตะจอแล้วกดอนุญาตเพื่อเชื่อมไฟล์ใหม่', true, 4000); }
   });
 }
 async function readHandle(h) {
@@ -2619,6 +2635,27 @@ $('mgClose').onclick = closeMg;
 // แตะพื้นมืดรอบกล่องไม่ปิดแล้ว ต้องกดปุ่มปิดเท่านั้น (กันเผลอแตะ)
 
 
+// เชื่อมไฟล์ใหม่ให้อัตโนมัติ: เบราว์เซอร์ลืมสิทธิ์เขียนไฟล์ทุกครั้งที่ปิดแอป และให้ขอสิทธิ์ได้เฉพาะตอนผู้ใช้แตะจอ
+// → แตะที่ไหนก็ได้ครั้งแรก แอปจะขอสิทธิ์ให้ทันที (ผู้ใช้กด "อนุญาต" ครั้งเดียว ไม่ต้องหาปุ่มเชื่อมต่อ)
+let reconnArmed = false;
+function armReconnect() {
+  if (reconnArmed || !fh || fstate !== 'need') return;
+  reconnArmed = true;
+  const off = () => { document.removeEventListener('click', go, true); document.removeEventListener('keydown', go, true); reconnArmed = false; };
+  const go = async ev => {
+    if (ev.target && ev.target.closest && ev.target.closest('#store,#stDlg')) return;   // กดปุ่มที่ที่เก็บข้อมูลเอง ใช้ปุ่มนั้นจัดการ
+    off();
+    if (!fh || fstate === 'ok') return;
+    try {
+      if ((await fh.requestPermission({mode: 'readwrite'})) === 'granted') {
+        await readHandle(fh); fstate = 'ok'; persist(); render(); setStore();
+        toast('เชื่อมต่อไฟล์ ' + fh.name + ' แล้ว');
+      }
+    } catch (e) {}
+  };
+  document.addEventListener('click', go, true);
+  document.addEventListener('keydown', go, true);
+}
 async function initStore() {
   if (!hasFS) { setStore(); return; }
   try {
@@ -2630,6 +2667,7 @@ async function initStore() {
     } else fstate = 'need';
   } catch (e) {}
   setStore();
+  armReconnect();
 }
 
 let tt;
@@ -2705,7 +2743,8 @@ function parseThaiNumber(t) {
   t = String(t || '').replace(/[๐-๙]/g, c => String(c.charCodeAt(0) - 0x0E50));
   t = t.replace(/กิโลกรัม|กิโล|กก\.?|kg|เคจี/gi, '');
   t = t.replace(/(\d)[,\s]+(?=\d)/g, '$1').replace(/[,\s]/g, '');
-  t = t.replace(/หมืน|หมีน|หมิ่น/g, 'หมื่น').replace(/ห?น(ึ่ง|ึง)/g, 'หนึ่ง');
+  t = t.replace(/([\u0E48-\u0E4B])([\u0E34-\u0E3A])/g, '$2$1');   // สลับลำดับวรรณยุกต์/สระที่ผิดลำดับ
+  t = t.replace(/หมืน|หมีน|หมิ่น|หมุ่น|หมึ่น|หมื้น|หมื่อน|หมื่ล/g, 'หมื่น').replace(/ห?น(ึ่ง|ึง)/g, 'หนึ่ง');
   if (!/[ก-๙]/.test(t)) {                       // ตัวเลขล้วน เช่น 12000
     const d = t.replace(/\D/g, '');
     return d ? parseInt(d, 10) : 0;
@@ -2740,11 +2779,12 @@ function parseThaiNumber(t) {
 // พูดคำบอกหน่วยค้างอยู่ (หมื่น/พัน/ร้อย…) แปลว่าอาจยังพูดต่อ ให้รอนานขึ้น ไม่งั้นตัดที่ 10,000 ก่อนได้พูดต่อ
 function stableWait(alts, base) {
   const s = String((alts && alts[0]) || '').replace(/\s+/g, '');
-  if (/(หมื่น|หมืน|แสน|พัน|ร้อย|สิบ)$/.test(s)) return Math.max(base, 1400);
-  if (/(หมื่น|หมืน|แสน|พัน|ร้อย)/.test(s)) return Math.max(base, 900);
-  // พูดทีละตัว (หนึ่ง สอง ศูนย์ …) ยังไม่ครบ 5 หลัก อาจยังพูดต่อ ให้รอนานขึ้น
+  const UNIT = /(หมื่น|หมืน|แสน|พัน|ร้อย|สิบ)/;
+  if (new RegExp(UNIT.source + '$').test(s)) return Math.max(base, 1600);   // ค้างที่คำหน่วย เช่น "สามหมื่น" "หนึ่งหมื่น" อาจพูดต่อ
+  if (UNIT.test(s)) return Math.max(base, 1300);                             // มีหน่วยแล้วตามด้วยเลข เช่น "หนึ่งหมื่นห้า" อาจต่อ "สิบ"
+  // พูดทีละตัว (หนึ่ง สอง ศูนย์ …) หรือเลขสั้น ยังไม่ครบ 5 หลัก อาจยังพูดต่อ
   const n = (s.replace(/[๐-๙]/g, '0').match(/\d|ศูนย์|หนึ่ง|นึง|เอ็ด|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า/g) || []).length;
-  if (n >= 1 && n < 5) return Math.max(base, 1000);
+  if (n >= 1 && n < 5) return Math.max(base, 1300);
   return base;
 }
 
@@ -2767,7 +2807,22 @@ function voiceCmd(alts) {
   if (ts.some(t => CMD_FIELD.test(t))) return 'field';
   return null;
 }
+// เลขวิ่งขึ้น: ตอนพูด ตัวเลขไล่จากค่าเดิมไปค่าที่ได้ยินแบบนุ่มๆ (ไม่กระโดด)
+function rollTo(field, v) {
+  const el = $(field);
+  cancelAnimationFrame(el._raf);
+  const draw = x => { el.value = x ? Number(x).toLocaleString('en-US') : ''; calc(); if (cur === field) syncPad(); };
+  const from = parseInt((el.value || '0').replace(/\D/g, ''), 10) || 0;
+  if (from === v) { draw(v); return; }
+  const t0 = performance.now(), dur = Math.min(300, 120 + Math.abs(v - from) / 150);
+  const step = now => {
+    const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+    if (k < 1) { draw(Math.round(from + (v - from) * e)); el._raf = requestAnimationFrame(step); } else draw(v);
+  };
+  el._raf = requestAnimationFrame(step);
+}
 function clearField(f) {
+  cancelAnimationFrame($(f)._raf);
   if (f === 'plate') fillPlate({});
   else { $(f).value = ''; if (padFields.includes(f)) { calc(); if (cur === f) syncPad(); } else $(f).dispatchEvent(new Event('input')); }
 }
@@ -2836,8 +2891,7 @@ function startMic(field, btn) {
     for (const t of alts) { v = parseThaiNumber(t); if (v > 0) break; }
     if (!v) { if (fin) toast('ได้ยินว่า “' + (alts[0] || '') + '” ไม่ใช่ตัวเลข ลองพูดใหม่ เช่น “หนึ่งหมื่นสองพัน”', true, 4000); return; }
     if (v > MAX) { if (fin) toast('เกิน ' + fmtMax() + ' ลองพูดใหม่', true); return; }
-    $(field).value = Number(v).toLocaleString('en-US');   // ขึ้นทันทีระหว่างพูด
-    if (cur === field) { calc(); syncPad(); } else calc();
+    rollTo(field, v);   // ขึ้นทันทีระหว่างพูด ตัวเลขวิ่งขึ้นตามที่ได้ยิน
     if (fin) toast('ได้ยิน ' + Number(v).toLocaleString('en-US') + ' กก.');
     else stNum = setTimeout(() => { if (rec) { stopMic(); toast('ได้ยิน ' + Number(v).toLocaleString('en-US') + ' กก.'); } }, stableWait(alts, QSTABLE_MS));   // นิ่งแล้วจบเลย ไม่รอผลสุดท้าย
   };
@@ -2901,7 +2955,7 @@ function quickListen(field) {
       let v = 0;
       for (const t of alts) { v = parseThaiNumber(t); if (v > 0) break; }
       if (v > MAX) { if (final) { toast('เกิน ' + fmtMax() + ' ลองพูดใหม่', true); fin('bad'); } return; }
-      if (v > 0) { heard = true; $(field).value = Number(v).toLocaleString('en-US'); calc(); clearTimeout(stT); if (final) fin('ok'); else stT = setTimeout(() => fin('ok'), stableWait(alts, QSTABLE_MS)); return; }
+      if (v > 0) { heard = true; rollTo(field, v); clearTimeout(stT); if (final) fin('ok'); else stT = setTimeout(() => fin('ok'), stableWait(alts, QSTABLE_MS)); return; }
       if (final) { toast('ได้ยินว่า “' + (alts[0] || '') + '” ไม่ใช่ตัวเลข ลองพูดใหม่', true, 2500); fin('bad'); }
     };
     r.onerror = ev => {
@@ -3018,6 +3072,7 @@ function press(k) {
     calc(); syncPad(); return;
   }
   if (k === 'next') { const i = padFields.indexOf(cur); i < padFields.length - 1 ? openPad(padFields[i + 1]) : closePad(); return; }
+  cancelAnimationFrame($(cur)._raf);
   let d = fresh ? '' : $(cur).value.replace(/\D/g, '');
   d = k === 'clr' || (fresh && k === 'del') ? '' : k === 'del' ? d.slice(0, -1) : d + k;
   setFresh(false);
