@@ -1892,6 +1892,47 @@ html.noshadow .bar{box-shadow:0 -1px 0 var(--line)!important}
 #pCalc .card .grp.plate{padding:12px!important}
 #pCalc .card .grp.plate .srcf{margin-top:2px!important;padding-top:10px!important}
 #pCalc section .grp.dest .dfield{row-gap:12px!important}
+
+/* ===== ปรับปรุง: ตัวเลขใบชั่งไม่โดนตัด + กล่องส่วนต่างไล่เฉดสี ===== */
+#pCalc .card .grp.origin .nf input.num{padding-right:52px!important;text-overflow:clip}
+/* ใบชั่ง 1/2: ย้าย "กก." จากข้างตัวเลข ไปต่อท้ายป้ายชื่อด้านบน */
+#pCalc .card .grp.origin .nf::after{display:none!important}
+#pCalc .card .grp.origin .fld:has(input.num.active)>label::after,
+#pCalc .card .grp.origin .fld:has(input.num:not(:placeholder-shown))>label::after,
+#pCalc .card .grp.origin .fld.qlisten>label::after{content:" · กก.";font-size:.74rem;font-weight:700}
+.result{position:relative;overflow:hidden;border-radius:22px;transition:background .3s,box-shadow .3s}
+.result::before{content:"";position:absolute;right:-40px;top:-60px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.12);pointer-events:none}
+.result>*{position:relative}
+.result.ok{background:linear-gradient(135deg,#2dd4bf 0%,#0f766e 100%)!important;box-shadow:0 12px 28px -12px rgba(15,118,110,.6)!important}
+.result.warn{background:linear-gradient(135deg,#fbbf24 0%,#d97706 100%)!important;box-shadow:0 12px 28px -12px rgba(217,119,6,.6)!important}
+.result.bad{background:linear-gradient(135deg,#fb7185 0%,#be123c 100%)!important;box-shadow:0 12px 28px -12px rgba(190,18,60,.6)!important}
+.result.ok,.result.warn,.result.bad{color:#fff}
+.result .val{text-shadow:0 2px 10px rgba(0,0,0,.18)}
+.result.ok .pct,.result.warn .pct,.result.bad .pct{background:rgba(255,255,255,.22)}
+.result.ok .msg,.result.warn .msg,.result.bad .msg{background:rgba(0,0,0,.16);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+/* สมการ (ปลายทาง − ต้นทาง) ไว้แถวเดียวกับป้าย "ส่วนต่าง" */
+#pCalc .result{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"lbl eq" "val val" "pct pct" "msg msg";column-gap:10px;row-gap:4px;align-items:center;justify-items:center}
+#pCalc .result .lbl{grid-area:lbl;justify-self:start}
+#pCalc .result .eq{grid-area:eq;justify-self:end;font-size:.85rem;white-space:nowrap;text-align:right}
+#pCalc .result .val{grid-area:val}
+#pCalc .result .pct{grid-area:pct}
+#pCalc .result .msg{grid-area:msg}
+#pCalc .result:has(.eq:empty) .lbl{grid-column:1 / -1;justify-self:center}
+/* % ไว้ต่อท้าย กก. ในแถวเดียวกับตัวเลขส่วนต่าง */
+#pCalc .result .vrow{grid-area:val;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;column-gap:10px;row-gap:4px}
+#pCalc .result .vrow .pct{grid-area:auto;font-size:1rem;white-space:nowrap;align-self:center}
+/* ช่องที่มีตัวเลขเดิม: ไฮไลต์ให้รู้ว่าพิมพ์แล้วจะทับ */
+#pCalc input.num.fresh{background:rgba(37,99,235,.16)!important;border-radius:10px}
+/* กล่องส่วนต่าง: จองพื้นที่ไว้คงที่ ไม่ให้ขยับขึ้นลง/ซ้ายขวาเวลาตัวเลขหรือสถานะเปลี่ยน */
+#pCalc .result .lbl,#pCalc .result:has(.eq:empty) .lbl{grid-column:auto;justify-self:start}
+#pCalc .result .eq,#pCalc .result .eq:empty{display:block;visibility:visible;min-height:1.3em;line-height:1.3}
+#pCalc .result .vrow{min-height:3.5rem;align-items:center;flex-wrap:wrap}
+#pCalc .result .val,#pCalc .result .pct{font-variant-numeric:tabular-nums}
+#pCalc .result .vrow .pct,#pCalc .result .vrow .pct:empty{display:inline-block;min-width:5.4em;text-align:center;line-height:1.5}
+#pCalc .result .vrow .pct:empty{visibility:hidden}
+#pCalc .result .val{min-width:0}
+#pCalc .result .msg{min-height:3.1em;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0 .15em}
+#pCalc .result,#pCalc .result *{transition-property:background,color,box-shadow,opacity;transition-duration:.25s}
 </style>
 <script>
 /* สีธีมเว็บ: คำนวณชุดสีจากสีหลักสีเดียว แล้วทับตัวแปร CSS (สีเขียวเดิม = ไม่ทับอะไร) */
@@ -1993,8 +2034,7 @@ html.noshadow .bar{box-shadow:0 -1px 0 var(--line)!important}
   </section>
   <section class="result" id="result" aria-live="polite">
     <div class="lbl">ส่วนต่าง</div>
-    <div class="val" id="diff"></div>
-    <div class="pct" id="pct"></div>
+    <div class="vrow"><div class="val" id="diff"></div><div class="pct" id="pct"></div></div>
     <div class="eq" id="eq"></div>
     <div class="msg" id="msg">กรอกน้ำหนักต้นทางและปลายทาง</div>
   </section>
@@ -2176,11 +2216,8 @@ function judge(diff, tol) {
 }
 
 function fitNums() {
-  ['head','tail','dest'].forEach(id => {
-    const el = $(id); el.style.fontSize = '';
-    let fs = parseFloat(getComputedStyle(el).fontSize);
-    while (el.scrollWidth > el.clientWidth && fs > 12) { fs -= 1; el.style.fontSize = fs + 'px'; }
-  });
+  // ไม่ย่อขนาดตัวเลข: ใช้ขนาดตามที่กำหนดใน CSS เสมอ
+  ['head','tail','dest'].forEach(id => { $(id).style.removeProperty('font-size'); });
 }
 function calc() {
   const head = val('head'), tail = val('tail'), dest = val('dest'), tol = val('tol');
@@ -2897,18 +2934,24 @@ async function quickRun() {
 $('quickMic').addEventListener('click', () => { if (quick) quickStop(); else quickRun(); });
 if (window.ResizeObserver) new ResizeObserver(() => document.documentElement.style.setProperty('--padh', $('pad').offsetHeight + 'px')).observe($('pad'));
 
+let fresh = false;
+function setFresh(on) {
+  fresh = on;
+  padFields.forEach(f => $(f).classList.toggle('fresh', on && f === cur));
+}
 function openPad(id) {
   quickStop();
   if (cur !== id) stopMic();
   cur = id;
   padFields.forEach(f => $(f).classList.toggle('active', f === id));
+  setFresh(!!$(id).value);   // มีตัวเลขเดิมอยู่: พิมพ์ครั้งแรกจะทับของเดิมทั้งหมด
   document.body.classList.add('padopen');
   $('goKey').innerHTML = id === 'dest' ? ic('check') + 'เสร็จ' : 'ถัดไป ›';
   syncPad();
   setTimeout(() => $(id).closest('.fld').scrollIntoView({block: 'start', behavior: 'smooth'}), 50);
 }
 function closePad() {
-  stopMic();
+  stopMic(); setFresh(false);
   const was = cur;
   cur = null;
   padFields.forEach(f => $(f).classList.remove('active'));
@@ -2958,13 +3001,20 @@ function press(k) {
     calc(); syncPad(); return;
   }
   if (k === 'next') { const i = padFields.indexOf(cur); i < padFields.length - 1 ? openPad(padFields[i + 1]) : closePad(); return; }
-  let d = $(cur).value.replace(/\D/g, '');
-  d = k === 'clr' ? '' : k === 'del' ? d.slice(0, -1) : d + k;
+  let d = fresh ? '' : $(cur).value.replace(/\D/g, '');
+  d = k === 'clr' || (fresh && k === 'del') ? '' : k === 'del' ? d.slice(0, -1) : d + k;
+  setFresh(false);
   d = d.replace(/^0+(?=\d)/, ''); if (/^0+$/.test(d)) d = '';
   if (d.length > 5) return;
   if (+d > MAX) { d = String(MAX); toast('สูงสุดไม่เกิน ' + fmtMax(), true); }
   $(cur).value = d ? Number(d).toLocaleString('en-US') : '';
   calc(); syncPad();
+  // พิมพ์ครบ 5 หลัก (หรือถึงค่าสูงสุด) → เด้งไปช่องถัดไปเอง ไม่ต้องกด "ถัดไป"
+  if (/^\d$/.test(k) && (d.length >= 5 || +d >= MAX)) {
+    const from = cur;
+    clearTimeout(press._auto);
+    press._auto = setTimeout(() => { if (cur === from) press('next'); }, 220);
+  }
 }
 padFields.forEach(f => { $(f).addEventListener('focus', () => openPad(f)); $(f).addEventListener('click', () => openPad(f)); });
 ['plate', 'source'].forEach(f => $(f).addEventListener('focus', closePad));
