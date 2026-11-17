@@ -1933,6 +1933,23 @@ html.noshadow .bar{box-shadow:0 -1px 0 var(--line)!important}
 #pCalc .result .val{min-width:0}
 #pCalc .result .msg{min-height:3.1em;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0 .15em}
 #pCalc .result,#pCalc .result *{transition-property:background,color,box-shadow,opacity;transition-duration:.25s}
+/* ประวัติ: ใช้ไล่เฉดสีเดียวกับกล่องส่วนต่าง */
+:root{--g-ok:linear-gradient(135deg,#2dd4bf 0%,#0f766e 100%);--g-warn:linear-gradient(135deg,#fbbf24 0%,#d97706 100%);--g-bad:linear-gradient(135deg,#fb7185 0%,#be123c 100%)}
+#list .hc.rc.ok{--stbg:var(--g-ok)}
+#list .hc.rc.warn{--stbg:var(--g-warn)}
+#list .hc.rc.bad{--stbg:var(--g-bad)}
+#list .hc.rc .rc-rt .rc-r.x{box-shadow:0 8px 16px -10px rgba(0,0,0,.35)}
+#list .hc.rc.ok .rc-rt .rc-r.x{box-shadow:0 8px 16px -10px rgba(15,118,110,.7)}
+#list .hc.rc.warn .rc-rt .rc-r.x{box-shadow:0 8px 16px -10px rgba(217,119,6,.7)}
+#list .hc.rc.bad .rc-rt .rc-r.x{box-shadow:0 8px 16px -10px rgba(190,18,60,.7)}
+/* สรุป: กล่องส่วนต่างรวม */
+#sum .stat.x.ok{--wb:var(--g-ok);--wi:#fff;--ws:rgba(255,255,255,.85)}
+#sum .stat.x.warn{--wb:var(--g-warn);--wi:#fff;--ws:rgba(255,255,255,.88)}
+#sum .stat.x.bad{--wb:var(--g-bad);--wi:#fff;--ws:rgba(255,255,255,.85)}
+#sum .stats .stat.x.ok,#sum .stats .stat.x.warn,#sum .stats .stat.x.bad{border-color:transparent}
+#sum .stats .stat.x .xp{background:rgba(255,255,255,.22)}
+/* แป้นตัวเลข: กดรัวได้ ไม่รอ (ไม่โดนหน่วงจาก double-tap) */
+#pad,#pad .key,.bar .btn,#quickMic{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 </style>
 <script>
 /* สีธีมเว็บ: คำนวณชุดสีจากสีหลักสีเดียว แล้วทับตัวแปร CSS (สีเขียวเดิม = ไม่ทับอะไร) */
@@ -3287,7 +3304,7 @@ sync();window.addEventListener('resize',sync);if(document.fonts&&document.fonts.
 /* ห้ามซูม: iOS ไม่สนใจ user-scalable=no จึงต้องกันท่าทางเอง */
 ['gesturestart','gesturechange','gestureend'].forEach(function(e){document.addEventListener(e,function(ev){ev.preventDefault();},{passive:false});});
 document.addEventListener('touchmove',function(ev){if(ev.touches&&ev.touches.length>1)ev.preventDefault();},{passive:false});
-var _lt=0;document.addEventListener('touchend',function(ev){var n=Date.now();if(n-_lt<350&&!/^(INPUT|TEXTAREA|SELECT)$/.test((ev.target||{}).tagName||''))ev.preventDefault();_lt=n;},{passive:false});
+var _lt=0;document.addEventListener('touchend',function(ev){var n=Date.now();if(n-_lt<350&&!/^(INPUT|TEXTAREA|SELECT)$/.test((ev.target||{}).tagName||'')&&!(ev.target.closest&&ev.target.closest('#pad,button')))ev.preventDefault();_lt=n;},{passive:false});
 document.addEventListener('wheel',function(ev){if(ev.ctrlKey)ev.preventDefault();},{passive:false});
 </script>
 </body>
