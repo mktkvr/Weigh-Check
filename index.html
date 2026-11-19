@@ -1991,6 +1991,8 @@ html.noshadow .bar{box-shadow:0 -1px 0 var(--line)!important}
 #pCalc .card .grp.plate.collapsed .plhd svg{transform:rotate(-90deg)}
 #pCalc .card .grp.plate.collapsed #plBody{display:none}
 #pCalc .card .grp.plate.collapsed{padding-top:6px!important;padding-bottom:6px!important}
+/* กันดึงหน้าลงแล้วรีเฟรชเอง (pull-to-refresh) บนมือถือ — เลื่อนหน้าตามปกติยังได้ */
+html,body{overscroll-behavior-y:none}
 </style>
 <script>
 /* สีธีมเว็บ: คำนวณชุดสีจากสีหลักสีเดียว แล้วทับตัวแปร CSS (สีเขียวเดิม = ไม่ทับอะไร) */
@@ -2762,7 +2764,18 @@ $('plate').addEventListener('change', () => {
   if (src && !$('source').value.trim()) $('source').value = src;
 });
 $('save').onclick = save;
-$('reset').onclick = () => { $('source').value = ''; closePad(); resetForm(true, false, true); };
+$('reset').onclick = async () => {
+  // มีข้อมูลที่กรอกอยู่ → ถามยืนยันก่อนล้าง (กันกดเริ่มใหม่ผิด) · ถ้าว่างอยู่แล้วล้างเลย
+  const has = ['plate', 'head', 'tail', 'dest'].some(i => String($(i).value || '').trim());
+  if (has) {
+    closePad();
+    const w = [['ใบชั่งที่ 1', 'head'], ['ใบชั่งที่ 2', 'tail'], ['ปลายทาง', 'dest']].filter(x => $(x[1]).value).map(x => x[0] + ' ' + $(x[1]).value + ' กก.');
+    const pl = String($('plate').value || '').trim();
+    const info = [pl, ...w].filter(Boolean).join('\n');
+    if (!await askConfirm('เริ่มใหม่?', 'จะล้างข้อมูลที่กรอกอยู่ รวมทั้งส่วนต่าง\n' + (info ? '\n' + info + '\n' : '') + '\nรายการที่บันทึกในประวัติแล้วไม่หาย', 'ล้าง')) return;
+  }
+  $('source').value = ''; closePad(); resetForm(true, false, true);
+};
 $('exportBtn').onclick = exportCSV;
 (function () {
   const K = 'check-rice-sum-collapsed', box = $('sum'), hd = $('sumHd');
