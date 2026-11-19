@@ -2183,7 +2183,7 @@ html.noshadow .bar{box-shadow:0 -1px 0 var(--line)!important}
           <button class="btn export" id="exportBtn" title="ดาวน์โหลด Excel (CSV)" aria-label="ดาวน์โหลด Excel (CSV)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 13h8M8 17h8"/></svg>Excel</button>
           <button class="btn ghost" id="jsonBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>สำรอง JSON</button>
           <button class="btn ghost" id="importBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m0 0L8 7m4-4 4 4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>นำเข้า JSON</button>
-          <input type="file" id="importFile" accept=".json,application/json" hidden>
+          <input type="file" id="importFile" hidden>
         </div>
       </div>
       <div class="mg-sec">
@@ -2479,21 +2479,37 @@ function exportCSV() {
   rows.push([]);
   rows.push(['รวม ' + list.length + ' เที่ยว', '', '', tot('head'), tot('tail'), tot('origin'), tot('dest'), tot('diff'), pctOf(tot('diff'), tot('origin')), '', '']);
   const csv = '\uFEFF' + rows.map(r => r.map(q).join(',')).join('\r\n');
-  const url = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8;'}));
-  const a = document.createElement('a');
-  a.href = url; a.download = 'Weigh-Check_' + new Date().toISOString().slice(0, 10) + '.csv';
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  saveBlob(new Blob([csv], {type: 'text/csv;charset=utf-8;'}), 'Weigh-Check_' + new Date().toISOString().slice(0, 10) + '.csv', 'text/csv', 'บันทึกไฟล์ Excel (CSV) แล้ว');
+}
+
+/* บันทึกไฟล์ลงเครื่อง: มือถือใช้หน้าต่างแชร์ (เลือก \"บันทึกลงไฟล์\" / Drive / LINE ได้) ถ้าไม่ได้ค่อยดาวน์โหลดตรงๆ → เปิดแท็บใหม่ */
+function saveBlob(blob, name, mime, okMsg) {
+  const done = () => { if (okMsg) toast(okMsg); };
+  const direct = () => {
+    try {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = name; a.rel = 'noopener'; a.style.display = 'none';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      // เบราว์เซอร์ที่ไม่รองรับ download (iOS เก่า / เว็บวิวในแอป) → เปิดไฟล์ในแท็บใหม่ให้กดบันทึกเอง
+      if (!('download' in HTMLAnchorElement.prototype)) { window.open(url, '_blank'); }
+      done();
+    } catch (e) { toast('บันทึกไฟล์ไม่ได้ ลองเปิดหน้านี้ด้วย Chrome / Safari โดยตรง', true, 5000); }
+  };
+  try {
+    const file = new File([blob], name, {type: mime});
+    if (navigator.share && navigator.canShare && navigator.canShare({files: [file]})) {
+      navigator.share({files: [file], title: name}).then(done).catch(err => { if (err && err.name === 'AbortError') return; direct(); });
+      return;
+    }
+  } catch (e) {}
+  direct();
 }
 
 function exportJSON() {
   const data = buildData();
-  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}));
-  const a = document.createElement('a');
-  a.href = url; a.download = 'Weigh-Check_' + new Date().toISOString().slice(0, 10) + '.json';
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  toast('บันทึกไฟล์ JSON ลงเครื่องแล้ว');
+  saveBlob(new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}), 'Weigh-Check.json', 'application/json', 'บันทึกไฟล์ JSON แล้ว');
 }
 function buildData() { return {app: 'Weigh-Check', version: 1, exported: new Date().toISOString(), tol: String(val('tol')), maxWeight: MAX, records, memory: mem}; }
 function mergeRecords(d) {
