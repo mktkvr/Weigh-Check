@@ -2817,6 +2817,11 @@ function askConfirm(title, text, okLabel) {
 // แป้นตัวเลขในหน้าเว็บ (ปุ่มใหญ่ ไม่ต้องเรียกคีย์บอร์ดมือถือ)
 const padFields = ['head', 'tail', 'dest'];
 let cur = null;
+// เบราว์เซอร์ฟังคำว่า “หมื่น” เพี้ยนได้หลายแบบ (หมี่น หมืน หมิ่น หมื่อน ฯลฯ) รวมให้เป็น “หมื่น” ก่อนแปลงเป็นตัวเลข
+function fixMuen(t) {
+  t = String(t || '').replace(/([\u0E48-\u0E4B])([\u0E34-\u0E3A])/g, '$2$1');
+  return t.replace(/หม[\u0E34-\u0E3A\u0E48-\u0E4B]+อ?[นล]+|หม[นล]?[\u0E34-\u0E3A\u0E48-\u0E4B]*[่้]น/g, 'หมื่น');
+}
 function parseThaiNumber(t) {
   t = String(t || '').replace(/[๐-๙]/g, c => String(c.charCodeAt(0) - 0x0E50));
   t = t.replace(/กิโลกรัม|กิโล|กก\.?|kg|เคจี/gi, '');
@@ -2825,7 +2830,7 @@ function parseThaiNumber(t) {
   t = t.replace(/(\d)?\s+(\d)?/g, (m, a, b) => (a || b) ? (a || '') + ' ' + (b || '') : '');   // ตัดช่องว่าง ยกเว้นที่ติดกับตัวเลข (ใช้แยกกลุ่มตัวเลข)
   t = t.replace(/[,]/g, '');
   t = t.replace(/([\u0E48-\u0E4B])([\u0E34-\u0E3A])/g, '$2$1');   // สลับลำดับวรรณยุกต์/สระที่ผิดลำดับ
-  t = t.replace(/หมืน|หมีน|หมิ่น|หมุ่น|หมึ่น|หมื้น|หมื่อน|หมื่ล/g, 'หมื่น').replace(/ห?น(ึ่ง|ึง)/g, 'หนึ่ง');
+  t = fixMuen(t).replace(/ห?น(ึ่ง|ึง)/g, 'หนึ่ง');
   if (!/[ก-๙]/.test(t)) {                       // ตัวเลขล้วน เช่น 12000
     const d = t.replace(/\D/g, '');
     return d ? parseInt(d, 10) : 0;
@@ -2866,10 +2871,14 @@ function parseThaiNumber(t) {
 }
 // พูดคำบอกหน่วยค้างอยู่ (หมื่น/พัน/ร้อย…) แปลว่าอาจยังพูดต่อ ให้รอนานขึ้น ไม่งั้นตัดที่ 10,000 ก่อนได้พูดต่อ
 function stableWait(alts, base) {
-  const s = String((alts && alts[0]) || '').replace(/\s+/g, '');
+  const s = fixMuen(String((alts && alts[0]) || '').replace(/\s+/g, ''));
   const UNIT = /(หมื่น|หมืน|แสน|พัน|ร้อย|สิบ)/;
   if (new RegExp(UNIT.source + '$').test(s)) return Math.max(base, 1600);   // ค้างที่คำหน่วย เช่น "สามหมื่น" "หนึ่งหมื่น" อาจพูดต่อ
-  if (UNIT.test(s)) return Math.max(base, 1300);                             // มีหน่วยแล้วตามด้วยเลข เช่น "หนึ่งหมื่นห้า" อาจต่อ "สิบ"
+  if (UNIT.test(s)) return Math.max(base, 1300);
+  // เบราว์เซอร์บางตัวส่งเป็นเลขอารบิกกลมๆ เช่น "30,000" แล้วจบ ก่อนได้พูดพันร้อยต่อ → รอเพิ่ม
+  const pv = parseThaiNumber(s);
+  if (pv >= 10000 && pv % 1000 === 0) return Math.max(base, 1600);
+  if (pv >= 1000 && pv % 100 === 0) return Math.max(base, 1300);                             // มีหน่วยแล้วตามด้วยเลข เช่น "หนึ่งหมื่นห้า" อาจต่อ "สิบ"
   // พูดทีละตัว (หนึ่ง สอง ศูนย์ …) หรือเลขสั้น ยังไม่ครบ 5 หลัก อาจยังพูดต่อ
   const n = (s.replace(/[๐-๙]/g, '0').match(/\d|ศูนย์|หนึ่ง|นึง|เอ็ด|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า/g) || []).length;
   if (n >= 1 && n < 5) return Math.max(base, 1300);
