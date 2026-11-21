@@ -148,7 +148,7 @@ body.oncalc:not(.padopen) .bar{display:flex}
   padding:11px 20px;border-radius:99px;font-size:.95rem;font-weight:600;opacity:0;pointer-events:none;transition:.2s;z-index:10;max-width:90%;text-align:center;box-shadow:var(--shadow)}
 .toast.show{opacity:1;transform:translateX(-50%)}
 .toast.err{background:var(--bad);color:#fff}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* (เดิมมีกฎปิดแอนิเมชันทั้งหน้าเมื่อเครื่องเปิดโหมดลดการเคลื่อนไหว — เอาออกเพื่อให้ลื่นทุกเครื่อง) */
 
 /* แท็บอย่างเดียว ไม่มีหัวเว็บ / กรอบไม่มีสี */
 .top{background:var(--bg);color:var(--ink);padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px}
@@ -1984,13 +1984,13 @@ html.noshadow .bar{box-shadow:0 -1px 0 var(--line)!important}
 #pCalc .card .grp.plate .plhd .plt{flex:none}
 #pCalc .card .grp.plate .plhd .plmini{display:none;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.95rem;font-weight:600;color:#1f2937}
 #pCalc .card .grp.plate .plhd svg{flex:none;width:20px;height:20px;margin-left:auto;fill:none;stroke:#5b6472;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
-#pCalc .card .grp.plate.collapsed .plhd{margin:0}
+/* margin หัวข้อไม่เปลี่ยนตอนพับ — ความสูงที่เหลือจะได้ตรงกับตอนกางพอดี สเกลหน้าไม่ขยับตอนท้ายอนิเมชัน */
 #pCalc .card .grp.plate.collapsed .plhd .plmini{display:block}
 #pCalc .card .grp.plate.collapsed .plhd .plmini:empty{display:none}
 #pCalc .card .grp.plate.collapsed .plhd .plmini:empty ~ svg{margin-left:auto}
 #pCalc .card .grp.plate.collapsed .plhd svg{transform:rotate(-90deg)}
 
-#pCalc .card .grp.plate.collapsed{padding-top:6px!important;padding-bottom:6px!important}
+/* ตอนย่อไม่เปลี่ยน padding เพื่อให้หัวข้ออยู่ตำแหน่งเดิม */
 /* กันดึงหน้าลงแล้วรีเฟรชเอง (pull-to-refresh) บนมือถือ — เลื่อนหน้าตามปกติยังได้ */
 html,body{overscroll-behavior-y:none}
 /* หน้าคำนวณ: ห้ามเลื่อนขึ้นลง (จัดขนาดให้พอดีจอแล้ว) · หน้าประวัติยังเลื่อนได้ตามปกติ */
@@ -2009,16 +2009,75 @@ html.noscroll,html.noscroll body{overflow:hidden;height:100%;overscroll-behavior
 #qStatus{position:static!important;flex:1 1 auto;min-width:0;max-width:none!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.8rem;padding:7px 12px}
 #qSkip{position:static!important;flex:none;padding:7px 14px;font-size:.85rem}
 
-/* ===== ย่อ/ขยายแบบสมูท ===== */
-.sumbody,#plBody,#bysrcList{--sm-t:.5s;--sm-e:cubic-bezier(.4,0,.2,1);
-  transition:height var(--sm-t) var(--sm-e),opacity .35s ease,visibility 0s}
-.sum.collapsed .sumbody,#pCalc .card .grp.plate.collapsed #plBody{height:0;opacity:0;visibility:hidden;overflow:hidden;
-  transition:height var(--sm-t) var(--sm-e),opacity .3s ease,visibility 0s var(--sm-t)}
-.sumbody.anim,#plBody.anim,#bysrcList.anim{overflow:hidden}
-.sumhd{transition:margin-bottom var(--sm-t,.5s) cubic-bezier(.4,0,.2,1)}
-.sumhd>svg,#pCalc .card .grp.plate .plhd svg,.bysrc summary::after{transition:transform .5s cubic-bezier(.4,0,.2,1)!important}
-#pCalc .card .grp.plate{transition:padding .5s cubic-bezier(.4,0,.2,1)}
+/* ===== ย่อ/ขยายแบบสมูท (ใช้ Web Animations API ใน JS) ===== */
+.sum.collapsed .sumbody,#pCalc .card .grp.plate.collapsed #plBody{height:0;opacity:0;visibility:hidden;overflow:hidden}
+.sumbody,#plBody,#bysrcList{display:flow-root}
+.sumbody.anim,#plBody.anim,#bysrcList.anim{overflow:hidden!important;visibility:visible!important}
+body.padclosing #pad{display:block}
+.toast{transition:opacity .35s ease,transform .35s cubic-bezier(.2,.8,.2,1)!important}
 </style>
+<script>
+/* ทำให้ เปิด/ปิด หน้าต่าง เมนู แป้นตัวเลข ลื่นขึ้น (ใช้ Web Animations API ไม่โดนโหมดลดการเคลื่อนไหว) */
+(function () {
+  var EASE_OUT = 'cubic-bezier(.2,.8,.2,1)', EASE_IN = 'cubic-bezier(.4,0,1,1)';
+  function FX(el, kf, o) { try { return el.animate(kf, o); } catch (e) { return null; } }
+  var proto = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'hidden');
+  /* el.hidden = true/false แต่มีอนิเมชันตอนเปิด/ปิด — โค้ดเดิมที่สั่ง .hidden ไม่ต้องแก้ */
+  window.smoothHide = function (el, opt) {
+    if (!proto || !el || el._sh) return; el._sh = 1; opt = opt || {};
+    var box = opt.box === undefined ? el.querySelector('.dlg-box') : opt.box, closing = null;
+    var openKF = opt.menu ? [{ opacity: 0, transform: 'translateY(-6px) scale(.98)' }, { opacity: 1, transform: 'none' }]
+                          : [{ opacity: 0, transform: 'translateY(22px) scale(.96)' }, { opacity: 1, transform: 'none' }];
+    var closeKF = opt.menu ? [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-4px) scale(.98)' }]
+                           : [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(14px) scale(.97)' }];
+    var tIn = opt.menu ? 200 : 340, tOut = opt.menu ? 140 : 220;
+    function stopClosing() { if (!closing) return; closing.forEach(function (x) { if (x) { x.onfinish = null; x.cancel(); } }); closing = null; el.style.pointerEvents = ''; }
+    Object.defineProperty(el, 'hidden', {
+      configurable: true,
+      get: function () { return closing ? true : proto.get.call(el); },
+      set: function (v) {
+        v = !!v;
+        if (v) {
+          if (closing || proto.get.call(el)) return;
+          el.style.pointerEvents = 'none';
+          var main = opt.menu ? el : box || el;
+          var a1 = FX(main, closeKF, { duration: tOut, easing: EASE_IN, fill: 'forwards' });
+          var a2 = (!opt.menu && box) ? FX(el, [{ opacity: 1 }, { opacity: 0 }], { duration: tOut, easing: 'ease-in', fill: 'forwards' }) : null;
+          closing = [a1, a2];
+          var fin = function () { if (!closing) return; stopClosing(); proto.set.call(el, true); };
+          if (a1) a1.onfinish = fin; else fin();
+        } else {
+          stopClosing();
+          var was = proto.get.call(el);
+          proto.set.call(el, false);
+          if (was) {
+            if (opt.menu) FX(el, openKF, { duration: tIn, easing: EASE_OUT });
+            else { FX(el, [{ opacity: 0 }, { opacity: 1 }], { duration: 240, easing: 'ease-out' }); if (box) FX(box, openKF, { duration: tIn, easing: EASE_OUT }); }
+          }
+        }
+      }
+    });
+  };
+  document.addEventListener('DOMContentLoaded', function () {
+    ['mgDlg', 'dlg', 'stDlg'].forEach(function (id) { smoothHide(document.getElementById(id)); });
+    /* แป้นตัวเลข: เลื่อนขึ้น/ลงแทนการโผล่/หายทันที */
+    var pad = document.getElementById('pad'), body = document.body, was = body.classList.contains('padopen'), pa = null;
+    if (!pad) return;
+    new MutationObserver(function () {
+      var now = body.classList.contains('padopen');
+      if (now === was) return; was = now;
+      if (pa) { pa.onfinish = null; pa.cancel(); pa = null; }
+      if (now) { body.classList.remove('padclosing'); pa = FX(pad, [{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: 340, easing: EASE_OUT }); }
+      else {
+        body.classList.add('padclosing');
+        pa = FX(pad, [{ transform: 'none' }, { transform: 'translateY(100%)' }], { duration: 240, easing: EASE_IN });
+        var done = function () { pa = null; body.classList.remove('padclosing'); };
+        if (pa) pa.onfinish = done; else done();
+      }
+    }).observe(body, { attributes: true, attributeFilter: ['class'] });
+  });
+})();
+</script>
 <script>
 /* สีธีมเว็บ: คำนวณชุดสีจากสีหลักสีเดียว แล้วทับตัวแปร CSS (สีเขียวเดิม = ไม่ทับอะไร) */
 (function(){
@@ -2387,6 +2446,7 @@ function syncDD(sel) {
     w.innerHTML = '<button type="button" class="dd-btn" aria-haspopup="listbox" aria-expanded="false"><span></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><ul class="dd-list" role="listbox" hidden></ul>';
     sel.hidden = true; sel.after(w);
     const btn = w.querySelector('.dd-btn'), ul = w.querySelector('.dd-list');
+    if (window.smoothHide) smoothHide(ul, { menu: true });
     const close = () => { ul.hidden = true; w.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); };
     const open = () => {
       document.querySelectorAll('.dd.open').forEach(o => o !== w && o._close());
@@ -2803,38 +2863,97 @@ $('reset').onclick = async () => {
   $('source').value = ''; closePad(); resetForm(true, false, true);
 };
 $('exportBtn').onclick = exportCSV;
-window.smoothToggle = function (body, change, collapsing) {
-  if (!body || !body.getClientRects().length) { change(); return; }
-  clearTimeout(body._t);
-  if (body._end) body.removeEventListener('transitionend', body._end);
-  var cur = body.offsetHeight;
-  body.classList.add('anim');
-  var done = function () {
-    clearTimeout(body._t); body.removeEventListener('transitionend', body._end);
-    body.style.height = ''; body.classList.remove('anim');
-  };
-  body._end = function (e) { if (e.target === body && e.propertyName === 'height') done(); };
-  body.addEventListener('transitionend', body._end);
-  body.style.height = cur + 'px';
-  void body.offsetHeight;
-  if (collapsing) { change(); body.style.height = '0px'; }
-  else { change(); void body.offsetHeight; body.style.height = body.scrollHeight + 'px'; }
-  body._t = setTimeout(done, 800);
-};
 (function () {
+  var DUR = 520, EASE = 'cubic-bezier(.4,0,.2,1)';
+  var FX = function (el, kf, o) { try { return el.animate(kf, Object.assign({ duration: DUR, easing: EASE }, o || {})); } catch (e) { return null; } };
+  /* หน้าคำนวณมีระบบย่อสเกลให้พอดีจอ (zoom) — ตอนพับ/กางต้องให้สเกลเปลี่ยนไปพร้อมความสูงทีละเฟรม ไม่งั้นหน้ากระโดด */
+  function fitLimit() {
+    var lim = window.innerHeight, pad = document.getElementById('pad');
+    if (document.body.classList.contains('padopen') && pad && pad.getBoundingClientRect().height) lim = Math.min(lim, pad.getBoundingClientRect().top);
+    else { var bar = document.querySelector('.bar'); if (bar && getComputedStyle(bar).display !== 'none') lim = Math.min(lim, bar.getBoundingClientRect().top); }
+    return lim;
+  }
+  function sizeNow(pg, body, keep, fn) {            // วัดที่สเกล 1 แล้วคืนค่า (ไม่มีการวาดระหว่างนั้น)
+    applyK(pg, 1); var r = fn(); applyK(pg, keep); return r;
+  }
+  /* body = ส่วนเนื้อหาที่พับ, change = ฟังก์ชันสลับคลาส, shifts = [{el, props}] ที่ต้องไหลตาม,
+     chev = ลูกศร, fade = ป้ายย่อที่ให้ค่อยๆ โผล่ */
+  window.smoothToggle = function (body, change, collapsing, o) {
+    o = o || {};
+    if (!body || !body.getClientRects().length || !body.animate) { change(); return; }
+    var pg = document.getElementById('pCalc'), fit = null, keep = 1;
+    var useFit = false;   // สเกลหน้าคงที่ตอนพับ/กาง (ดู measureK) จึงไม่ต้องคุมซูมระหว่างอนิเมชัน
+    if (useFit) { keep = curK; cancelAnimationFrame(body._fr); window.__fitHold = true; cancelAnimationFrame(tweenRaf); tweening = false; }
+    var op0 = body._a ? +getComputedStyle(body).opacity : (collapsing ? 1 : 0);
+    var from, r0 = null;
+    if (useFit) { var m = sizeNow(pg, body, keep, function () { var r = pg.getBoundingClientRect(); return { top: r.top, h: r.height, b: body.offsetHeight }; }); from = m.b; r0 = m; }
+    else from = body.getBoundingClientRect().height;
+    if (body._a) { body._a.onfinish = body._a.oncancel = null; body._a.cancel(); body._a = null; }
+    var shifts = (o.shifts || []).map(function (x) {
+      var cs = getComputedStyle(x.el), f = {};
+      x.props.forEach(function (k) { f[k] = cs[k]; });
+      return { el: x.el, props: x.props, from: f };
+    });
+    body.classList.add('anim');
+    change();
+    var to = collapsing ? 0 : (useFit ? sizeNow(pg, body, keep, function () { return body.scrollHeight; }) : body.scrollHeight);
+    var a = FX(body, [{ height: from + 'px', opacity: op0 }, { height: to + 'px', opacity: collapsing ? 0 : 1 }]);
+    var delta = to - from;
+    shifts.forEach(function (x) {
+      var cs = getComputedStyle(x.el), t = {};
+      x.props.forEach(function (k) { t[k] = cs[k]; delta += parseFloat(t[k]) - parseFloat(x.from[k]); });
+      FX(x.el, [x.from, t]);
+    });
+    var end = function () {
+      body.classList.remove('anim'); body._a = null; cancelAnimationFrame(body._fr);
+      if (!useFit) return;
+      /* จบแล้ววัดสเกลจริงอีกครั้ง ถ้าต่างจากที่ประมาณไว้ ให้ค่อยๆ ปรับ ไม่กระโดด */
+      var t = measureK(pg), k0 = curK;
+      if (Math.abs(t - k0) < 0.0015) { window.__fitHold = false; fitCalc(true); return; }
+      var t0 = performance.now();
+      (function st(now) {
+        var x = Math.min(1, (now - t0) / 200), e = 1 - Math.pow(1 - x, 3);
+        applyK(pg, k0 + (t - k0) * e);
+        if (x < 1) body._fr = requestAnimationFrame(st);
+        else { window.__fitHold = false; fitCalc(true); }
+      })(t0);
+    };
+    if (a) { body._a = a; a.onfinish = end; a.oncancel = end; } else end();
+    if (a && useFit && r0) {                          // สเกลตามความสูงที่กำลังเปลี่ยน
+      var H0 = r0.h, H1 = r0.h + delta, L = fitLimit() - 6 - r0.top;
+      var tick = function () {
+        var e = a.effect.getComputedTiming().progress; if (e == null) e = 1;
+        var H = Math.max(1, H0 + (H1 - H0) * e);
+        applyK(pg, Math.max(0.45, Math.min(1, L / H)));
+        if (a.playState === 'running') body._fr = requestAnimationFrame(tick);
+      };
+      tick();
+    }
+    if (o.chev) FX(o.chev, [{ transform: 'rotate(' + (collapsing ? 0 : -90) + 'deg)' }, { transform: 'rotate(' + (collapsing ? -90 : 0) + 'deg)' }]);
+    if (o.fade && collapsing) FX(o.fade, [{ opacity: 0 }, { opacity: 1 }], { delay: DUR * .35, duration: DUR * .65, fill: 'backwards' });
+  };
+  /* สรุปแยกตามท่าข้าว (details) */
   var d = document.getElementById('bysrc'); if (!d) return;
   var sm = d.querySelector('summary'), box = document.getElementById('bysrcList');
   sm.addEventListener('click', function (e) {
     e.preventDefault();
-    if (d.open) smoothToggle(box, function () {}, true), setTimeout(function () { d.open = false; box.style.height = ''; }, 520);
-    else { d.open = true; box.style.height = '0px'; smoothToggle(box, function () {}, false); }
+    if (box._a) { box._a.cancel(); box._a = null; }
+    var opening = !d.open;
+    if (!box.animate) { d.open = opening; return; }
+    box.classList.add('anim');
+    if (opening) d.open = true;
+    var h = box.scrollHeight;
+    var a = FX(box, [{ height: (opening ? 0 : h) + 'px', opacity: opening ? 0 : 1 }, { height: (opening ? h : 0) + 'px', opacity: opening ? 1 : 0 }]);
+    try { sm.animate([{ transform: 'rotate(' + (opening ? 0 : 180) + 'deg)' }, { transform: 'rotate(' + (opening ? 180 : 0) + 'deg)' }], { duration: DUR, easing: EASE, pseudoElement: '::after' }); } catch (er) {}
+    var end = function () { box.classList.remove('anim'); box._a = null; if (!opening) d.open = false; };
+    if (a) { box._a = a; a.onfinish = end; a.oncancel = end; } else end();
   });
 })();
 (function () {
   const K = 'check-rice-sum-collapsed', box = $('sum'), hd = $('sumHd');
   const apply = c => { box.classList.toggle('collapsed', c); hd.setAttribute('aria-expanded', String(!c)); };
   try { apply(localStorage.getItem(K) === '1'); } catch (e) {}
-  hd.onclick = () => { const c = !box.classList.contains('collapsed'); smoothToggle($('sumBody'), () => apply(c), c); try { localStorage.setItem(K, c ? '1' : '0'); } catch (e) {} };
+  hd.onclick = () => { const c = !box.classList.contains('collapsed'); smoothToggle($('sumBody'), () => apply(c), c, { shifts: [{ el: hd, props: ['marginBottom'] }], chev: hd.querySelector(':scope > svg'), fade: $('sumMini') }); try { localStorage.setItem(K, c ? '1' : '0'); } catch (e) {} };
 })();
 $('fq').addEventListener('input', render); $('fd').addEventListener('change', render); $('fs').addEventListener('change', render);
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname)))
@@ -2876,8 +2995,18 @@ function fixMuen(t) {
   t = t.replace(/หม[\u0E34-\u0E3A\u0E48-\u0E4B]+อ?[นล]+|หม[นล]?[\u0E34-\u0E3A\u0E48-\u0E4B]*[่้]น/g, 'หมื่น');
   return t.replace(/เ?หมื่น|ห?ม[ึืีิ][่้]น/g, 'หมื่น').replace(/ร[\u0E48-\u0E4B]?อย/g, 'ร้อย').replace(/สิ[ปบ]/g, 'สิบ');
 }
+// ฟังเพี้ยน/พูดอังกฤษ: one two three, ซีโร่, ซอง→สอง, ซี่→สี่ ฯลฯ ให้เป็นคำไทยมาตรฐานก่อนแปลงเป็นตัวเลข
+const EN_NUM = {zero: 'ศูนย์', one: 'หนึ่ง', two: 'สอง', three: 'สาม', four: 'สี่', five: 'ห้า', six: 'หก', seven: 'เจ็ด', eight: 'แปด', nine: 'เก้า', ten: 'สิบ', hundred: 'ร้อย', thousand: 'พัน'};
+function normDigitWords(t) {
+  return String(t || '')
+    .replace(/\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|hundred|thousand)\b/gi, (m, w) => ' ' + EN_NUM[w.toLowerCase()] + ' ')
+    .replace(/ซี[โ]?ร[โ]?่?|ซิโร่?|ศูนย์?|สูญ|สูน(?!ย์)|ซูน/g, 'ศูนย์')
+    .replace(/ซอง|สอ(?![ก-ฮ])/g, 'สอง').replace(/ซาม/g, 'สาม').replace(/ซี่|สี้/g, 'สี่')
+    .replace(/เจ[็๊๋]?[ดต]/g, 'เจ็ด').replace(/แป[ดต๊]/g, 'แปด').replace(/เก[้่๊]า/g, 'เก้า').replace(/เอด/g, 'เอ็ด');
+}
 function parseThaiNumber(t) {
   t = String(t || '').replace(/[๐-๙]/g, c => String(c.charCodeAt(0) - 0x0E50));
+  t = normDigitWords(t);
   t = t.replace(/กิโลกรัม|กิโล|กก\.?|kg|เคจี/gi, '');
             // ตัวเลขล้วน "12 000" → 12000 (ถ้ามีคำไทยปนอยู่ ไม่รวม เพราะ "3 หมื่น 500 90" ต้องแยกกลุ่ม)
   t = t.replace(/(\d),(?=\d)/g, '$1');
@@ -2927,15 +3056,31 @@ function parseThaiNumber(t) {
   const isNum = x => typeof x === 'object' || (x in DIG);
   const val = x => typeof x === 'object' ? x.n : DIG[x];
   if (!toks.some(x => !isNum(x))) return parseInt(toks.map(x => typeof x === 'object' ? x.s : String(DIG[x])).join(''), 10) || 0;   // ไม่มีหน่วย: อ่านทีละหลัก
-  let total = 0, sec = 0, cur = null, lastU = 0, eet = false;
+  let total = 0, sec = 0, cur = null, lastU = 0, eet = false, run = [], runOk = true;
   toks.forEach(x => {
-    if (isNum(x)) { cur = val(x); eet = (x === 'เอ็ด'); return; }
+    if (isNum(x)) {
+      cur = val(x); eet = (x === 'เอ็ด');
+      if (!eet && cur >= 0 && cur <= 9 && (typeof x !== 'object' || x.s.length === 1)) run.push(cur); else runOk = false;   // เก็บเลขโดดที่พูดต่อท้ายหน่วย
+      return;
+    }
     const u = UNI[x];
+    if (runOk && run.length > 1 && !sec && lastU >= 1000 && u < lastU) {   // เลขโดดหลายตัวก่อนหน่วยเล็กกว่า: ตัวหน้าๆ เป็นหลักถัดจากหน่วยก่อนหน้า ตัวสุดท้ายคูณหน่วยนี้
+      let add = 0, ok = true;
+      for (let j = 0; j < run.length - 1; j++) { const pv = lastU / Math.pow(10, j + 1); if (pv <= u) { ok = false; break; } add += run[j] * pv; }
+      if (ok) total += add;
+    }
+    run = []; runOk = true;
     if (u <= 100) { sec += (cur === null ? 1 : cur) * u; }
     else if (u < 1000000) { total += (sec + (cur === null ? (sec ? 0 : 1) : cur)) * u; sec = 0; lastU = u; }
     else { total = (total + sec + (cur === null ? (total + sec ? 0 : 1) : cur)) * u; sec = 0; lastU = u; }
     cur = null; eet = false;
   });
+  // พูดเลขโดดต่อท้ายหน่วยหลายตัว: "หมื่นสองสามสี่ห้า" = 12,345 · "สามหมื่นหนึ่งสอง" = 31,200 (ตัวแรกคือหลักถัดลงมา แล้วลดลงทีละหลัก)
+  if (runOk && run.length > 1 && !sec && lastU >= 1000 && lastU < 1000000) {
+    let add = 0, ok = true;
+    for (let j = 0; j < run.length; j++) { const pv = lastU / Math.pow(10, j + 1); if (pv < 1) { ok = false; break; } add += run[j] * pv; }
+    if (ok) return total + add;
+  }
   // พูดย่อ: "หมื่นสอง" = 12,000 · "สองหมื่นห้า" = 25,000 · "สามพันห้า" = 3,500
   if (cur !== null && !sec && !eet && lastU >= 1000 && lastU < 1000000 && cur >= 1 && cur <= 9) return total + cur * lastU / 10;
   return total + sec + (cur === null ? 0 : cur);
@@ -2945,6 +3090,8 @@ function stableWait(alts, base) {
   const s = fixMuen(String((alts && alts[0]) || '').replace(/\s+/g, ''));
   const UNIT = /(หมื่น|หมืน|แสน|พัน|ร้อย|สิบ)/;
   if (new RegExp(UNIT.source + '$').test(s)) return Math.max(base, 1600);   // ค้างที่คำหน่วย เช่น "สามหมื่น" "หนึ่งหมื่น" อาจพูดต่อ
+  const pv0 = parseThaiNumber(s);
+  if (pv0 >= 1000 && pv0 % 10 !== 0) return base;   // พูดครบถึงหลักหน่วยแล้ว เช่น "หมื่นสองสามสี่ห้า" = 12,345 ไม่ต้องรอต่อ
   if (UNIT.test(s)) return Math.max(base, 1300);
   // เบราว์เซอร์บางตัวส่งเป็นเลขอารบิกกลมๆ เช่น "30,000" แล้วจบ ก่อนได้พูดพันร้อยต่อ → รอเพิ่ม
   const pv = parseThaiNumber(s);
@@ -3431,12 +3578,16 @@ function measureK(pg) {                          // วัดขนาดจร�
     }
   }
   const r = pg.getBoundingClientRect();
+  let extra = 0;   // กล่องทะเบียนพับอยู่ → นับความสูงตอนกางไว้ด้วย สเกลหน้าจะได้ไม่เปลี่ยนเมื่อพับ/กาง ตำแหน่งทุกอย่างอยู่ที่เดิม
+  const plG = document.getElementById('plGrp'), plB = document.getElementById('plBody');
+  if (plG && plB && (plG.classList.contains('collapsed') || plB.classList.contains('anim'))) extra = Math.max(0, plB.scrollHeight - plB.offsetHeight);
   applyK(pg, keep);
-  return Math.max(0.45, Math.min(1, (lim - 6 - r.top) / Math.max(1, r.height)));
+  return Math.max(0.45, Math.min(1, (lim - 6 - r.top) / Math.max(1, r.height + extra)));
 }
 function fitCalc(instant) {
   const pg = document.getElementById('pCalc');
   if (!pg) return;
+  if (window.__fitHold) return;   // ระหว่างย่อ/ขยายกล่อง ให้ตัวอนิเมชันคุมสเกลเอง
   if (pg.hidden || !document.documentElement.classList.contains('noscroll')) { cancelAnimationFrame(tweenRaf); tweening = false; applyK(pg, 1); return; }
   if (tweening && !instant) { fitDirty = true; return; }   // กำลังย่ออยู่ รอจบแล้วค่อยวัดใหม่
   const t = measureK(pg);
@@ -3718,7 +3869,7 @@ document.addEventListener('wheel',function(ev){if(ev.ctrlKey)ev.preventDefault()
   }
   hd.addEventListener('click', function () {
     var c = !g.classList.contains('collapsed');
-    smoothToggle(document.getElementById('plBody'), function () { apply(c); }, c);
+    smoothToggle(document.getElementById('plBody'), function () { apply(c); }, c, { shifts: [{ el: g, props: ['paddingTop', 'paddingBottom'] }], chev: hd.querySelector('svg'), fade: mini });
     try { localStorage.setItem(K, c ? '1' : '0'); } catch (e) {}
   });
   var saved = null; try { saved = localStorage.getItem(K); } catch (e) {}
