@@ -3347,32 +3347,67 @@ function show() {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.go === p));
   document.documentElement.classList.toggle('noscroll', p === 'calc');
   window.scrollTo(0, 0);
-  fitCalc();
+  fitCalc(true);
 }
 // หน้าคำนวณ: ย่อเนื้อหาให้พอดีจอเสมอ (ไม่ต้องเลื่อน เห็นช่องกรอกและผลส่วนต่างครบ) · คำนวณใหม่เมื่อจอเปลี่ยน แป้นตัวเลขเปิด/ปิด หรือข้อความผลลัพธ์เปลี่ยน
-let fitRaf = 0;
-function fitCalc() {
-  const pg = document.getElementById('pCalc');
-  if (!pg || pg.hidden || !document.documentElement.classList.contains('noscroll')) { if (pg) { pg.style.zoom = ''; pg.style.transform = ''; pg.style.width = ''; } return; }
-  const useZoom = 'zoom' in document.body.style;
-  pg.style.zoom = ''; pg.style.transform = ''; pg.style.width = '';           // วัดขนาดจริงก่อน
+let maxResH = 0, resT = 0, fitRaf = 0, curK = 1, tweenRaf = 0, tweening = false, fitDirty = false;
+const useZoom = 'zoom' in document.body.style;
+function applyK(pg, k) {
+  curK = k;
+  if (k >= 0.995) { pg.style.zoom = ''; pg.style.transform = ''; pg.style.width = ''; return; }
+  if (useZoom) pg.style.zoom = String(k);
+  else { pg.style.transformOrigin = 'top left'; pg.style.width = (100 / k) + '%'; pg.style.transform = 'scale(' + k + ')'; }
+}
+function measureK(pg) {                          // วัดขนาดจริงที่ยังไม่ย่อ แล้วคืนค่าเดิมทันที (ไม่มีการวาดระหว่างนั้น จึงไม่กะพริบ)
+  const keep = curK;
+  applyK(pg, 1);
   let lim = window.innerHeight;
   const pad = document.getElementById('pad');
   if (document.body.classList.contains('padopen') && pad && pad.getBoundingClientRect().height) lim = Math.min(lim, pad.getBoundingClientRect().top);
   else { const bar = document.querySelector('.bar'); if (bar && getComputedStyle(bar).display !== 'none') lim = Math.min(lim, bar.getBoundingClientRect().top); }
+  const rs = document.getElementById('result');
+  if (rs) {                                      // กล่องส่วนต่างสูงได้อย่างเดียวไม่หดกลับ ตัวเลข/ข้อความเปลี่ยนแล้วหน้าจะไม่ขยับขึ้นลง
+    rs.style.minHeight = '';
+    const h = rs.offsetHeight;
+    if (h > maxResH) maxResH = h;
+    rs.style.minHeight = maxResH + 'px';
+  }
   const r = pg.getBoundingClientRect();
-  const k = Math.max(0.45, Math.min(1, (lim - 6 - r.top) / Math.max(1, r.height)));
-  if (k >= 0.995) return;
-  if (useZoom) pg.style.zoom = String(k);
-  else { pg.style.transformOrigin = 'top left'; pg.style.width = (100 / k) + '%'; pg.style.transform = 'scale(' + k + ')'; }
+  applyK(pg, keep);
+  return Math.max(0.45, Math.min(1, (lim - 6 - r.top) / Math.max(1, r.height)));
 }
-function fitSoon() { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fitCalc); }
-window.addEventListener('resize', fitSoon);
+function fitCalc(instant) {
+  const pg = document.getElementById('pCalc');
+  if (!pg) return;
+  if (pg.hidden || !document.documentElement.classList.contains('noscroll')) { cancelAnimationFrame(tweenRaf); tweening = false; applyK(pg, 1); return; }
+  if (tweening && !instant) { fitDirty = true; return; }   // กำลังย่ออยู่ รอจบแล้วค่อยวัดใหม่
+  const t = measureK(pg);
+  if (Math.abs(t - curK) < 0.004) return;
+  cancelAnimationFrame(tweenRaf);
+  if (instant === true) { tweening = false; applyK(pg, t); return; }
+  const from = curK, t0 = performance.now(), dur = 220;
+  tweening = true; fitDirty = false;
+  const step = now => {
+    const x = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - x, 3);   // ค่อยๆ ช้าลงตอนใกล้ถึง
+    applyK(pg, from + (t - from) * e);
+    if (x < 1) tweenRaf = requestAnimationFrame(step);
+    else { tweening = false; applyK(pg, t); if (fitDirty) { fitDirty = false; fitSoon(); } }
+  };
+  tweenRaf = requestAnimationFrame(step);
+}
+function fitSoon() { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(() => fitCalc()); }
+window.addEventListener('resize', () => { maxResH = 0; fitCalc(true); });
 window.addEventListener('orientationchange', () => setTimeout(fitSoon, 250));
-window.addEventListener('load', () => { fitSoon(); setTimeout(fitSoon, 400); });
+window.addEventListener('load', () => { fitCalc(true); setTimeout(() => fitCalc(true), 400); });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitSoon);
 try {
-  new MutationObserver(ms => { if (ms.some(m => !(m.target.id === 'pCalc' && m.attributeName === 'style'))) fitSoon(); })
+  new MutationObserver(ms => {
+    const rel = ms.filter(m => !(m.attributeName === 'style' && (m.target.id === 'pCalc' || m.target.id === 'result')));
+    if (!rel.length) return;
+    const inRes = m => { const e = m.target.nodeType === 3 ? m.target.parentElement : m.target; return e && e.closest && e.closest('#result'); };
+    if (rel.every(inRes)) { clearTimeout(resT); resT = setTimeout(() => fitCalc(), 220); }   // ส่วนต่างกำลังเปลี่ยน/ตัวเลขวิ่ง: รอให้นิ่งก่อนค่อยปรับ
+    else fitSoon();
+  })
     .observe(document.getElementById('pCalc'), {childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'hidden', 'style']});
   new MutationObserver(fitSoon).observe(document.body, {attributes: true, attributeFilter: ['class']});
 } catch (e) {}
