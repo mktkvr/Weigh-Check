@@ -3416,7 +3416,15 @@ function fitCalc(instant) {
   };
   tweenRaf = requestAnimationFrame(step);
 }
-function fitSoon() { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(() => fitCalc(true)); }
+// ระหว่างแตะ (นิ้วลง → ยกนิ้ว → คลิก) ห้ามย่อ/ขยายหน้า ไม่งั้นช่องขยับหนีนิ้ว คลิกไปตกที่อื่น แป้นเลยปิดทันที ต้องแตะซ้ำสองรอบ · รอให้คลิกเสร็จก่อนค่อยปรับขนาด
+let gestureDown = false, fitPending = false, gestureT = 0;
+function endGesture() { clearTimeout(gestureT); gestureDown = false; if (fitPending) { fitPending = false; fitCalc(true); } }
+function startGesture() { gestureDown = true; clearTimeout(gestureT); gestureT = setTimeout(endGesture, 700); }   // ถ้าไม่มีคลิกตามมา (ลาก/กดค้าง) ก็ปรับหลังจากนี้
+function fitObs() { if (gestureDown) fitPending = true; else fitCalc(true); }
+['pointerdown', 'touchstart', 'mousedown'].forEach(ev => window.addEventListener(ev, startGesture, {capture: true, passive: true}));
+window.addEventListener('click', () => { clearTimeout(gestureT); gestureT = setTimeout(endGesture, 30); }, true);
+['pointercancel', 'touchcancel'].forEach(ev => window.addEventListener(ev, () => { clearTimeout(gestureT); gestureT = setTimeout(endGesture, 60); }, true));
+function fitSoon() { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fitObs); }
 window.addEventListener('resize', () => { maxResH = 0; fitCalc(true); });
 window.addEventListener('orientationchange', () => setTimeout(fitSoon, 250));
 window.addEventListener('load', () => { fitCalc(true); setTimeout(() => fitCalc(true), 400); });
@@ -3426,11 +3434,11 @@ try {
     const rel = ms.filter(m => !(m.attributeName === 'style' && (m.target.id === 'pCalc' || m.target.id === 'result' || (m.target.matches && m.target.matches('section.card.form')))));
     if (!rel.length) return;
     const inRes = m => { const e = m.target.nodeType === 3 ? m.target.parentElement : m.target; return e && e.closest && e.closest('#result'); };
-    if (rel.every(inRes)) { clearTimeout(resT); resT = setTimeout(() => fitCalc(true), 220); }   // ส่วนต่างกำลังเปลี่ยน/ตัวเลขวิ่ง: รอให้นิ่งก่อนค่อยปรับ
-    else fitCalc(true);   // ปรับก่อนวาดเฟรมถัดไป ภาพกับขนาดเปลี่ยนพร้อมกัน
+    if (rel.every(inRes)) { clearTimeout(resT); resT = setTimeout(fitObs, 220); }   // ส่วนต่างกำลังเปลี่ยน/ตัวเลขวิ่ง: รอให้นิ่งก่อนค่อยปรับ
+    else fitObs();   // ปรับก่อนวาดเฟรมถัดไป ภาพกับขนาดเปลี่ยนพร้อมกัน (แต่ถ้ากำลังแตะอยู่ รอให้คลิกเสร็จก่อน)
   })
     .observe(document.getElementById('pCalc'), {childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'hidden', 'style']});
-  new MutationObserver(() => fitCalc(true)).observe(document.body, {attributes: true, attributeFilter: ['class']});
+  new MutationObserver(fitObs).observe(document.body, {attributes: true, attributeFilter: ['class']});
 } catch (e) {}
 // หน้าคำนวณ: กันลากนิ้วเลื่อนหน้า และดีดกลับถ้าเบราว์เซอร์เลื่อนเอง (เช่น ตอนโฟกัสช่อง) · กล่องตั้งค่า/รายการดรอปดาวน์ยังเลื่อนในตัวเองได้
 document.addEventListener('touchmove', e => {
