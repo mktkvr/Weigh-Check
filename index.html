@@ -568,7 +568,7 @@ body.padopen .toast{bottom:calc(306px + env(safe-area-inset-bottom,0px))}
   padding:8px 12px env(safe-area-inset-bottom,0px);background:var(--surface);border-radius:20px 20px 0 0;
   box-shadow:0 -8px 16px -10px color-mix(in srgb,var(--ink) 30%,transparent),0 -1px 0 var(--edge)}
 .top .seg{max-width:none;margin:0}
-body.padopen .top{display:none}
+/* หัวหน้าไม่ซ่อนตอนเปิดแป้น เพื่อให้ตำแหน่งและขนาดหน้าเท่าเดิมทั้งตอนเปิด/ปิดแป้น */
 /* สรุปรวมในหน้าประวัติ */
 .stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:8px}
 .stat{display:flex;flex-direction:row;flex-wrap:wrap;align-items:baseline;align-content:center;column-gap:3px;row-gap:0;min-width:0;text-align:left;padding:7px 9px 8px;border-radius:12px;background:var(--wb);color:var(--wi)}
@@ -2869,7 +2869,7 @@ $('exportBtn').onclick = exportCSV;
   /* หน้าคำนวณมีระบบย่อสเกลให้พอดีจอ (zoom) — ตอนพับ/กางต้องให้สเกลเปลี่ยนไปพร้อมความสูงทีละเฟรม ไม่งั้นหน้ากระโดด */
   function fitLimit() {
     var lim = window.innerHeight, pad = document.getElementById('pad');
-    if (document.body.classList.contains('padopen') && pad && pad.getBoundingClientRect().height) lim = Math.min(lim, pad.getBoundingClientRect().top);
+    if (document.body.classList.contains('padopen') && pad && pad.offsetHeight) lim = Math.min(lim, window.innerHeight - pad.offsetHeight);   // ใช้ตำแหน่งตอนแป้นนิ่ง ไม่วัดระหว่างที่แป้นกำลังเลื่อนขึ้น
     else { var bar = document.querySelector('.bar'); if (bar && getComputedStyle(bar).display !== 'none') lim = Math.min(lim, bar.getBoundingClientRect().top); }
     return lim;
   }
@@ -3560,10 +3560,14 @@ function applyK(pg, k) {
 function measureK(pg) {                          // วัดขนาดจริงที่ยังไม่ย่อ แล้วคืนค่าเดิมทันที (ไม่มีการวาดระหว่างนั้น จึงไม่กะพริบ)
   const keep = curK;
   applyK(pg, 1);
-  let lim = window.innerHeight;
-  const pad = document.getElementById('pad');
-  if (document.body.classList.contains('padopen') && pad && pad.getBoundingClientRect().height) lim = Math.min(lim, pad.getBoundingClientRect().top);
-  else { const bar = document.querySelector('.bar'); if (bar && getComputedStyle(bar).display !== 'none') lim = Math.min(lim, bar.getBoundingClientRect().top); }
+  // เผื่อที่ให้แป้นตัวเลขเสมอ ไม่ว่าเปิดหรือปิดอยู่ → สเกลหน้าเท่ากันทั้งสองสถานะ ไม่ย่อ/ขยายตอนเปิดปิดแป้น
+  const padEl = document.getElementById('pad');
+  let ph = 0;
+  if (padEl) {
+    ph = padEl.offsetHeight;
+    if (!ph) { const d = padEl.style.display, v = padEl.style.visibility; padEl.style.display = 'block'; padEl.style.visibility = 'hidden'; ph = padEl.offsetHeight; padEl.style.display = d; padEl.style.visibility = v; }
+  }
+  const lim = window.innerHeight - ph;
   const rs = document.getElementById('result');
   if (rs) {                                      // กล่องส่วนต่างสูงได้อย่างเดียวไม่หดกลับ ตัวเลข/ข้อความเปลี่ยนแล้วหน้าจะไม่ขยับขึ้นลง
     rs.style.minHeight = '';
