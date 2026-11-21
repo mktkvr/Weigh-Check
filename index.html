@@ -2071,7 +2071,7 @@ html.noscroll,html.noscroll body{overflow:hidden;height:100%;overscroll-behavior
     <button class="tab on" data-go="calc" role="tab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/></svg>คำนวณ</button>
     <button class="tab" data-go="hist" role="tab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>ประวัติ <i id="tabCount">0</i></button>
   </nav>
-  <div class="ver ver-nav" id="appVer">v1.0</div>
+  <div class="ver ver-nav" id="appVer">v1.1</div>
 </header>
 
 <main>
@@ -3347,7 +3347,35 @@ function show() {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.go === p));
   document.documentElement.classList.toggle('noscroll', p === 'calc');
   window.scrollTo(0, 0);
+  fitCalc();
 }
+// หน้าคำนวณ: ย่อเนื้อหาให้พอดีจอเสมอ (ไม่ต้องเลื่อน เห็นช่องกรอกและผลส่วนต่างครบ) · คำนวณใหม่เมื่อจอเปลี่ยน แป้นตัวเลขเปิด/ปิด หรือข้อความผลลัพธ์เปลี่ยน
+let fitRaf = 0;
+function fitCalc() {
+  const pg = document.getElementById('pCalc');
+  if (!pg || pg.hidden || !document.documentElement.classList.contains('noscroll')) { if (pg) { pg.style.zoom = ''; pg.style.transform = ''; pg.style.width = ''; } return; }
+  const useZoom = 'zoom' in document.body.style;
+  pg.style.zoom = ''; pg.style.transform = ''; pg.style.width = '';           // วัดขนาดจริงก่อน
+  let lim = window.innerHeight;
+  const pad = document.getElementById('pad');
+  if (document.body.classList.contains('padopen') && pad && pad.getBoundingClientRect().height) lim = Math.min(lim, pad.getBoundingClientRect().top);
+  else { const bar = document.querySelector('.bar'); if (bar && getComputedStyle(bar).display !== 'none') lim = Math.min(lim, bar.getBoundingClientRect().top); }
+  const r = pg.getBoundingClientRect();
+  const k = Math.max(0.45, Math.min(1, (lim - 6 - r.top) / Math.max(1, r.height)));
+  if (k >= 0.995) return;
+  if (useZoom) pg.style.zoom = String(k);
+  else { pg.style.transformOrigin = 'top left'; pg.style.width = (100 / k) + '%'; pg.style.transform = 'scale(' + k + ')'; }
+}
+function fitSoon() { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fitCalc); }
+window.addEventListener('resize', fitSoon);
+window.addEventListener('orientationchange', () => setTimeout(fitSoon, 250));
+window.addEventListener('load', () => { fitSoon(); setTimeout(fitSoon, 400); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitSoon);
+try {
+  new MutationObserver(ms => { if (ms.some(m => !(m.target.id === 'pCalc' && m.attributeName === 'style'))) fitSoon(); })
+    .observe(document.getElementById('pCalc'), {childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'hidden', 'style']});
+  new MutationObserver(fitSoon).observe(document.body, {attributes: true, attributeFilter: ['class']});
+} catch (e) {}
 // หน้าคำนวณ: กันลากนิ้วเลื่อนหน้า และดีดกลับถ้าเบราว์เซอร์เลื่อนเอง (เช่น ตอนโฟกัสช่อง) · กล่องตั้งค่า/รายการดรอปดาวน์ยังเลื่อนในตัวเองได้
 document.addEventListener('touchmove', e => {
   if (!document.documentElement.classList.contains('noscroll') || document.documentElement.classList.contains('dlg-lock')) return;
