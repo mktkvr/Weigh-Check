@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" class="noscroll">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
@@ -1993,6 +1993,8 @@ html.noshadow .bar{box-shadow:0 -1px 0 var(--line)!important}
 #pCalc .card .grp.plate.collapsed{padding-top:6px!important;padding-bottom:6px!important}
 /* กันดึงหน้าลงแล้วรีเฟรชเอง (pull-to-refresh) บนมือถือ — เลื่อนหน้าตามปกติยังได้ */
 html,body{overscroll-behavior-y:none}
+/* หน้าคำนวณ: ห้ามเลื่อนขึ้นลง (จัดขนาดให้พอดีจอแล้ว) · หน้าประวัติยังเลื่อนได้ตามปกติ */
+html.noscroll,html.noscroll body{overflow:hidden;height:100%;overscroll-behavior:none}
 </style>
 <script>
 /* สีธีมเว็บ: คำนวณชุดสีจากสีหลักสีเดียว แล้วทับตัวแปร CSS (สีเขียวเดิม = ไม่ทับอะไร) */
@@ -2069,7 +2071,7 @@ html,body{overscroll-behavior-y:none}
     <button class="tab on" data-go="calc" role="tab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/></svg>คำนวณ</button>
     <button class="tab" data-go="hist" role="tab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>ประวัติ <i id="tabCount">0</i></button>
   </nav>
-  <div class="ver ver-nav" id="appVer">v1.1</div>
+  <div class="ver ver-nav" id="appVer">v1.0</div>
 </header>
 
 <main>
@@ -2820,31 +2822,49 @@ let cur = null;
 // เบราว์เซอร์ฟังคำว่า “หมื่น” เพี้ยนได้หลายแบบ (หมี่น หมืน หมิ่น หมื่อน ฯลฯ) รวมให้เป็น “หมื่น” ก่อนแปลงเป็นตัวเลข
 function fixMuen(t) {
   t = String(t || '').replace(/([\u0E48-\u0E4B])([\u0E34-\u0E3A])/g, '$2$1');
-  return t.replace(/หม[\u0E34-\u0E3A\u0E48-\u0E4B]+อ?[นล]+|หม[นล]?[\u0E34-\u0E3A\u0E48-\u0E4B]*[่้]น/g, 'หมื่น');
+  t = t.replace(/หม[\u0E34-\u0E3A\u0E48-\u0E4B]+อ?[นล]+|หม[นล]?[\u0E34-\u0E3A\u0E48-\u0E4B]*[่้]น/g, 'หมื่น');
+  return t.replace(/เ?หมื่น|ห?ม[ึืีิ][่้]น/g, 'หมื่น').replace(/ร[\u0E48-\u0E4B]?อย/g, 'ร้อย').replace(/สิ[ปบ]/g, 'สิบ');
 }
 function parseThaiNumber(t) {
   t = String(t || '').replace(/[๐-๙]/g, c => String(c.charCodeAt(0) - 0x0E50));
   t = t.replace(/กิโลกรัม|กิโล|กก\.?|kg|เคจี/gi, '');
-  if (!/[ก-๙]/.test(t)) t = t.replace(/(\d)[,\s]+(?=\d)/g, '$1');            // ตัวเลขล้วน "12 000" → 12000 (ถ้ามีคำไทยปนอยู่ ไม่รวม เพราะ "3 หมื่น 500 90" ต้องแยกกลุ่ม)
+            // ตัวเลขล้วน "12 000" → 12000 (ถ้ามีคำไทยปนอยู่ ไม่รวม เพราะ "3 หมื่น 500 90" ต้องแยกกลุ่ม)
   t = t.replace(/(\d),(?=\d)/g, '$1');
   t = t.replace(/(\d)?\s+(\d)?/g, (m, a, b) => (a || b) ? (a || '') + ' ' + (b || '') : '');   // ตัดช่องว่าง ยกเว้นที่ติดกับตัวเลข (ใช้แยกกลุ่มตัวเลข)
   t = t.replace(/[,]/g, '');
   t = t.replace(/([\u0E48-\u0E4B])([\u0E34-\u0E3A])/g, '$2$1');   // สลับลำดับวรรณยุกต์/สระที่ผิดลำดับ
   t = fixMuen(t).replace(/ห?น(ึ่ง|ึง)/g, 'หนึ่ง');
-  if (!/[ก-๙]/.test(t)) {                       // ตัวเลขล้วน เช่น 12000
-    const d = t.replace(/\D/g, '');
-    return d ? parseInt(d, 10) : 0;
+  if (!/[ก-๙]/.test(t)) {                       // ตัวเลขล้วน เช่น 12000 · "30000 2500" → 32500 · "12 000" → 12000 · "1 2 3" → 123
+    const gs = t.replace(/[^\d\s]/g, '').trim().split(/\s+/).filter(Boolean);
+    let c = '';
+    for (const g of gs) {
+      if (!c) { c = g; continue; }
+      const A = parseInt(c, 10), B = parseInt(g, 10);
+      c = (A > 0 && B > 0 && A % Math.pow(10, g.length) === 0) ? String(A + B) : c + g;
+    }
+    return c ? parseInt(c, 10) : 0;
   }
   const DIG = {'ศูนย์': 0, 'หนึ่ง': 1, 'เอ็ด': 1, 'สอง': 2, 'ยี่': 2, 'สาม': 3, 'สี่': 4, 'ห้า': 5, 'หก': 6, 'เจ็ด': 7, 'แปด': 8, 'เก้า': 9};
   const UNI = {'สิบ': 10, 'ร้อย': 100, 'พัน': 1000, 'หมื่น': 10000, 'แสน': 100000, 'ล้าน': 1000000};
   const words = Object.keys(DIG).concat(Object.keys(UNI)).sort((a, b) => b.length - a.length);
-  const toks = []; let i = 0;
+  const toks = []; let i = 0, unk = '';
+  // คำที่ฟังไม่รู้จักแต่หน้าตาคล้าย “หมื่น” (มีตัว ม ยาว 2–6 ตัว) และอยู่หลังตัวเลขตัวเดียว ให้ถือเป็นหมื่น ไม่งั้นหลักหมื่นหายไป (เช่น “3 590” กลายเป็น 3,590)
+  const flushUnk = () => {
+    const u = unk; unk = '';
+    if (u.length >= 2 && u.length <= 6 && /ม/.test(u) && toks.length) {
+      const L = toks[toks.length - 1];
+      const small = typeof L === 'object' ? (L.n >= 1 && L.n <= 9) : (L in DIG && DIG[L] >= 1);
+      if (small) toks.push('หมื่น');
+    }
+  };
   while (i < t.length) {
     const m = /^\d+/.exec(t.slice(i));          // ตัวเลขอารบิกปนคำ เช่น "1 หมื่น 2 พัน"
     if (m) { toks.push({n: parseInt(m[0], 10), s: m[0]}); i += m[0].length; continue; }
     const w = words.find(x => t.startsWith(x, i));
-    if (w) { toks.push(w); i += w.length; } else i++;
+    if (w) { flushUnk(); toks.push(w); i += w.length; }
+    else { if (/[ก-๙]/.test(t[i])) unk += t[i]; else if (unk) flushUnk(); i++; }
   }
+  flushUnk();
   if (!toks.length) return 0;
   // รวมเลขอารบิกที่ติดกันโดยไม่มีหน่วยคั่น: "500 90" → 590 · "590 5" → 595 · "12 000" → 12000
   for (let k = toks.length - 1; k > 0; k--) {
@@ -2884,6 +2904,39 @@ function stableWait(alts, base) {
   if (n >= 1 && n < 5) return Math.max(base, 1300);
   return base;
 }
+
+// ต่อคำพูดหลายรอบเข้าด้วยกัน: เบราว์เซอร์มักตัดจบเองเมื่อเว้นวรรคสั้นๆ (เช่น “สามหมื่น” … “สองพัน”) จึงฟังรอบใหม่แล้วต่อจากที่ได้ยินแล้ว
+const hasTh = t => /[ก-๙]/.test(t);
+function joinNum(acc, a) {
+  if (!acc) return parseThaiNumber(a);
+  const vA = parseThaiNumber(acc), vB = parseThaiNumber(a);
+  if (!vB) return vA;
+  if (!vA) return vB;
+  if (!hasTh(acc)) {                                  // ก่อนหน้าเป็นเลขอารบิก เช่น 30000 + 500
+    const p = Math.pow(10, String(vB).length);
+    return vA % p === 0 ? vA + vB : parseInt(String(vA) + String(vB), 10);
+  }
+  return parseThaiNumber(acc + ' ' + a);              // ก่อนหน้าเป็นคำไทย เช่น สามหมื่น + สองพัน
+}
+function nextAcc(acc, a, v) { if (!acc) return hasTh(a) ? a : String(v); return hasTh(acc) ? acc + ' ' + a : String(v); }
+function pickNum(alts, acc) {
+  for (const t of alts) { const x = joinNum(acc, t); if (x > 0) return {v: x, txt: nextAcc(acc, t, x)}; }
+  return {v: 0, txt: acc};
+}
+// แสดงสิ่งที่เบราว์เซอร์ได้ยินจริงๆ ใต้จอ (ไว้ตรวจว่าฟังเพี้ยนตรงไหน)
+let heardT;
+function showHeard(alts, v) {
+  let b = document.getElementById('heardBox');
+  if (!b) {
+    b = document.createElement('div'); b.id = 'heardBox';
+    b.style.cssText = 'position:fixed;left:8px;right:8px;bottom:8px;z-index:99999;font:13px/1.35 system-ui,sans-serif;background:rgba(0,0,0,.78);color:#fff;border-radius:8px;padding:6px 10px;pointer-events:none;word-break:break-all';
+    document.body.appendChild(b);
+  }
+  b.textContent = 'ได้ยิน: ' + (alts || []).slice(0, 3).map(a => '“' + a + '”').join(' · ') + '  →  ' + (v ? Number(v).toLocaleString('en-US') : 'อ่านเป็นตัวเลขไม่ได้');
+  b.style.display = 'block';
+  clearTimeout(heardT); heardT = setTimeout(() => { b.style.display = 'none'; }, 9000);
+}
+const CONT_MS = 1700;   // รอพูดต่อหลังเบราว์เซอร์ตัดจบ ถ้าเงียบเกินนี้ถือว่าพูดครบแล้ว
 
 /* พูด (Web Speech API): ตัวเลขน้ำหนัก / ทะเบียนรถ / ท่าข้าว */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -2953,11 +3006,14 @@ function startMic(field, btn) {
   if (listening) { const same = micActive === btn; stopMic(); if (same) return; }
   const isNum = padFields.includes(field);
   micActive = btn;
+  let acc = '', lastV = 0, contT = null;
+  const finishNum = () => { clearTimeout(contT); stopMic(); if (lastV) toast('ได้ยิน ' + Number(lastV).toLocaleString('en-US') + ' กก.'); };
+  const begin = () => {
   rec = new SR();
   rec.lang = 'th-TH'; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 5;
   let redoing = false, stNum = null;
   rec.onresult = ev => {
-    clearTimeout(stNum);
+    clearTimeout(stNum); clearTimeout(contT);
     const res = ev.results[ev.results.length - 1], fin = res.isFinal;
     const alts = Array.from(res).map(a => a.transcript);
     if (voiceCmd(alts)) {                         // เอ้ย บ่แมน / เอาใหม่ → ลบช่องนี้ แล้วฟังใหม่ทันที
@@ -2984,23 +3040,34 @@ function startMic(field, btn) {
       else stNum = setTimeout(() => { if (rec) { stopMic(); $(field).dispatchEvent(new Event('change')); toast('ได้ยิน “' + t + '”', false, 3000); } }, QSTABLE_TXT_MS);
       return;
     }
-    let v = 0;
-    for (const t of alts) { v = parseThaiNumber(t); if (v > 0) break; }
+    const pk = pickNum(alts, acc), v = pk.v;
+    showHeard(alts, v);
     if (!v) { if (fin) toast('ได้ยินว่า “' + (alts[0] || '') + '” ไม่ใช่ตัวเลข ลองพูดใหม่ เช่น “หนึ่งหมื่นสองพัน”', true, 4000); return; }
     if (v > MAX) { if (fin) toast('เกิน ' + fmtMax() + ' ลองพูดใหม่', true); return; }
+    lastV = v;
     rollTo(field, v);   // ขึ้นทันทีระหว่างพูด ตัวเลขวิ่งขึ้นตามที่ได้ยิน
-    if (fin) toast('ได้ยิน ' + Number(v).toLocaleString('en-US') + ' กก.');
-    else stNum = setTimeout(() => { if (rec) { stopMic(); toast('ได้ยิน ' + Number(v).toLocaleString('en-US') + ' กก.'); } }, stableWait(alts, QSTABLE_MS));   // นิ่งแล้วจบเลย ไม่รอผลสุดท้าย
+    const w = stableWait([pk.txt], QSTABLE_MS);
+    if (fin) {
+      if (w > QSTABLE_MS) {   // เบราว์เซอร์ตัดจบแต่ยังอาจพูดต่อ (ค้างที่หน่วย/เลขกลม) → ฟังรอบใหม่ต่อจากเดิม
+        acc = pk.txt;
+        const old = rec; rec = null; try { old.onresult = old.onerror = old.onend = old.onstart = null; old.abort(); } catch (e) {}
+        setTimeout(begin, 60); contT = setTimeout(finishNum, CONT_MS);
+      } else { acc = ''; toast('ได้ยิน ' + Number(v).toLocaleString('en-US') + ' กก.'); }
+    }
+    else stNum = setTimeout(() => { if (rec) { stopMic(); toast('ได้ยิน ' + Number(v).toLocaleString('en-US') + ' กก.'); } }, w);   // นิ่งแล้วจบเลย ไม่รอผลสุดท้าย
   };
   rec.onerror = ev => {
     if (ev.error === 'aborted') return;
+    if (acc && ev.error === 'no-speech') return finishNum();
     const blocked = location.protocol === 'file:' ? ' (เปิดไฟล์จากเครื่องใช้ไมค์ไม่ได้ ต้องเปิดผ่านลิงก์ https)' : '';
     const m = {'not-allowed': 'ไม่ได้รับอนุญาตใช้ไมโครโฟน ให้อนุญาตในเบราว์เซอร์' + blocked, 'service-not-allowed': 'เบราว์เซอร์นี้ไม่อนุญาตให้ใช้การพูด' + blocked, 'no-speech': 'ไม่ได้ยินเสียง ลองพูดใกล้ไมค์แล้วแตะใหม่', 'audio-capture': 'ไม่พบไมโครโฟน', 'network': 'ต้องใช้อินเทอร์เน็ตสำหรับการพูด', 'language-not-supported': 'เครื่องนี้ยังไม่รองรับภาษาไทย'};
     toast((m[ev.error] || 'ใช้การพูดไม่ได้ในตอนนี้') + ' [' + ev.error + ']', true, 5000);
   };
-  rec.onstart = () => toast(field === 'plate' ? 'พูดทะเบียนรถได้เลย' : field === 'source' ? 'พูดชื่อท่าข้าวได้เลย' : 'พูดตัวเลขได้เลย');
-  rec.onend = () => { rec = null; micUI(false); };
+  rec.onstart = () => acc ? 0 : toast(field === 'plate' ? 'พูดทะเบียนรถได้เลย' : field === 'source' ? 'พูดชื่อท่าข้าวได้เลย' : 'พูดตัวเลขได้เลย');
+  rec.onend = () => { if (acc && lastV) return finishNum(); rec = null; micUI(false); };
   try { rec.start(); micUI(true); } catch (e) { rec = null; micUI(false); toast('เริ่มฟังไม่ได้ ลองใหม่', true); }
+  };
+  begin();
 }
 $('micBtn').addEventListener('click', () => startMic(cur, $('micBtn')));
 document.querySelectorAll('.vmic').forEach(b => b.addEventListener('click', e => {
@@ -3037,36 +3104,49 @@ function quickStop() {
 }
 function quickListen(field) {
   return new Promise(resolve => {
-    let done = false, heard = false;
-    const r = new SR(); qrec = r;
-    r.lang = 'th-TH'; r.interimResults = true; r.continuous = false; r.maxAlternatives = 5;
-    let tm = null, stT = null;
-    const fin = v => { if (done) return; done = true; clearTimeout(tm); clearTimeout(stT); if (qrec === r) qrec = null; try { r.onresult = r.onerror = r.onend = null; r.abort(); } catch (e) {} resolve(v); };
-    r.onresult = ev => {
-      clearTimeout(tm);   // เริ่มพูดแล้ว ยกเลิกการข้ามเมื่อเงียบ
-      const res = ev.results[ev.results.length - 1], final = res.isFinal;
-      const alts = Array.from(res).map(a => a.transcript);
-      const cmd = voiceCmd(alts);
-      if (cmd) return fin(cmd === 'all' ? 'restart' : 'redo');   // เอาใหม่ = เริ่มใหม่ทั้งหมด · เอ้ย บ่แมน = ช่องนี้ใหม่
-      if (field === 'tail' && alts.some(a => /ไม่มี|ข้าม|ไม่ต้อง|ผ่าน/.test(a))) return fin('skip');
-      let v = 0;
-      for (const t of alts) { v = parseThaiNumber(t); if (v > 0) break; }
-      if (v > MAX) { if (final) { toast('เกิน ' + fmtMax() + ' ลองพูดใหม่', true); fin('bad'); } return; }
-      if (v > 0) { heard = true; rollTo(field, v); clearTimeout(stT); if (final) fin('ok'); else stT = setTimeout(() => fin('ok'), stableWait(alts, QSTABLE_MS)); return; }
-      if (final) { toast('ได้ยินว่า “' + (alts[0] || '') + '” ไม่ใช่ตัวเลข ลองพูดใหม่', true, 2500); fin('bad'); }
+    let done = false, heard = false, acc = '', contT = null, tm = null, stT = null, cur = null;
+    const kill = r => { if (r) { try { r.onresult = r.onerror = r.onend = null; r.abort(); } catch (e) {} } };
+    const fin = v => { if (done) return; done = true; clearTimeout(tm); clearTimeout(stT); clearTimeout(contT); if (qrec === cur) qrec = null; kill(cur); resolve(v); };
+    const begin = () => {
+      if (done) return;
+      const r = new SR(); cur = r; qrec = r;
+      r.lang = 'th-TH'; r.interimResults = true; r.continuous = false; r.maxAlternatives = 5;
+      r.onresult = ev => {
+        clearTimeout(tm); clearTimeout(contT);   // เริ่มพูดแล้ว ยกเลิกการข้ามเมื่อเงียบ
+        const res = ev.results[ev.results.length - 1], final = res.isFinal;
+        const alts = Array.from(res).map(a => a.transcript);
+        const cmd = voiceCmd(alts);
+        if (cmd) return fin(cmd === 'all' ? 'restart' : 'redo');   // เอาใหม่ = เริ่มใหม่ทั้งหมด · เอ้ย บ่แมน = ช่องนี้ใหม่
+        if (field === 'tail' && alts.some(a => /ไม่มี|ข้าม|ไม่ต้อง|ผ่าน/.test(a))) return fin('skip');
+        const pk = pickNum(alts, acc), v = pk.v;
+        showHeard(alts, v);
+        if (v > MAX) { if (final) { toast('เกิน ' + fmtMax() + ' ลองพูดใหม่', true); fin('bad'); } return; }
+        if (v > 0) {
+          heard = true; rollTo(field, v); clearTimeout(stT);
+          const w = stableWait([pk.txt], QSTABLE_MS);
+          if (final) {
+            if (w > QSTABLE_MS) { acc = pk.txt; kill(r); setTimeout(begin, 60); contT = setTimeout(() => fin('ok'), CONT_MS); }   // ตัดจบแต่ยังอาจพูดต่อ → ฟังรอบใหม่ต่อจากเดิม
+            else fin('ok');
+          } else stT = setTimeout(() => fin('ok'), w);
+          return;
+        }
+        if (final) { if (acc) return fin('ok'); toast('ได้ยินว่า “' + (alts[0] || '') + '” ไม่ใช่ตัวเลข ลองพูดใหม่', true, 2500); fin('bad'); }
+      };
+      r.onerror = ev => {
+        if (ev.error === 'aborted') return;
+        if (ev.error === 'no-speech') return fin(acc ? 'ok' : 'silent');
+        const blocked = location.protocol === 'file:' ? ' (เปิดไฟล์จากเครื่องใช้ไมค์ไม่ได้ ต้องเปิดผ่านลิงก์ https)' : '';
+        const m = {'not-allowed': 'ไม่ได้รับอนุญาตใช้ไมโครโฟน ให้อนุญาตในเบราว์เซอร์' + blocked, 'service-not-allowed': 'เบราว์เซอร์นี้ไม่อนุญาตให้ใช้การพูด' + blocked, 'audio-capture': 'ไม่พบไมโครโฟน', 'network': 'ต้องใช้อินเทอร์เน็ตสำหรับการพูด', 'language-not-supported': 'เครื่องนี้ยังไม่รองรับภาษาไทย'};
+        toast((m[ev.error] || 'ใช้การพูดไม่ได้ในตอนนี้') + ' [' + ev.error + ']', true, 5000);
+        fin('error');
+      };
+      r.onend = () => fin(heard ? 'ok' : 'silent');
+      try { r.start(); } catch (e) { fin('error'); }
     };
-    r.onerror = ev => {
-      if (ev.error === 'aborted') return;
-      if (ev.error === 'no-speech') return fin('silent');
-      const blocked = location.protocol === 'file:' ? ' (เปิดไฟล์จากเครื่องใช้ไมค์ไม่ได้ ต้องเปิดผ่านลิงก์ https)' : '';
-      const m = {'not-allowed': 'ไม่ได้รับอนุญาตใช้ไมโครโฟน ให้อนุญาตในเบราว์เซอร์' + blocked, 'service-not-allowed': 'เบราว์เซอร์นี้ไม่อนุญาตให้ใช้การพูด' + blocked, 'audio-capture': 'ไม่พบไมโครโฟน', 'network': 'ต้องใช้อินเทอร์เน็ตสำหรับการพูด', 'language-not-supported': 'เครื่องนี้ยังไม่รองรับภาษาไทย'};
-      toast((m[ev.error] || 'ใช้การพูดไม่ได้ในตอนนี้') + ' [' + ev.error + ']', true, 5000);
-      fin('error');
-    };
-    r.onend = () => fin(heard ? 'ok' : 'silent');
     qSkipFn = field === 'tail' ? () => fin('skip') : null;
     $('qSkip').hidden = field !== 'tail';
-    try { r.start(); if (field === 'tail') tm = setTimeout(() => fin('silent'), QSKIP_MS); } catch (e) { fin('error'); }
+    if (field === 'tail') tm = setTimeout(() => fin('silent'), QSKIP_MS);
+    begin();
   });
 }
 async function quickRun() {
@@ -3081,7 +3161,6 @@ async function quickRun() {
       padFields.forEach(x => $(x).classList.toggle('active', x === f));
       if (f !== 'tail') $('qSkip').hidden = true;
       qMark(f);
-      $(f).closest('.fld').scrollIntoView({block: 'center', behavior: 'smooth'});
       quickUI(true, 'กำลังฟัง: ' + PADNAME[f] + (f === 'tail' ? ' (ไม่มี = แตะ “ข้าม” / พูดว่า “ไม่มี” / เงียบ 1.8 วินาที)' : '') + ' · “เอาใหม่” = ลบช่องนี้ · “เริ่มใหม่” = รีเซ็ตทั้งหมด');
       const r = await quickListen(f);
       if (quick !== me) return;
@@ -3097,7 +3176,6 @@ async function quickRun() {
   }
   quickStop();
   toast('เสร็จแล้ว ตรวจตัวเลขก่อนกดบันทึก', false, 3000);
-  $('result').scrollIntoView({block: 'center', behavior: 'smooth'});
 }
 $('quickMic').addEventListener('click', () => { if (quick) quickStop(); else quickRun(); });
 if (window.ResizeObserver) new ResizeObserver(() => document.documentElement.style.setProperty('--padh', $('pad').offsetHeight + 'px')).observe($('pad'));
@@ -3116,7 +3194,6 @@ function openPad(id) {
   document.body.classList.add('padopen');
   $('goKey').innerHTML = id === 'dest' ? ic('check') + 'เสร็จ' : 'ถัดไป ›';
   syncPad();
-  setTimeout(() => $(id).closest('.fld').scrollIntoView({block: 'start', behavior: 'smooth'}), 50);
 }
 function closePad() {
   stopMic(); setFresh(false);
@@ -3268,8 +3345,20 @@ function show() {
   const p = location.hash === '#hist' ? 'hist' : 'calc';
   Object.keys(PAGES).forEach(k => { $(PAGES[k]).hidden = k !== p; document.body.classList.toggle('on' + k, k === p); });
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.go === p));
+  document.documentElement.classList.toggle('noscroll', p === 'calc');
   window.scrollTo(0, 0);
 }
+// หน้าคำนวณ: กันลากนิ้วเลื่อนหน้า และดีดกลับถ้าเบราว์เซอร์เลื่อนเอง (เช่น ตอนโฟกัสช่อง) · กล่องตั้งค่า/รายการดรอปดาวน์ยังเลื่อนในตัวเองได้
+document.addEventListener('touchmove', e => {
+  if (!document.documentElement.classList.contains('noscroll') || document.documentElement.classList.contains('dlg-lock')) return;
+  if (e.touches && e.touches.length > 1) return;   // ซูมสองนิ้วไม่ยุ่ง
+  if (e.target.closest && e.target.closest('.dlg-box, .dd-list, select, textarea')) return;
+  e.preventDefault();
+}, {passive: false});
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  if (h.classList.contains('noscroll') && !h.classList.contains('dlg-lock') && (window.scrollY || h.scrollTop)) window.scrollTo(0, 0);
+}, {passive: true});
 function renderMenu() { $('tabCount').textContent = records.length; $('tabCount').hidden = !records.length; }
 document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) location.hash = b.dataset.go; });
 window.addEventListener('hashchange', show);
