@@ -797,7 +797,7 @@ main{padding-top:12px}
 .sum.collapsed .sumhd>svg{margin-left:0}
 .sum[data-st="warn"] .sumMini{background:var(--warn-soft);color:var(--warn-ink)}
 .sum[data-st="bad"] .sumMini{background:var(--bad-soft);color:var(--bad-ink)}
-.sum.collapsed .sumbody{display:none}
+
 .sumbody .stats{margin-bottom:8px}
 /* กล่องสรุป: 3 ช่องอยู่แถวเดียว */
 .stats{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.3fr);gap:6px;margin-bottom:8px;align-items:stretch}
@@ -1989,7 +1989,7 @@ html.noshadow .bar{box-shadow:0 -1px 0 var(--line)!important}
 #pCalc .card .grp.plate.collapsed .plhd .plmini:empty{display:none}
 #pCalc .card .grp.plate.collapsed .plhd .plmini:empty ~ svg{margin-left:auto}
 #pCalc .card .grp.plate.collapsed .plhd svg{transform:rotate(-90deg)}
-#pCalc .card .grp.plate.collapsed #plBody{display:none}
+
 #pCalc .card .grp.plate.collapsed{padding-top:6px!important;padding-bottom:6px!important}
 /* กันดึงหน้าลงแล้วรีเฟรชเอง (pull-to-refresh) บนมือถือ — เลื่อนหน้าตามปกติยังได้ */
 html,body{overscroll-behavior-y:none}
@@ -2008,6 +2008,16 @@ html.noscroll,html.noscroll body{overflow:hidden;height:100%;overscroll-behavior
 .qover>*{pointer-events:auto}
 #qStatus{position:static!important;flex:1 1 auto;min-width:0;max-width:none!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.8rem;padding:7px 12px}
 #qSkip{position:static!important;flex:none;padding:7px 14px;font-size:.85rem}
+
+/* ===== ย่อ/ขยายแบบสมูท ===== */
+.sumbody,#plBody,#bysrcList{--sm-t:.5s;--sm-e:cubic-bezier(.4,0,.2,1);
+  transition:height var(--sm-t) var(--sm-e),opacity .35s ease,visibility 0s}
+.sum.collapsed .sumbody,#pCalc .card .grp.plate.collapsed #plBody{height:0;opacity:0;visibility:hidden;overflow:hidden;
+  transition:height var(--sm-t) var(--sm-e),opacity .3s ease,visibility 0s var(--sm-t)}
+.sumbody.anim,#plBody.anim,#bysrcList.anim{overflow:hidden}
+.sumhd{transition:margin-bottom var(--sm-t,.5s) cubic-bezier(.4,0,.2,1)}
+.sumhd>svg,#pCalc .card .grp.plate .plhd svg,.bysrc summary::after{transition:transform .5s cubic-bezier(.4,0,.2,1)!important}
+#pCalc .card .grp.plate{transition:padding .5s cubic-bezier(.4,0,.2,1)}
 </style>
 <script>
 /* สีธีมเว็บ: คำนวณชุดสีจากสีหลักสีเดียว แล้วทับตัวแปร CSS (สีเขียวเดิม = ไม่ทับอะไร) */
@@ -2793,11 +2803,38 @@ $('reset').onclick = async () => {
   $('source').value = ''; closePad(); resetForm(true, false, true);
 };
 $('exportBtn').onclick = exportCSV;
+window.smoothToggle = function (body, change, collapsing) {
+  if (!body || !body.getClientRects().length) { change(); return; }
+  clearTimeout(body._t);
+  if (body._end) body.removeEventListener('transitionend', body._end);
+  var cur = body.offsetHeight;
+  body.classList.add('anim');
+  var done = function () {
+    clearTimeout(body._t); body.removeEventListener('transitionend', body._end);
+    body.style.height = ''; body.classList.remove('anim');
+  };
+  body._end = function (e) { if (e.target === body && e.propertyName === 'height') done(); };
+  body.addEventListener('transitionend', body._end);
+  body.style.height = cur + 'px';
+  void body.offsetHeight;
+  if (collapsing) { change(); body.style.height = '0px'; }
+  else { change(); void body.offsetHeight; body.style.height = body.scrollHeight + 'px'; }
+  body._t = setTimeout(done, 800);
+};
+(function () {
+  var d = document.getElementById('bysrc'); if (!d) return;
+  var sm = d.querySelector('summary'), box = document.getElementById('bysrcList');
+  sm.addEventListener('click', function (e) {
+    e.preventDefault();
+    if (d.open) smoothToggle(box, function () {}, true), setTimeout(function () { d.open = false; box.style.height = ''; }, 520);
+    else { d.open = true; box.style.height = '0px'; smoothToggle(box, function () {}, false); }
+  });
+})();
 (function () {
   const K = 'check-rice-sum-collapsed', box = $('sum'), hd = $('sumHd');
   const apply = c => { box.classList.toggle('collapsed', c); hd.setAttribute('aria-expanded', String(!c)); };
   try { apply(localStorage.getItem(K) === '1'); } catch (e) {}
-  hd.onclick = () => { const c = !box.classList.contains('collapsed'); apply(c); try { localStorage.setItem(K, c ? '1' : '0'); } catch (e) {} };
+  hd.onclick = () => { const c = !box.classList.contains('collapsed'); smoothToggle($('sumBody'), () => apply(c), c); try { localStorage.setItem(K, c ? '1' : '0'); } catch (e) {} };
 })();
 $('fq').addEventListener('input', render); $('fd').addEventListener('change', render); $('fs').addEventListener('change', render);
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname)))
@@ -3681,7 +3718,7 @@ document.addEventListener('wheel',function(ev){if(ev.ctrlKey)ev.preventDefault()
   }
   hd.addEventListener('click', function () {
     var c = !g.classList.contains('collapsed');
-    apply(c);
+    smoothToggle(document.getElementById('plBody'), function () { apply(c); }, c);
     try { localStorage.setItem(K, c ? '1' : '0'); } catch (e) {}
   });
   var saved = null; try { saved = localStorage.getItem(K); } catch (e) {}
