@@ -1995,6 +1995,19 @@ html.noshadow .bar{box-shadow:0 -1px 0 var(--line)!important}
 html,body{overscroll-behavior-y:none}
 /* หน้าคำนวณ: ห้ามเลื่อนขึ้นลง (จัดขนาดให้พอดีจอแล้ว) · หน้าประวัติยังเลื่อนได้ตามปกติ */
 html.noscroll,html.noscroll body{overflow:hidden;height:100%;overscroll-behavior:none}
+/* ไมค์ด่วน: คร่อมรอยต่อระหว่างช่องกรอกกับผลส่วนต่าง · ลอยแบบไม่กินที่ ขนาดหน้าจึงเท่าเดิม */
+#pCalc section.card.form{position:relative}
+.qrow{position:absolute;left:0;right:0;top:calc(100% + var(--qg,12px) / 2);height:0;margin:0;z-index:9}
+#quickMic{position:absolute!important;left:auto;top:0;right:calc(-1 * var(--qr,0px));bottom:auto;transform:translateY(-50%);display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:58px;height:62px;padding:0 2px 0 8px;border-radius:31px 0 0 31px!important;font-size:.66rem;font-weight:700;line-height:1.1;white-space:nowrap;box-shadow:-4px 6px 16px -6px rgba(217,45,32,.6)}
+#quickMic svg{width:24px;height:24px;flex:none}
+#quickMic.pressed{transform:translateY(-50%) scale(.95);transform-origin:right center}
+#quickMic.on{box-shadow:inset 0 0 0 2px #d92d20,-4px 6px 16px -6px rgba(217,45,32,.5)}
+/* เว้นที่ให้ปุ่มไมค์ด่วนที่ยื่นลงมาทับมุมขวาบนของกล่องส่วนต่าง: ดันข้อความสมการเข้ามาทางซ้าย */
+#pCalc .result .eq{margin-right:max(0px,calc(58px - var(--qr,0px) + 8px))}
+.qover{position:absolute;left:12px;right:calc(-1 * var(--qr,0px));top:38px;z-index:9;display:flex;gap:8px;align-items:stretch;pointer-events:none}
+.qover>*{pointer-events:auto}
+#qStatus{position:static!important;flex:1 1 auto;min-width:0;max-width:none!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.8rem;padding:7px 12px}
+#qSkip{position:static!important;flex:none;padding:7px 14px;font-size:.85rem}
 </style>
 <script>
 /* สีธีมเว็บ: คำนวณชุดสีจากสีหลักสีเดียว แล้วทับตัวแปร CSS (สีเขียวเดิม = ไม่ทับอะไร) */
@@ -2094,6 +2107,10 @@ html.noscroll,html.noscroll body{overflow:hidden;height:100%;overscroll-behavior
     <div class="grp dest">
       <div class="ghrow dfield"><div class="gh"><svg class="ic" viewBox="0 0 24 24" role="img" aria-label="ปลายทาง"><path d="M3 20V11l6 3.5V11l6 3.5V8h3V4h3v16z"/><path d="M7 17h.01M11.5 17h.01M16 17h.01"/></svg></div><div class="dtitle"><b>ปลายทาง</b><span>น้ำหนักสุทธิ</span></div><div class="fld"><label class="dl" for="dest">น้ำหนักสุทธิ</label><div class="nf"><input id="dest" class="num" type="text" inputmode="none" readonly placeholder="0" aria-label="น้ำหนักปลายทาง กก."><button class="vmic" type="button" data-vf="dest" aria-label="พูดตัวเลขปลายทาง"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div></div></div>
     </div>
+  <div class="qrow">
+    <button id="quickMic" type="button" aria-label="ไมค์ด่วน: พูดใบชั่ง 1, 2 และน้ำหนักปลายทางต่อเนื่อง"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="qTx">ไมค์ด่วน</span></button>
+    <div class="qover"><div id="qStatus" role="status" aria-live="polite" hidden></div><button id="qSkip" type="button" hidden>ข้าม ›</button></div>
+  </div>
   </section>
   <section class="result" id="result" aria-live="polite">
     <div class="lbl">ส่วนต่าง</div>
@@ -2128,9 +2145,6 @@ html.noscroll,html.noscroll body{overflow:hidden;height:100%;overscroll-behavior
 </div>
 </main>
 
-<button id="quickMic" type="button" aria-label="ไมค์ด่วน: พูดใบชั่ง 1, 2 และน้ำหนักปลายทางต่อเนื่อง"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="qTx">ไมค์ด่วน</span></button>
-<div id="qStatus" role="status" aria-live="polite" hidden></div>
-<button id="qSkip" type="button" hidden>ไม่มีใบชั่ง 2 · ข้าม ›</button>
 <div class="bar">
   <button class="btn ghost" id="reset"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>เริ่มใหม่</button>
   <button class="btn save" id="save"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>บันทึก</button>
@@ -3161,7 +3175,7 @@ async function quickRun() {
       padFields.forEach(x => $(x).classList.toggle('active', x === f));
       if (f !== 'tail') $('qSkip').hidden = true;
       qMark(f);
-      quickUI(true, 'กำลังฟัง: ' + PADNAME[f] + (f === 'tail' ? ' (ไม่มี = แตะ “ข้าม” / พูดว่า “ไม่มี” / เงียบ 1.8 วินาที)' : '') + ' · “เอาใหม่” = ลบช่องนี้ · “เริ่มใหม่” = รีเซ็ตทั้งหมด');
+      quickUI(true, 'กำลังฟัง: ' + PADNAME[f] + (f === 'tail' ? ' · ไม่มี = แตะข้าม/เงียบ' : ' · “เอาใหม่” = ลบ'));
       const r = await quickListen(f);
       if (quick !== me) return;
       if (r === 'ok') break;
@@ -3350,6 +3364,7 @@ function show() {
   fitCalc(true);
 }
 // หน้าคำนวณ: ย่อเนื้อหาให้พอดีจอเสมอ (ไม่ต้องเลื่อน เห็นช่องกรอกและผลส่วนต่างครบ) · คำนวณใหม่เมื่อจอเปลี่ยน แป้นตัวเลขเปิด/ปิด หรือข้อความผลลัพธ์เปลี่ยน
+const FIT_TWEEN = false;
 let maxResH = 0, resT = 0, fitRaf = 0, curK = 1, tweenRaf = 0, tweening = false, fitDirty = false;
 const useZoom = 'zoom' in document.body.style;
 function applyK(pg, k) {
@@ -3371,6 +3386,12 @@ function measureK(pg) {                          // วัดขนาดจร�
     const h = rs.offsetHeight;
     if (h > maxResH) maxResH = h;
     rs.style.minHeight = maxResH + 'px';
+    const fm = pg.querySelector('section.card.form');
+    if (fm) { const g = rs.getBoundingClientRect().top - fm.getBoundingClientRect().bottom; if (g >= 0 && g < 60) { const v = g.toFixed(1) + 'px'; if (fm.style.getPropertyValue('--qg') !== v) fm.style.setProperty('--qg', v); }
+      // ระยะจากขอบกล่องถึงขอบจอ/ขอบคอลัมน์ ให้ปุ่มไมค์ชิดขอบเหมือนเดิม
+      const cw = document.documentElement.clientWidth, qr = Math.max(0, cw - Math.max(0, (cw - 560) / 2) - fm.getBoundingClientRect().right).toFixed(1) + 'px';
+      if (pg.style.getPropertyValue('--qr') !== qr) pg.style.setProperty('--qr', qr);
+    }
   }
   const r = pg.getBoundingClientRect();
   applyK(pg, keep);
@@ -3384,7 +3405,7 @@ function fitCalc(instant) {
   const t = measureK(pg);
   if (Math.abs(t - curK) < 0.004) return;
   cancelAnimationFrame(tweenRaf);
-  if (instant === true) { tweening = false; applyK(pg, t); return; }
+  if (instant === true || !FIT_TWEEN) { tweening = false; applyK(pg, t); return; }   // เลย์เอาต์เปลี่ยนทันที (เช่น พับ/กางทะเบียน เปิดแป้น) ย่อขยายต้องเปลี่ยนพร้อมกันในเฟรมเดียว ไม่งั้นลายตา
   const from = curK, t0 = performance.now(), dur = 220;
   tweening = true; fitDirty = false;
   const step = now => {
@@ -3395,21 +3416,21 @@ function fitCalc(instant) {
   };
   tweenRaf = requestAnimationFrame(step);
 }
-function fitSoon() { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(() => fitCalc()); }
+function fitSoon() { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(() => fitCalc(true)); }
 window.addEventListener('resize', () => { maxResH = 0; fitCalc(true); });
 window.addEventListener('orientationchange', () => setTimeout(fitSoon, 250));
 window.addEventListener('load', () => { fitCalc(true); setTimeout(() => fitCalc(true), 400); });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitSoon);
 try {
   new MutationObserver(ms => {
-    const rel = ms.filter(m => !(m.attributeName === 'style' && (m.target.id === 'pCalc' || m.target.id === 'result')));
+    const rel = ms.filter(m => !(m.attributeName === 'style' && (m.target.id === 'pCalc' || m.target.id === 'result' || (m.target.matches && m.target.matches('section.card.form')))));
     if (!rel.length) return;
     const inRes = m => { const e = m.target.nodeType === 3 ? m.target.parentElement : m.target; return e && e.closest && e.closest('#result'); };
-    if (rel.every(inRes)) { clearTimeout(resT); resT = setTimeout(() => fitCalc(), 220); }   // ส่วนต่างกำลังเปลี่ยน/ตัวเลขวิ่ง: รอให้นิ่งก่อนค่อยปรับ
-    else fitSoon();
+    if (rel.every(inRes)) { clearTimeout(resT); resT = setTimeout(() => fitCalc(true), 220); }   // ส่วนต่างกำลังเปลี่ยน/ตัวเลขวิ่ง: รอให้นิ่งก่อนค่อยปรับ
+    else fitCalc(true);   // ปรับก่อนวาดเฟรมถัดไป ภาพกับขนาดเปลี่ยนพร้อมกัน
   })
     .observe(document.getElementById('pCalc'), {childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'hidden', 'style']});
-  new MutationObserver(fitSoon).observe(document.body, {attributes: true, attributeFilter: ['class']});
+  new MutationObserver(() => fitCalc(true)).observe(document.body, {attributes: true, attributeFilter: ['class']});
 } catch (e) {}
 // หน้าคำนวณ: กันลากนิ้วเลื่อนหน้า และดีดกลับถ้าเบราว์เซอร์เลื่อนเอง (เช่น ตอนโฟกัสช่อง) · กล่องตั้งค่า/รายการดรอปดาวน์ยังเลื่อนในตัวเองได้
 document.addEventListener('touchmove', e => {
